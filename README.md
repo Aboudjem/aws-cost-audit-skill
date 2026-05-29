@@ -22,6 +22,12 @@
 
 ---
 
+![aws-cost-audit demo](assets/demo.gif)
+
+<p align="center"><sub>Ask Claude to audit your bill, get an evidence-first savings plan. All figures shown are <b>illustrative</b> (synthetic data, no real account).</sub></p>
+
+---
+
 ## What is this?
 
 It is a [Claude Code](https://www.claude.com/product/claude-code) skill that audits your AWS account for you.
