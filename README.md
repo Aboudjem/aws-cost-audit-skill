@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/hero.png" alt="AWS Cost Audit: an executable, evidence-first AWS cost auditor for Claude Code" width="100%">
+  <img src="assets/hero.svg" alt="AWS Cost Audit: an executable, evidence-first AWS cost auditor for Claude Code" width="100%">
 </p>
 
 <h1 align="center">AWS Cost Audit Skill</h1>
