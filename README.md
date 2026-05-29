@@ -84,6 +84,20 @@ That is the whole thing. Nothing is changed in your account unless you ask, and 
 - **An optional dashboard.** A single self-contained HTML page a non-technical person can read. See [`examples/sample-dashboard.html`](examples/sample-dashboard.html) and a [sample report](examples/sample-report.md).
 - **Guardrails.** It checks whether you have budgets and cost-anomaly alerts, and helps you set them.
 
+## What a run looks like
+
+No recording exists yet (AWS calls require live credentials — see the deferred items note in [CONTRIBUTING.md](CONTRIBUTING.md)). Here is what happens step by step, mirrored in the [sample report](examples/sample-report.md) and the [sample dashboard](examples/sample-dashboard.html) (both use synthetic data, clearly labelled):
+
+1. **Identity check.** `aws sts get-caller-identity` confirms the account and region before anything else runs.
+2. **Spend baseline.** Cost Explorer (`aws ce get-cost-and-usage`) pulls the trailing 30 and 90-day spend, broken down by service and region. You see a table: service → $/mo → share of total.
+3. **Resource inventory.** The skill fans out across every enabled region, listing EC2 instances, EBS volumes, RDS instances, NAT Gateways, load balancers, S3 buckets, Lambda functions, CloudWatch log groups, Snapshots, AMIs, Elastic IPs, and more. Nothing is modified.
+4. **Waste detection.** Each resource is checked against the hunt list (`skills/aws-cost-audit/references/hunt-list.md`): idle CPU, unattached volumes, old snapshots, gp2 volumes, over-retained logs, missing Savings Plan coverage, etc.
+5. **Live price verification.** For every candidate saving, the skill fetches the live, region-specific unit price from the AWS Price List Query API — no memorised rates. It shows `unit price → math → source` for every dollar figure.
+6. **Evidence-backed report.** Findings are written as `current $/mo → after $/mo → $ saved · confidence · evidence · reversibility`, split into "save now safely" (High-confidence, reversible, tested) and "maximum theoretical save". See [`examples/sample-report.md`](examples/sample-report.md) for the exact shape.
+7. **Optional dashboard.** An HTML file is generated from the findings — open it in any browser. See [`examples/sample-dashboard.html`](examples/sample-dashboard.html).
+
+A real run on a mid-size AWS account typically surfaces findings within a few minutes of the first Cost Explorer call. The read-only phase completes before any remediation suggestion is made.
+
 ## Why you can trust the numbers
 
 Most "cut your AWS bill" advice is generic, or it is a tool that quotes a price from memory. This skill is built around five rules it will not break:
@@ -142,6 +156,19 @@ The skill is in [`skills/aws-cost-audit/SKILL.md`](skills/aws-cost-audit/SKILL.m
 - [`output-and-reporting.md`](skills/aws-cost-audit/references/output-and-reporting.md): the report shape and the per-finding contract.
 
 Helper scripts in [`scripts/`](skills/aws-cost-audit/scripts) are dry-run by default. See the [quickstart](docs/quickstart.md) for a guided first run.
+
+## Editor support
+
+This skill is designed for **Claude Code**. It works by loading `SKILL.md` into the Claude Code context and shelling out to the AWS CLI — so it requires Claude Code as the runtime.
+
+Other AI editors (Cursor, VS Code with Copilot, Windsurf, Codex, Gemini CLI) do not use the Claude Code plugin or skill format natively. If you are using one of those editors, the most practical path is:
+
+1. Install the AWS CLI and configure your credentials as normal.
+2. Copy `skills/aws-cost-audit/SKILL.md` and the `references/` folder into your project (or a personal context directory your editor reads).
+3. Point your editor at the SKILL.md content as a system prompt or custom instruction.
+4. Run the helper scripts in `skills/aws-cost-audit/scripts/` directly — they are plain shell scripts that depend only on the AWS CLI, not on Claude Code.
+
+The skill's logic (Iron Laws, workflow, safety gates) is fully portable. Only the *installation mechanism* (plugin system, `/skill` auto-discovery) is Claude Code-specific.
 
 ## Contributing
 
