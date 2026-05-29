@@ -31,6 +31,11 @@
       #s3 { animation: reveal 12s ease-in-out infinite -7.4s;  }
       @keyframes breathe { 0%,100%{opacity:0.55} 50%{opacity:1} }
       .badgepulse { animation: breathe 6s ease-in-out infinite; }
+      @media (prefers-reduced-motion: reduce) {
+        * { animation: none !important; }
+        .step { opacity: 1 !important; transform: none !important; }
+        .badgepulse { opacity: 1 !important; }
+      }
     </style>
   </defs>
 
@@ -58,7 +63,7 @@
     <text x="150" y="157" text-anchor="middle" class="num">1</text>
     <text x="64" y="208" class="eyebr">RE-BASELINE</text>
     <text x="64" y="234" class="head">Re-baseline live</text>
-    <text x="64" y="258" class="body">Pull real numbers from Cost Explorer.</text>
+    <text x="64" y="258" class="body">Pull real numbers from Cost Explorer, read-only.</text>
   </g>
 
   <!-- STEP 2 -->

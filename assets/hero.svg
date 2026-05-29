@@ -25,6 +25,9 @@
       .amt2 { fill:#3FB6B2; font-size:14px; font-weight:600; }
       @keyframes drift { 0%,100%{transform:translateX(0)} 50%{transform:translateX(10px)} }
       .sweep { animation: drift 9s ease-in-out infinite; }
+      @media (prefers-reduced-motion: reduce) {
+        * { animation: none !important; }
+      }
     </style>
   </defs>
 
@@ -80,23 +83,23 @@
   <g transform="translate(900,236)">
     <text x="0" y="0" class="lbl">ILLUSTRATIVE</text>
     <!-- numeric readout via swapped text layers (one visible at a time) -->
-    <text x="0" y="30" class="amt" text-anchor="start">
+    <text x="0" y="30" class="amt" text-anchor="start" opacity="1">
       <tspan>$48,200</tspan>
       <animate attributeName="opacity" values="1;1;0;0;0;0;1" keyTimes="0;0.18;0.2;0.55;0.9;0.97;1" dur="11s" repeatCount="indefinite"/>
     </text>
-    <text x="0" y="30" class="amt" text-anchor="start">
+    <text x="0" y="30" class="amt" text-anchor="start" opacity="0">
       <tspan>$39,640</tspan>
       <animate attributeName="opacity" values="0;0;1;0;0;0;0" keyTimes="0;0.2;0.28;0.36;0.9;0.97;1" dur="11s" repeatCount="indefinite"/>
     </text>
-    <text x="0" y="30" class="amt" text-anchor="start">
+    <text x="0" y="30" class="amt" text-anchor="start" opacity="0">
       <tspan>$34,110</tspan>
       <animate attributeName="opacity" values="0;0;0;1;0;0;0" keyTimes="0;0.28;0.36;0.46;0.9;0.97;1" dur="11s" repeatCount="indefinite"/>
     </text>
-    <text x="0" y="30" class="amt" text-anchor="start">
+    <text x="0" y="30" class="amt" text-anchor="start" opacity="0">
       <tspan>$30,850</tspan>
       <animate attributeName="opacity" values="0;0;0;0;1;1;0" keyTimes="0;0.36;0.46;0.55;0.9;0.97;1" dur="11s" repeatCount="indefinite"/>
     </text>
-    <text x="0" y="52" class="amt2" text-anchor="start">
+    <text x="0" y="52" class="amt2" text-anchor="start" opacity="0">
       <tspan>&#8595; waste, removed safely</tspan>
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.5;0.6;0.9;1" dur="11s" repeatCount="indefinite"/>
     </text>
@@ -118,6 +121,11 @@
       <rect x="0" y="-14" width="160" height="22" rx="11" fill="#11161F" stroke="#1B2230"/>
       <circle cx="16" cy="-3" r="3" fill="#FF9900"/>
       <text x="28" y="1">verified live</text>
+    </g>
+    <g transform="translate(496,0)">
+      <rect x="0" y="-14" width="196" height="22" rx="11" fill="#11161F" stroke="#1B2230"/>
+      <circle cx="16" cy="-3" r="3" fill="#E6EDF3"/>
+      <text x="28" y="1">read-only by default</text>
     </g>
   </g>
 </svg>
