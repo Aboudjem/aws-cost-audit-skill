@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360" role="img" aria-labelledby="t d" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <title id="t">AWS Cost Audit</title>
+  <desc id="d">Banner for the AWS Cost Audit skill. A horizontal spend bar slowly contracts while a dollar readout ticks down, signalling waste being removed from a live AWS account.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0D1117"/>
+      <stop offset="1" stop-color="#0B0E14"/>
+    </linearGradient>
+    <linearGradient id="spend" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#F0883E"/>
+      <stop offset="1" stop-color="#FF9900"/>
+    </linearGradient>
+    <linearGradient id="saved" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2C7A77"/>
+      <stop offset="1" stop-color="#3FB6B2"/>
+    </linearGradient>
+    <clipPath id="track"><rect x="64" y="250" width="800" height="14" rx="7"/></clipPath>
+    <style>
+      .ttl  { fill:#E6EDF3; font-size:62px; font-weight:700; letter-spacing:-1px; }
+      .tag  { fill:#9FB0C0; font-size:20px; font-weight:500; letter-spacing:0.5px; }
+      .sub  { fill:#6E7B8A; font-size:16px; font-weight:400; }
+      .lbl  { fill:#6E7B8A; font-size:13px; font-weight:500; letter-spacing:0.6px; }
+      .amt  { fill:#E6EDF3; font-size:22px; font-weight:600; font-variant-numeric:tabular-nums; }
+      .amt2 { fill:#3FB6B2; font-size:14px; font-weight:600; }
+      @keyframes drift { 0%,100%{transform:translateX(0)} 50%{transform:translateX(10px)} }
+      .sweep { animation: drift 9s ease-in-out infinite; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="360" fill="url(#bg)"/>
+  <rect width="1200" height="360" fill="none" stroke="#1B2230" stroke-width="1"/>
+
+  <!-- faint grid dots, top-right -->
+  <g fill="#1B2230">
+    <circle cx="980" cy="70" r="2"/><circle cx="1020" cy="70" r="2"/><circle cx="1060" cy="70" r="2"/><circle cx="1100" cy="70" r="2"/><circle cx="1140" cy="70" r="2"/>
+    <circle cx="980" cy="106" r="2"/><circle cx="1020" cy="106" r="2"/><circle cx="1060" cy="106" r="2"/><circle cx="1100" cy="106" r="2"/><circle cx="1140" cy="106" r="2"/>
+    <circle cx="980" cy="142" r="2"/><circle cx="1020" cy="142" r="2"/><circle cx="1060" cy="142" r="2"/><circle cx="1100" cy="142" r="2"/><circle cx="1140" cy="142" r="2"/>
+  </g>
+
+  <!-- accent tick + eyebrow -->
+  <rect x="64" y="58" width="34" height="3" rx="1.5" fill="#FF9900"/>
+  <text x="108" y="64" class="lbl">EXECUTABLE CLAUDE CODE SKILL</text>
+
+  <!-- title -->
+  <text x="62" y="148" class="ttl">AWS Cost Audit</text>
+
+  <!-- tagline -->
+  <text x="64" y="186" class="tag">Executable · Evidence-first · Safe by default</text>
+
+  <!-- sub-line -->
+  <text x="64" y="216" class="sub">Read your live AWS account &#8594; find waste &#8594; ship a savings plan you can trust.</text>
+
+  <!-- spend bar -->
+  <text x="64" y="242" class="lbl">MONTHLY SPEND</text>
+  <g clip-path="url(#track)">
+    <rect x="64" y="250" width="800" height="14" rx="7" fill="#161B22"/>
+    <!-- spend portion: shrinks as waste is cut -->
+    <rect x="64" y="250" width="800" height="14" rx="7" fill="url(#spend)">
+      <animate attributeName="width" values="800;800;512;512;800" keyTimes="0;0.18;0.55;0.9;1" dur="11s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1"/>
+    </rect>
+    <!-- recovered/savings portion fills the freed space -->
+    <rect x="576" y="250" width="288" height="14" rx="7" fill="url(#saved)" opacity="0">
+      <animate attributeName="x" values="864;864;576;576;864" keyTimes="0;0.18;0.55;0.9;1" dur="11s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1"/>
+      <animate attributeName="width" values="0;0;288;288;0" keyTimes="0;0.18;0.55;0.9;1" dur="11s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1"/>
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.16;0.55;0.92;1" dur="11s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- scanning sweep line over the bar -->
+  <g class="sweep">
+    <line x1="64" y1="244" x2="64" y2="270" stroke="#58A6FF" stroke-width="2" opacity="0.0">
+      <animate attributeName="x1" values="64;864;864" keyTimes="0;0.16;1" dur="11s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="64;864;864" keyTimes="0;0.16;1" dur="11s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;0.9;0.9;0;0" keyTimes="0;0.02;0.15;0.18;1" dur="11s" repeatCount="indefinite"/>
+    </line>
+  </g>
+
+  <!-- dollar readout, ticks down -->
+  <g transform="translate(900,236)">
+    <text x="0" y="0" class="lbl">ILLUSTRATIVE</text>
+    <!-- numeric readout via swapped text layers (one visible at a time) -->
+    <text x="0" y="30" class="amt" text-anchor="start">
+      <tspan>$48,200</tspan>
+      <animate attributeName="opacity" values="1;1;0;0;0;0;1" keyTimes="0;0.18;0.2;0.55;0.9;0.97;1" dur="11s" repeatCount="indefinite"/>
+    </text>
+    <text x="0" y="30" class="amt" text-anchor="start">
+      <tspan>$39,640</tspan>
+      <animate attributeName="opacity" values="0;0;1;0;0;0;0" keyTimes="0;0.2;0.28;0.36;0.9;0.97;1" dur="11s" repeatCount="indefinite"/>
+    </text>
+    <text x="0" y="30" class="amt" text-anchor="start">
+      <tspan>$34,110</tspan>
+      <animate attributeName="opacity" values="0;0;0;1;0;0;0" keyTimes="0;0.28;0.36;0.46;0.9;0.97;1" dur="11s" repeatCount="indefinite"/>
+    </text>
+    <text x="0" y="30" class="amt" text-anchor="start">
+      <tspan>$30,850</tspan>
+      <animate attributeName="opacity" values="0;0;0;0;1;1;0" keyTimes="0;0.36;0.46;0.55;0.9;0.97;1" dur="11s" repeatCount="indefinite"/>
+    </text>
+    <text x="0" y="52" class="amt2" text-anchor="start">
+      <tspan>&#8595; waste, removed safely</tspan>
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.5;0.6;0.9;1" dur="11s" repeatCount="indefinite"/>
+    </text>
+  </g>
+
+  <!-- footer chips -->
+  <g transform="translate(64,312)" class="lbl">
+    <g>
+      <rect x="0" y="-14" width="150" height="22" rx="11" fill="#11161F" stroke="#1B2230"/>
+      <circle cx="16" cy="-3" r="3" fill="#3FB6B2"/>
+      <text x="28" y="1">gated actions</text>
+    </g>
+    <g transform="translate(166,0)">
+      <rect x="0" y="-14" width="138" height="22" rx="11" fill="#11161F" stroke="#1B2230"/>
+      <circle cx="16" cy="-3" r="3" fill="#58A6FF"/>
+      <text x="28" y="1">reversible</text>
+    </g>
+    <g transform="translate(320,0)">
+      <rect x="0" y="-14" width="160" height="22" rx="11" fill="#11161F" stroke="#1B2230"/>
+      <circle cx="16" cy="-3" r="3" fill="#FF9900"/>
+      <text x="28" y="1">verified live</text>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!--
+  SAMPLE — SYNTHETIC DATA. NOT A REAL AUDIT.
+  ==========================================
+  Generated from assets/dashboard-template.html with obviously-fake numbers for the
+  account alias "<demo-account>". Every figure here is invented for layout review only.
+  A real run substitutes VERIFIED values (live prices + actual usage). Do not treat any
+  number on this page as a real AWS price or cost.
+-->
+<title>AWS cost audit — SAMPLE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0a0a0c;
+  --panel:#101013;
+  --panel-2:#15151a;
+  --panel-3:#1c1c22;
+  --border:#1f1f24;
+  --border-2:#2b2b33;
+  --border-hl:#3a3a44;
+  --t:#ececef;
+  --t2:#9b9ba3;
+  --t3:#65656d;
+  --t4:#3f3f47;
+  --accent:#60a5fa;
+  --accent-2:#3b82f6;
+  --green:#34d399;
+  --green-soft:rgba(52,211,153,.10);
+  --green-bd:rgba(52,211,153,.28);
+  --red:#fda4af;
+  --red-strong:#f87171;
+  --red-soft:rgba(248,113,113,.10);
+  --red-bd:rgba(248,113,113,.30);
+  --yellow:#fde68a;
+  --yellow-soft:rgba(253,230,138,.09);
+  --yellow-bd:rgba(253,230,138,.26);
+  --orange:#fbbf24;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+
+/* SAMPLE BANNER */
+.sample-banner{background:repeating-linear-gradient(45deg,rgba(251,191,36,.10),rgba(251,191,36,.10) 12px,rgba(251,191,36,.04) 12px,rgba(251,191,36,.04) 24px);border-bottom:1px solid var(--yellow-bd);color:var(--yellow);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;text-align:center;padding:8px 16px}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:50;background:rgba(10,10,12,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+header .brand{font-weight:600;font-size:14px;color:var(--t);letter-spacing:-.01em}
+header .meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);font-weight:500}
+header .sp{flex:1}
+header .updated{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);display:flex;align-items:center;gap:8px}
+header .updated::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(52,211,153,.12)}
+
+/* LAYOUT */
+main{max-width:1080px;margin:0 auto;padding:48px 24px 80px}
+section{margin-top:72px;scroll-margin-top:96px}
+section:first-of-type{margin-top:0}
+
+.kicker{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--t3);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.kicker .num-pill{color:var(--t);background:var(--panel-2);border:1px solid var(--border);padding:3px 8px;border-radius:5px;font-size:10px;letter-spacing:.08em}
+h2.section-title{font-size:22px;font-weight:700;color:var(--t);letter-spacing:-.02em;line-height:1.25;margin-bottom:8px}
+.section-sub{font-size:14px;color:var(--t2);line-height:1.55;max-width:680px;margin-bottom:32px}
+.section-sub strong{color:var(--t);font-weight:600}
+
+/* HERO / PAY TODAY */
+.hero{padding-top:24px}
+.hero .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--t3);margin-bottom:28px;display:flex;align-items:center;gap:10px}
+.hero .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 4px rgba(251,191,36,.15)}
+.hero .big-num{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:104px;letter-spacing:-.05em;line-height:.95;color:var(--t);font-variant-numeric:tabular-nums;margin-bottom:4px}
+.hero .big-num .currency{color:var(--t3);font-weight:600;font-size:56px;letter-spacing:-.02em;margin-right:4px;vertical-align:0.18em}
+.hero .big-num .unit{color:var(--t3);font-weight:500;font-size:24px;letter-spacing:-.01em;margin-left:8px}
+.hero .lead{font-size:18px;color:var(--t);font-weight:500;line-height:1.45;letter-spacing:-.01em;max-width:680px;margin-top:14px}
+.hero .lead strong{color:var(--green);font-weight:700}
+.hero .sub-line{font-size:14px;color:var(--t2);margin-top:18px;line-height:1.6;max-width:680px}
+.hero .sub-line code{font-family:'JetBrains Mono',monospace;color:var(--accent);background:var(--panel-2);border:1px solid var(--border);padding:1px 7px;border-radius:5px;font-size:12px}
+
+/* SAVINGS SPLIT */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:48px}
+.split-card{padding:24px;background:var(--panel);border:1px solid var(--border);border-radius:14px;position:relative;overflow:hidden}
+.split-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;opacity:.7}
+.split-card.now::before{background:var(--green)}
+.split-card.max::before{background:var(--accent)}
+.split-card .sc-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--t3);margin-bottom:12px}
+.split-card .sc-num{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:38px;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.split-card.now .sc-num{color:var(--green)}
+.split-card.max .sc-num{color:var(--accent)}
+.split-card .sc-num .per{font-size:13px;color:var(--t3);font-weight:500;margin-left:4px}
+.split-card .sc-desc{font-size:13px;color:var(--t2);line-height:1.55;margin-top:12px}
+
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;margin-top:48px;padding-top:32px;border-top:1px solid var(--border)}
+.hero-stat .label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--t3);margin-bottom:10px}
+.hero-stat .value{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:22px;letter-spacing:-.02em;color:var(--t);font-variant-numeric:tabular-nums}
+.hero-stat .value.green{color:var(--green)}
+.hero-stat .value.blue{color:var(--accent)}
+
+/* CHART */
+.chart-wrap{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:28px}
+.chart-wrap .chart-box{position:relative;height:300px}
+.chart-fallback{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t3);padding:24px;text-align:center}
+
+/* SERVICE CARDS */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.svc-card{padding:22px;background:var(--panel);border:1px solid var(--border);border-radius:14px;transition:.18s ease-out;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.svc-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;opacity:.6}
+.svc-card.verdict-delete::before{background:var(--green)}
+.svc-card.verdict-optimize::before{background:var(--yellow)}
+.svc-card.verdict-keep::before{background:var(--t4)}
+.svc-card.verdict-decision::before{background:var(--red-strong)}
+.svc-card:hover{border-color:var(--border-hl);transform:translateY(-2px);background:var(--panel-2)}
+.svc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.svc-head .svc-name{font-size:15px;font-weight:600;color:var(--t);line-height:1.35;letter-spacing:-.01em}
+.svc-head .svc-name small{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);font-weight:500;margin-top:4px;word-break:break-word}
+.svc-cost{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:22px;letter-spacing:-.02em;color:var(--t);font-variant-numeric:tabular-nums;text-align:right;flex-shrink:0}
+.svc-cost .per{display:block;font-size:10px;color:var(--t3);font-weight:500;text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.svc-save{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;color:var(--green)}
+.svc-save.zero{color:var(--t4)}
+.svc-meta{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:12px;color:var(--t2);line-height:1.5}
+.svc-meta dt{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);font-weight:700;padding-top:1px}
+.svc-meta dd{color:var(--t2)}
+.svc-meta dd.unknown{color:var(--t4);font-style:italic}
+.svc-foot{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;padding-top:12px;border-top:1px solid var(--border);text-transform:uppercase;letter-spacing:.08em;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:5px;font-weight:700}
+.badge::before{content:"";width:5px;height:5px;border-radius:50%}
+.badge.verdict-delete{background:var(--green-soft);color:var(--green);border:1px solid var(--green-bd)}
+.badge.verdict-delete::before{background:var(--green)}
+.badge.verdict-optimize{background:var(--yellow-soft);color:var(--yellow);border:1px solid var(--yellow-bd)}
+.badge.verdict-optimize::before{background:var(--yellow)}
+.badge.verdict-keep{background:var(--panel-2);color:var(--t3);border:1px solid var(--border-2)}
+.badge.verdict-keep::before{background:var(--t4)}
+.badge.verdict-decision{background:var(--red-soft);color:var(--red-strong);border:1px solid var(--red-bd)}
+.badge.verdict-decision::before{background:var(--red-strong)}
+.conf{font-weight:700;padding:3px 8px;border-radius:5px;border:1px solid var(--border-2);color:var(--t3)}
+.conf.HIGH{color:var(--green);border-color:var(--green-bd);background:var(--green-soft)}
+.conf.MED{color:var(--yellow);border-color:var(--yellow-bd);background:var(--yellow-soft)}
+.conf.LOW{color:var(--red-strong);border-color:var(--red-bd);background:var(--red-soft)}
+.svc-foot .proj{margin-left:auto;color:var(--t3)}
+.svc-evidence{font-size:12px;color:var(--t2);line-height:1.55}
+.svc-evidence code{font-family:'JetBrains Mono',monospace;color:var(--accent);background:var(--bg);border:1px solid var(--border);padding:1px 5px;border-radius:4px;font-size:11px;word-break:break-word}
+
+/* FOOTER */
+footer{margin-top:72px;padding:24px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);line-height:1.7}
+footer code{background:var(--panel);border:1px solid var(--border);padding:1px 6px;border-radius:5px;color:var(--t2)}
+
+/* RESPONSIVE */
+@media(max-width:880px){
+  main{padding:32px 18px 64px}
+  section{margin-top:56px}
+  .hero .big-num{font-size:76px}
+  .hero .big-num .currency{font-size:40px}
+  .hero .big-num .unit{font-size:18px}
+  .hero .lead{font-size:16px}
+  .split{grid-template-columns:1fr}
+  .hero-stats{grid-template-columns:repeat(2,1fr);gap:24px}
+  .cards-grid{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  main{padding:24px 14px 60px}
+  .hero .big-num{font-size:56px;letter-spacing:-.04em}
+  .hero .big-num .currency{font-size:30px}
+  h2.section-title{font-size:18px}
+  .hero-stats{grid-template-columns:1fr 1fr;gap:18px}
+  .hero-stat .value{font-size:18px}
+  .split-card .sc-num{font-size:30px}
+}
+</style>
+</head>
+<body>
+
+<div class="sample-banner">SAMPLE — synthetic data — not a real audit — every figure invented for layout review</div>
+
+<header>
+  <div class="brand">AWS cost audit — SAMPLE</div>
+  <div class="meta">account: &lt;demo-account&gt; &middot; 30d unblended 2026-04-23 &rarr; 2026-05-23</div>
+  <div class="sp"></div>
+  <div class="updated">generated 2026-05-28</div>
+</header>
+
+<main>
+
+<!-- PAY TODAY -->
+<section class="hero">
+  <div class="eyebrow"><span class="dot"></span>SAMPLE &middot; synthetic figures &middot; not verified against any real account</div>
+  <div class="big-num"><span class="currency">$</span><span id="total-monthly">4,182</span><span class="unit">/ month</span></div>
+  <div class="lead">
+    This is what the account pays today at current run-rate. Of that, <strong id="lead-savenow">$612/mo</strong> can be cut now, safely and reversibly.
+  </div>
+  <div class="sub-line">
+    Window analyzed: <code>30d unblended 2026-04-23 &rarr; 2026-05-23</code> &middot; period spend <code>$4,012</code> &middot; SAMPLE: prices would be verified live for us-east-1 + us-west-2. Every dollar on a real dashboard is re-derived from the AWS Price List Query API and Cost Explorer / CUR usage by a separate skeptic pass.
+  </div>
+
+  <!-- SAVE NOW vs MAX THEORETICAL -->
+  <div class="split">
+    <div class="split-card now">
+      <div class="sc-label">Save now &middot; safely</div>
+      <div class="sc-num">$612<span class="per">/ mo</span></div>
+      <div class="sc-desc">High-confidence, reversible, tested actions only. Snapshot or backup taken first; rollback path documented per item.</div>
+    </div>
+    <div class="split-card max">
+      <div class="sc-label">Max theoretical save</div>
+      <div class="sc-num">$1,294<span class="per">/ mo</span></div>
+      <div class="sc-desc">Ceiling if every recommendation lands, including items that need owner sign-off, commitments, or further verification. Not all are reversible.</div>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="label">Monthly run-rate</div>
+      <div class="value">$4,182</div>
+    </div>
+    <div class="hero-stat">
+      <div class="label">Save now</div>
+      <div class="value green">&minus;$612</div>
+    </div>
+    <div class="hero-stat">
+      <div class="label">Max theoretical</div>
+      <div class="value blue">&minus;$1,294</div>
+    </div>
+    <div class="hero-stat">
+      <div class="label">Resources audited</div>
+      <div class="value" id="stat-count">0</div>
+    </div>
+  </div>
+</section>
+
+<!-- WHERE THE MONEY GOES -->
+<section id="flow">
+  <div class="kicker">where the money goes <span class="num-pill">30d unblended</span></div>
+  <h2 class="section-title">Spend by service</h2>
+  <p class="section-sub">
+    Per-service monthly cost. Bars are relative to the largest line item. SAMPLE figures only.
+  </p>
+  <div class="chart-wrap">
+    <div class="chart-box"><canvas id="costChart"></canvas></div>
+    <div class="chart-fallback" id="chartFallback" style="display:none">Chart library unavailable &mdash; see the per-service cards below for the same figures.</div>
+  </div>
+</section>
+
+<!-- SERVICE CARDS -->
+<section id="services">
+  <div class="kicker">per-service detail <span class="num-pill">cost &middot; purpose &middot; owner &middot; verdict</span></div>
+  <h2 class="section-title">Every resource, attributed</h2>
+  <p class="section-sub">
+    One card per resource or service group. Each carries cost, plain-language purpose, owning app/repo, who created it, when, last-used signal, a verdict, and a confidence badge. <strong>"unknown"</strong> means the value could not be verified from an API &mdash; it was never guessed. SAMPLE data below.
+  </p>
+  <div class="cards-grid" id="cards-grid"></div>
+</section>
+
+<footer>
+  account &lt;demo-account&gt; &middot; generated 2026-05-28 &middot; window <code>30d unblended 2026-04-23 &rarr; 2026-05-23</code> &middot;
+  SAMPLE — synthetic data. On a real dashboard every dollar figure comes from live AWS Price List Query API unit price &times; actual Cost Explorer / CUR usage, re-derived by a separate skeptic pass &middot;
+  read-only audit; no destructive action taken &middot; verdicts are recommendations unless explicitly marked shipped.
+</footer>
+
+</main>
+
+<script>
+// SAMPLE — synthetic data. Every value below is invented for layout review only.
+// On a real run this array is generated from verified findings (see references/dashboard.md).
+const CARDS = [
+  {
+    name:"ECS Fargate (prod marketplace)", sub:"service: marketplace-api",
+    cost:1180, save:0,
+    purpose:"Production marketplace API + workers",
+    owner:"Platform team", created:"2024-01-09", lastUsed:"62% avg CPU over 14d",
+    verdict:"keep", confidence:"HIGH",
+    evidence:"SAMPLE: steady-state production traffic; right-sized at 62% avg / 80% p99 CPU.",
+    project:"Marketplace"
+  },
+  {
+    name:"RDS db.r6g.xlarge (Multi-AZ)", sub:"marketplace database",
+    cost:940, save:380,
+    purpose:"Primary transactional database",
+    owner:"Platform team", created:"2024-01-09", lastUsed:"4.1% avg CPU over 14d",
+    verdict:"optimize", confidence:"MED",
+    evidence:"SAMPLE: 4.1% avg CPU, 2.1 avg connections over 14d → downsize one class; Multi-AZ failover ~60-120s.",
+    project:"Marketplace"
+  },
+  {
+    name:"NAT Gateway data processing", sub:"single AZ",
+    cost:520, save:300,
+    purpose:"Egress for private subnets",
+    owner:"unknown — could not verify", created:"unknown — predates CloudTrail window", lastUsed:"active daily",
+    verdict:"decision", confidence:"MED",
+    evidence:"SAMPLE: most bytes are S3/ECR pulls; VPC gateway/interface endpoints would cut data-processing. Routing change needs review.",
+    project:"Shared infra"
+  },
+  {
+    name:"CloudFront (CDN)", sub:"public site + assets",
+    cost:430, save:0,
+    purpose:"Edge delivery for the marketing site and static assets",
+    owner:"Frontend team", created:"2023-11-02", lastUsed:"active daily",
+    verdict:"keep", confidence:"HIGH",
+    evidence:"SAMPLE: high cache-hit ratio, traffic-driven cost; no idle capacity to reclaim.",
+    project:"Frontend"
+  },
+  {
+    name:"Unattached EBS volumes (x6)", sub:"gp3, 780 GB total",
+    cost:190, save:190,
+    purpose:"Detached volumes left after instance teardown",
+    owner:"unknown — could not verify", created:"2025-02-14", lastUsed:"0 I/O for 90d",
+    verdict:"delete", confidence:"HIGH",
+    evidence:"SAMPLE: VolumeReadOps/WriteOps = 0 for 90d, status available, no references. Snapshot first, then delete (reversible).",
+    project:"Shared infra"
+  },
+  {
+    name:"Idle ALB (staging)", sub:"empty target group",
+    cost:120, save:120,
+    purpose:"Load balancer for a retired staging service",
+    owner:"Backend team", created:"2024-08-21", lastUsed:"health-checks only, 30d",
+    verdict:"delete", confidence:"HIGH",
+    evidence:"SAMPLE: backend desired=0, target group empty, only health-check traffic for 30d. Reversible via re-create.",
+    project:"Staging"
+  },
+  {
+    name:"CloudWatch Logs (no retention)", sub:"42 log groups",
+    cost:160, save:90,
+    purpose:"Application + access logs with retention set to Never expire",
+    owner:"Platform team", created:"unknown — predates CloudTrail window", lastUsed:"active daily",
+    verdict:"optimize", confidence:"HIGH",
+    evidence:"SAMPLE: 42 groups with no retentionInDays. Setting 30-90d retention is reversible and cuts stored GB.",
+    project:"Shared infra"
+  },
+  {
+    name:"Old RDS snapshots (x4)", sub:"orphaned manual snapshots",
+    cost:240, save:240,
+    purpose:"Manual snapshots whose source DBs were deleted",
+    owner:"unknown — could not verify", created:"2024-05-30", lastUsed:"source DB deleted >12mo ago",
+    verdict:"decision", confidence:"HIGH",
+    evidence:"SAMPLE: source DBs no longer exist. Deletion is irreversible → recommendation requiring sign-off, not auto-run.",
+    project:"Marketplace"
+  },
+  {
+    name:"Unassociated Elastic IPs (x3)", sub:"InstanceId=null",
+    cost:30, save:30,
+    purpose:"Reserved public IPs not attached to anything",
+    owner:"unknown — could not verify", created:"unknown — predates CloudTrail window", lastUsed:"unattached",
+    verdict:"decision", confidence:"MED",
+    evidence:"SAMPLE: verify each via describe-network-interfaces (some may back a NAT/ALB ENI). Release loses the IP → irreversible.",
+    project:"Shared infra"
+  }
+];
+const CURRENCY = "$";
+
+// ---- helpers ----
+function esc(s){
+  return String(s == null ? "" : s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+}
+function fmt(n){
+  const v = Number(n) || 0;
+  return v.toLocaleString(undefined,{maximumFractionDigits:2});
+}
+function isUnknown(v){ return typeof v === "string" && /unknown/i.test(v); }
+const VERDICT_LABEL = {delete:"Safe to delete", optimize:"Optimize", keep:"Keep", decision:"Decision needed"};
+
+// ---- render service cards ----
+(function renderCards(){
+  const grid = document.getElementById("cards-grid");
+  document.getElementById("stat-count").textContent = CARDS.length;
+  grid.innerHTML = CARDS.map(c=>{
+    const verdict = (c.verdict || "keep").toLowerCase();
+    const conf = (c.confidence || "MED").toUpperCase();
+    const saveTxt = c.save ? ("&minus;" + CURRENCY + fmt(c.save) + "/mo") : "no savings";
+    return `<div class="svc-card verdict-${esc(verdict)}">
+      <div class="svc-head">
+        <div class="svc-name">${esc(c.name)}${c.sub ? `<small>${esc(c.sub)}</small>` : ""}</div>
+        <div class="svc-cost">${CURRENCY}${fmt(c.cost)}<span class="per">/ mo</span></div>
+      </div>
+      <div class="svc-save ${c.save ? "" : "zero"}">${saveTxt}</div>
+      <dl class="svc-meta">
+        <dt>Purpose</dt><dd>${esc(c.purpose)}</dd>
+        <dt>Owner</dt><dd class="${isUnknown(c.owner)?"unknown":""}">${esc(c.owner)}</dd>
+        <dt>Created</dt><dd class="${isUnknown(c.created)?"unknown":""}">${esc(c.created)}</dd>
+        <dt>Last used</dt><dd class="${isUnknown(c.lastUsed)?"unknown":""}">${esc(c.lastUsed)}</dd>
+      </dl>
+      ${c.evidence ? `<div class="svc-evidence">${esc(c.evidence)}</div>` : ""}
+      <div class="svc-foot">
+        <span class="badge verdict-${esc(verdict)}">${esc(VERDICT_LABEL[verdict] || verdict)}</span>
+        <span class="conf ${esc(conf)}">conf ${esc(conf)}</span>
+        ${c.project ? `<span class="proj">${esc(c.project)}</span>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+})();
+
+// ---- spend-by-service chart (graceful degradation) ----
+(function renderChart(){
+  const fb = document.getElementById("chartFallback");
+  const canvas = document.getElementById("costChart");
+  if (typeof Chart === "undefined" || !canvas) {
+    if (fb) fb.style.display = "block";
+    if (canvas) canvas.style.display = "none";
+    return;
+  }
+  const rows = [...CARDS].sort((a,b)=>(Number(b.cost)||0)-(Number(a.cost)||0));
+  const palette = ["#a78bfa","#93c5fd","#34d399","#fde68a","#cbd5e1","#fda4af","#60a5fa","#fbbf24","#9ca3af","#fbcfe8"];
+  new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels: rows.map(r=>r.name),
+      datasets: [{
+        label: "Monthly cost (" + CURRENCY + ")",
+        data: rows.map(r=>Number(r.cost)||0),
+        backgroundColor: rows.map((_,i)=>palette[i % palette.length]),
+        borderRadius: 4,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => CURRENCY + fmt(ctx.parsed.x) + "/mo" } }
+      },
+      scales: {
+        x: { ticks:{ color:"#9b9ba3", callback:v=>CURRENCY+fmt(v) }, grid:{ color:"#1f1f24" } },
+        y: { ticks:{ color:"#ececef" }, grid:{ display:false } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

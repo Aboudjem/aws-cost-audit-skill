@@ -1,0 +1,41 @@
+# --- Protect users from committing their OWN AWS account data ---
+# This skill reads a user's live AWS account and may write audit output to
+# the working directory. NEVER let that output (which contains account IDs,
+# ARNs, IPs, costs) get committed. Keep this skill generic and secret-free.
+.env
+.env.*
+*.pem
+*.key
+credentials
+aws-credentials*
+# Audit output / scratch produced by running the skill
+audit-output/
+report/
+reports/
+data/
+*-report.md
+!examples/sample-report.md
+cost-*.json
+ce-*.json
+inventory-*.json
+rollback-*.json
+*.local.html
+dashboard.html
+!examples/sample-dashboard.html
+
+# --- OS / editor noise ---
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+*.code-workspace
+
+# --- Tooling ---
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.cache/

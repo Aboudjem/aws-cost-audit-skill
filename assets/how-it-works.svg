@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" role="img" aria-labelledby="t d" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <title id="t">How AWS Cost Audit works</title>
+  <desc id="d">A three-step flow that reveals in sequence: re-baseline live spend from Cost Explorer, inventory every region and hunt waste, then ship an evidence-backed savings plan. A flowing connector and a safety badge reading gated, reversible, verified live tie the steps together.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0D1117"/>
+      <stop offset="1" stop-color="#0B0E14"/>
+    </linearGradient>
+    <linearGradient id="flow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3FB6B2"/>
+      <stop offset="0.5" stop-color="#58A6FF"/>
+      <stop offset="1" stop-color="#FF9900"/>
+    </linearGradient>
+    <style>
+      .num   { fill:#0B0E14; font-size:20px; font-weight:700; }
+      .head  { fill:#E6EDF3; font-size:21px; font-weight:600; letter-spacing:-0.2px; }
+      .body  { fill:#8B98A8; font-size:14px; font-weight:400; }
+      .eyebr { fill:#6E7B8A; font-size:12px; font-weight:600; letter-spacing:1.2px; }
+      .badge { fill:#C9D5E1; font-size:13px; font-weight:600; letter-spacing:0.4px; }
+
+      .step { opacity:0; }
+      @keyframes reveal {
+        0%   { opacity:0; transform: translateX(-10px); }
+        8%   { opacity:1; transform: translateX(0); }
+        86%  { opacity:1; transform: translateX(0); }
+        100% { opacity:0; transform: translateX(0); }
+      }
+      #s1 { animation: reveal 12s ease-in-out infinite;        }
+      #s2 { animation: reveal 12s ease-in-out infinite -8.7s;  }
+      #s3 { animation: reveal 12s ease-in-out infinite -7.4s;  }
+      @keyframes breathe { 0%,100%{opacity:0.55} 50%{opacity:1} }
+      .badgepulse { animation: breathe 6s ease-in-out infinite; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="300" fill="url(#bg)"/>
+  <rect width="1200" height="300" fill="none" stroke="#1B2230" stroke-width="1"/>
+
+  <!-- eyebrow -->
+  <rect x="64" y="40" width="28" height="3" rx="1.5" fill="#FF9900"/>
+  <text x="102" y="46" class="eyebr">HOW IT WORKS</text>
+
+  <!-- flowing connector behind the steps -->
+  <line x1="150" y1="150" x2="1050" y2="150" stroke="#1B2230" stroke-width="2"/>
+  <line x1="150" y1="150" x2="1050" y2="150" stroke="url(#flow)" stroke-width="2" stroke-linecap="round" stroke-dasharray="14 900">
+    <animate attributeName="stroke-dashoffset" values="900;-14" dur="12s" repeatCount="indefinite" calcMode="linear"/>
+  </line>
+  <!-- travelling pulse dot along the connector -->
+  <circle cx="150" cy="150" r="4" fill="#58A6FF">
+    <animate attributeName="cx" values="150;1050;1050" keyTimes="0;0.9;1" dur="12s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0 0 1 1"/>
+    <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.05;0.86;0.92;1" dur="12s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- STEP 1 -->
+  <g id="s1" class="step">
+    <circle cx="150" cy="150" r="20" fill="#3FB6B2"/>
+    <text x="150" y="157" text-anchor="middle" class="num">1</text>
+    <text x="64" y="208" class="eyebr">RE-BASELINE</text>
+    <text x="64" y="234" class="head">Re-baseline live</text>
+    <text x="64" y="258" class="body">Pull real numbers from Cost Explorer.</text>
+  </g>
+
+  <!-- STEP 2 -->
+  <g id="s2" class="step">
+    <circle cx="600" cy="150" r="20" fill="#58A6FF"/>
+    <text x="600" y="157" text-anchor="middle" class="num">2</text>
+    <text x="514" y="208" class="eyebr">INVENTORY</text>
+    <text x="514" y="234" class="head">Hunt waste, every region</text>
+    <text x="514" y="258" class="body">Inventory resources, attribute every dollar.</text>
+  </g>
+
+  <!-- STEP 3 -->
+  <g id="s3" class="step">
+    <circle cx="1050" cy="150" r="20" fill="#FF9900"/>
+    <text x="1050" y="157" text-anchor="middle" class="num">3</text>
+    <text x="900" y="208" class="eyebr">SAVINGS PLAN</text>
+    <text x="900" y="234" class="head">Evidence-backed plan</text>
+    <text x="900" y="258" class="body">Ranked, sourced, ready to ship.</text>
+  </g>
+
+  <!-- safety badge -->
+  <g transform="translate(454,38)" class="badgepulse">
+    <rect x="0" y="0" width="292" height="34" rx="17" fill="#11161F" stroke="#243042"/>
+    <!-- shield/lock glyph -->
+    <g transform="translate(16,7)" stroke="#3FB6B2" stroke-width="1.6" fill="none">
+      <path d="M10 0 L19 3 V11 C19 16 15 19 10 21 C5 19 1 16 1 11 V3 Z"/>
+      <rect x="6.5" y="9" width="7" height="6" rx="1.2" fill="#3FB6B2" stroke="none"/>
+      <path d="M7.6 9 V7 a2.4 2.4 0 0 1 4.8 0 V9" stroke="#3FB6B2"/>
+    </g>
+    <text x="46" y="22" class="badge">gated · reversible · verified live</text>
+  </g>
+</svg>

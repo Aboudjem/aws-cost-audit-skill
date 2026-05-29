@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!--
+  AWS COST AUDIT DASHBOARD — GENERIC TEMPLATE
+  ============================================
+  This file contains ZERO real account data and ZERO hardcoded prices.
+  An agent fills the {{PLACEHOLDERS}} below from VERIFIED audit data only
+  (live prices already confirmed via the AWS Price List Query API + actual
+  Cost Explorer / CUR usage). See references/dashboard.md for the fill guide.
+
+  Replace these placeholders (string substitution):
+    {{TITLE}}            page <title> + header brand line
+    {{ACCOUNT_LABEL}}    a label for the account (use a generic alias, NOT a raw 12-digit id)
+    {{GENERATED_AT}}     ISO date/time the audit data was generated
+    {{PERIOD_LABEL}}     the cost window, e.g. "30d unblended 2026-04-23 → 2026-05-23"
+    {{TOTAL_MONTHLY}}    headline "pay today" monthly run-rate (number, no $)
+    {{PERIOD_SPEND}}     spend over the analyzed window (number, no $)
+    {{SAVE_NOW}}         high-confidence, reversible, tested savings (number, no $)
+    {{MAX_THEORETICAL}}  maximum theoretical savings if every recommendation lands (number, no $)
+    {{CURRENCY}}         currency symbol, e.g. "$"
+    {{REGION_NOTE}}      free text, e.g. "prices verified live for ap-south-1 + us-east-1"
+
+  Replace these JS data placeholders with valid JSON (arrays/objects):
+    /*{{SERVICE_CARDS_JSON}}*/   array of card objects (schema documented below)
+    /*{{SAVINGS_SPLIT_JSON}}*/   {saveNow, maxTheoretical} breakdown rows (optional chart data)
+-->
+<title>{{TITLE}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+<!-- Chart.js via CDN is optional; the dashboard degrades gracefully if it fails to load. -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0a0a0c;
+  --panel:#101013;
+  --panel-2:#15151a;
+  --panel-3:#1c1c22;
+  --border:#1f1f24;
+  --border-2:#2b2b33;
+  --border-hl:#3a3a44;
+  --t:#ececef;
+  --t2:#9b9ba3;
+  --t3:#65656d;
+  --t4:#3f3f47;
+  --accent:#60a5fa;
+  --accent-2:#3b82f6;
+  --green:#34d399;
+  --green-soft:rgba(52,211,153,.10);
+  --green-bd:rgba(52,211,153,.28);
+  --red:#fda4af;
+  --red-strong:#f87171;
+  --red-soft:rgba(248,113,113,.10);
+  --red-bd:rgba(248,113,113,.30);
+  --yellow:#fde68a;
+  --yellow-soft:rgba(253,230,138,.09);
+  --yellow-bd:rgba(253,230,138,.26);
+  --orange:#fbbf24;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:50;background:rgba(10,10,12,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+header .brand{font-weight:600;font-size:14px;color:var(--t);letter-spacing:-.01em}
+header .meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);font-weight:500}
+header .sp{flex:1}
+header .updated{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);display:flex;align-items:center;gap:8px}
+header .updated::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(52,211,153,.12)}
+
+/* LAYOUT */
+main{max-width:1080px;margin:0 auto;padding:48px 24px 80px}
+section{margin-top:72px;scroll-margin-top:96px}
+section:first-of-type{margin-top:0}
+
+.kicker{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--t3);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.kicker .num-pill{color:var(--t);background:var(--panel-2);border:1px solid var(--border);padding:3px 8px;border-radius:5px;font-size:10px;letter-spacing:.08em}
+h2.section-title{font-size:22px;font-weight:700;color:var(--t);letter-spacing:-.02em;line-height:1.25;margin-bottom:8px}
+.section-sub{font-size:14px;color:var(--t2);line-height:1.55;max-width:680px;margin-bottom:32px}
+.section-sub strong{color:var(--t);font-weight:600}
+
+/* HERO / PAY TODAY */
+.hero{padding-top:24px}
+.hero .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--t3);margin-bottom:28px;display:flex;align-items:center;gap:10px}
+.hero .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 4px rgba(251,191,36,.15)}
+.hero .big-num{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:104px;letter-spacing:-.05em;line-height:.95;color:var(--t);font-variant-numeric:tabular-nums;margin-bottom:4px}
+.hero .big-num .currency{color:var(--t3);font-weight:600;font-size:56px;letter-spacing:-.02em;margin-right:4px;vertical-align:0.18em}
+.hero .big-num .unit{color:var(--t3);font-weight:500;font-size:24px;letter-spacing:-.01em;margin-left:8px}
+.hero .lead{font-size:18px;color:var(--t);font-weight:500;line-height:1.45;letter-spacing:-.01em;max-width:680px;margin-top:14px}
+.hero .lead strong{color:var(--green);font-weight:700}
+.hero .sub-line{font-size:14px;color:var(--t2);margin-top:18px;line-height:1.6;max-width:680px}
+.hero .sub-line code{font-family:'JetBrains Mono',monospace;color:var(--accent);background:var(--panel-2);border:1px solid var(--border);padding:1px 7px;border-radius:5px;font-size:12px}
+
+/* SAVINGS SPLIT */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:48px}
+.split-card{padding:24px;background:var(--panel);border:1px solid var(--border);border-radius:14px;position:relative;overflow:hidden}
+.split-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;opacity:.7}
+.split-card.now::before{background:var(--green)}
+.split-card.max::before{background:var(--accent)}
+.split-card .sc-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--t3);margin-bottom:12px}
+.split-card .sc-num{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:38px;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.split-card.now .sc-num{color:var(--green)}
+.split-card.max .sc-num{color:var(--accent)}
+.split-card .sc-num .per{font-size:13px;color:var(--t3);font-weight:500;margin-left:4px}
+.split-card .sc-desc{font-size:13px;color:var(--t2);line-height:1.55;margin-top:12px}
+
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;margin-top:48px;padding-top:32px;border-top:1px solid var(--border)}
+.hero-stat .label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--t3);margin-bottom:10px}
+.hero-stat .value{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:22px;letter-spacing:-.02em;color:var(--t);font-variant-numeric:tabular-nums}
+.hero-stat .value.green{color:var(--green)}
+.hero-stat .value.blue{color:var(--accent)}
+
+/* CHART */
+.chart-wrap{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:28px}
+.chart-wrap .chart-box{position:relative;height:300px}
+.chart-fallback{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t3);padding:24px;text-align:center}
+
+/* SERVICE CARDS */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.svc-card{padding:22px;background:var(--panel);border:1px solid var(--border);border-radius:14px;transition:.18s ease-out;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.svc-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;opacity:.6}
+.svc-card.verdict-delete::before{background:var(--green)}
+.svc-card.verdict-optimize::before{background:var(--yellow)}
+.svc-card.verdict-keep::before{background:var(--t4)}
+.svc-card.verdict-decision::before{background:var(--red-strong)}
+.svc-card:hover{border-color:var(--border-hl);transform:translateY(-2px);background:var(--panel-2)}
+.svc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.svc-head .svc-name{font-size:15px;font-weight:600;color:var(--t);line-height:1.35;letter-spacing:-.01em}
+.svc-head .svc-name small{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);font-weight:500;margin-top:4px;word-break:break-word}
+.svc-cost{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:22px;letter-spacing:-.02em;color:var(--t);font-variant-numeric:tabular-nums;text-align:right;flex-shrink:0}
+.svc-cost .per{display:block;font-size:10px;color:var(--t3);font-weight:500;text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.svc-save{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;color:var(--green)}
+.svc-save.zero{color:var(--t4)}
+.svc-meta{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:12px;color:var(--t2);line-height:1.5}
+.svc-meta dt{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);font-weight:700;padding-top:1px}
+.svc-meta dd{color:var(--t2)}
+.svc-meta dd.unknown{color:var(--t4);font-style:italic}
+.svc-foot{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;padding-top:12px;border-top:1px solid var(--border);text-transform:uppercase;letter-spacing:.08em;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:5px;font-weight:700}
+.badge::before{content:"";width:5px;height:5px;border-radius:50%}
+.badge.verdict-delete{background:var(--green-soft);color:var(--green);border:1px solid var(--green-bd)}
+.badge.verdict-delete::before{background:var(--green)}
+.badge.verdict-optimize{background:var(--yellow-soft);color:var(--yellow);border:1px solid var(--yellow-bd)}
+.badge.verdict-optimize::before{background:var(--yellow)}
+.badge.verdict-keep{background:var(--panel-2);color:var(--t3);border:1px solid var(--border-2)}
+.badge.verdict-keep::before{background:var(--t4)}
+.badge.verdict-decision{background:var(--red-soft);color:var(--red-strong);border:1px solid var(--red-bd)}
+.badge.verdict-decision::before{background:var(--red-strong)}
+.conf{font-weight:700;padding:3px 8px;border-radius:5px;border:1px solid var(--border-2);color:var(--t3)}
+.conf.HIGH{color:var(--green);border-color:var(--green-bd);background:var(--green-soft)}
+.conf.MED{color:var(--yellow);border-color:var(--yellow-bd);background:var(--yellow-soft)}
+.conf.LOW{color:var(--red-strong);border-color:var(--red-bd);background:var(--red-soft)}
+.svc-foot .proj{margin-left:auto;color:var(--t3)}
+.svc-evidence{font-size:12px;color:var(--t2);line-height:1.55}
+.svc-evidence code{font-family:'JetBrains Mono',monospace;color:var(--accent);background:var(--bg);border:1px solid var(--border);padding:1px 5px;border-radius:4px;font-size:11px;word-break:break-word}
+
+/* FOOTER */
+footer{margin-top:72px;padding:24px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);line-height:1.7}
+footer code{background:var(--panel);border:1px solid var(--border);padding:1px 6px;border-radius:5px;color:var(--t2)}
+
+/* RESPONSIVE */
+@media(max-width:880px){
+  main{padding:32px 18px 64px}
+  section{margin-top:56px}
+  .hero .big-num{font-size:76px}
+  .hero .big-num .currency{font-size:40px}
+  .hero .big-num .unit{font-size:18px}
+  .hero .lead{font-size:16px}
+  .split{grid-template-columns:1fr}
+  .hero-stats{grid-template-columns:repeat(2,1fr);gap:24px}
+  .cards-grid{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  main{padding:24px 14px 60px}
+  .hero .big-num{font-size:56px;letter-spacing:-.04em}
+  .hero .big-num .currency{font-size:30px}
+  h2.section-title{font-size:18px}
+  .hero-stats{grid-template-columns:1fr 1fr;gap:18px}
+  .hero-stat .value{font-size:18px}
+  .split-card .sc-num{font-size:30px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">{{TITLE}}</div>
+  <div class="meta">{{ACCOUNT_LABEL}} &middot; {{PERIOD_LABEL}}</div>
+  <div class="sp"></div>
+  <div class="updated">generated {{GENERATED_AT}}</div>
+</header>
+
+<main>
+
+<!-- PAY TODAY -->
+<section class="hero">
+  <div class="eyebrow"><span class="dot"></span>read-only audit &middot; every figure verified against live price + actual usage</div>
+  <div class="big-num"><span class="currency">{{CURRENCY}}</span><span id="total-monthly">{{TOTAL_MONTHLY}}</span><span class="unit">/ month</span></div>
+  <div class="lead">
+    This is what the account pays today at current run-rate. Of that, <strong id="lead-savenow">{{CURRENCY}}{{SAVE_NOW}}/mo</strong> can be cut now, safely and reversibly.
+  </div>
+  <div class="sub-line">
+    Window analyzed: <code>{{PERIOD_LABEL}}</code> &middot; period spend <code>{{CURRENCY}}{{PERIOD_SPEND}}</code> &middot; {{REGION_NOTE}}. Every dollar below was re-derived from the AWS Price List Query API and Cost Explorer / CUR usage by a separate skeptic pass.
+  </div>
+
+  <!-- SAVE NOW vs MAX THEORETICAL -->
+  <div class="split">
+    <div class="split-card now">
+      <div class="sc-label">Save now &middot; safely</div>
+      <div class="sc-num">{{CURRENCY}}{{SAVE_NOW}}<span class="per">/ mo</span></div>
+      <div class="sc-desc">High-confidence, reversible, tested actions only. Snapshot or backup taken first; rollback path documented per item.</div>
+    </div>
+    <div class="split-card max">
+      <div class="sc-label">Max theoretical save</div>
+      <div class="sc-num">{{CURRENCY}}{{MAX_THEORETICAL}}<span class="per">/ mo</span></div>
+      <div class="sc-desc">Ceiling if every recommendation lands, including items that need owner sign-off, commitments, or further verification. Not all are reversible.</div>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="label">Monthly run-rate</div>
+      <div class="value">{{CURRENCY}}{{TOTAL_MONTHLY}}</div>
+    </div>
+    <div class="hero-stat">
+      <div class="label">Save now</div>
+      <div class="value green">&minus;{{CURRENCY}}{{SAVE_NOW}}</div>
+    </div>
+    <div class="hero-stat">
+      <div class="label">Max theoretical</div>
+      <div class="value blue">&minus;{{CURRENCY}}{{MAX_THEORETICAL}}</div>
+    </div>
+    <div class="hero-stat">
+      <div class="label">Resources audited</div>
+      <div class="value" id="stat-count">0</div>
+    </div>
+  </div>
+</section>
+
+<!-- WHERE THE MONEY GOES -->
+<section id="flow">
+  <div class="kicker">where the money goes <span class="num-pill">{{PERIOD_LABEL}}</span></div>
+  <h2 class="section-title">Spend by service</h2>
+  <p class="section-sub">
+    Per-service monthly cost. Bars are relative to the largest line item. All figures from Cost Explorer unblended cost for the analyzed window.
+  </p>
+  <div class="chart-wrap">
+    <div class="chart-box"><canvas id="costChart"></canvas></div>
+    <div class="chart-fallback" id="chartFallback" style="display:none">Chart library unavailable &mdash; see the per-service cards below for the same figures.</div>
+  </div>
+</section>
+
+<!-- SERVICE CARDS -->
+<section id="services">
+  <div class="kicker">per-service detail <span class="num-pill">cost &middot; purpose &middot; owner &middot; verdict</span></div>
+  <h2 class="section-title">Every resource, attributed</h2>
+  <p class="section-sub">
+    One card per resource or service group. Each carries cost, plain-language purpose, owning app/repo, who created it, when, last-used signal, a verdict, and a confidence badge. <strong>"unknown"</strong> means the value could not be verified from an API &mdash; it was never guessed.
+  </p>
+  <div class="cards-grid" id="cards-grid"></div>
+</section>
+
+<footer>
+  {{ACCOUNT_LABEL}} &middot; generated {{GENERATED_AT}} &middot; window <code>{{PERIOD_LABEL}}</code> &middot;
+  all dollar figures from live AWS Price List Query API unit price &times; actual Cost Explorer / CUR usage, re-derived by a separate skeptic pass &middot;
+  read-only audit; no destructive action taken &middot; verdicts are recommendations unless explicitly marked shipped.
+</footer>
+
+</main>
+
+<script>
+// ============================================================
+//  DATA — filled by the agent from VERIFIED audit data only.
+//  Card schema (every field is required; use the string
+//  "unknown — could not verify" rather than guessing):
+//
+//  {
+//    name:       "RDS db.r7g.large (prod)",     // resource / group label
+//    sub:        "marketplace-db",              // optional id/subtitle (NO real ARN)
+//    cost:       170,                            // current monthly cost (number)
+//    save:       85,                             // monthly savings if action taken (0 if keep)
+//    purpose:    "Production marketplace DB",    // plain-language
+//    owner:      "Platform team",                // or "unknown — could not verify"
+//    created:    "2024-02-11",                   // or "unknown — predates CloudTrail window"
+//    lastUsed:   "3.8% avg CPU / 14d",           // last-used signal, or "unknown"
+//    verdict:    "optimize",                      // one of: delete | optimize | keep | decision
+//    confidence: "HIGH",                          // HIGH | MED | LOW
+//    evidence:   "14d CW: 3.8% avg CPU ...",      // why this verdict; cite the signal/source
+//    project:    "Marketplace"                    // optional grouping label
+//  }
+//
+//  verdict drives the accent colour + badge:
+//    delete   -> green  (safe-to-delete, proven unused + reversible)
+//    optimize -> yellow (rightsize / change config)
+//    keep     -> grey   (justified spend, no action)
+//    decision -> red    (needs owner sign-off / irreversible / commitment)
+// ============================================================
+
+const CARDS = /*{{SERVICE_CARDS_JSON}}*/ [];
+const CURRENCY = "{{CURRENCY}}";
+
+// ---- helpers ----
+function esc(s){
+  return String(s == null ? "" : s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+}
+function fmt(n){
+  const v = Number(n) || 0;
+  return v.toLocaleString(undefined,{maximumFractionDigits:2});
+}
+function isUnknown(v){ return typeof v === "string" && /unknown/i.test(v); }
+const VERDICT_LABEL = {delete:"Safe to delete", optimize:"Optimize", keep:"Keep", decision:"Decision needed"};
+
+// ---- render service cards ----
+(function renderCards(){
+  const grid = document.getElementById("cards-grid");
+  document.getElementById("stat-count").textContent = CARDS.length;
+  grid.innerHTML = CARDS.map(c=>{
+    const verdict = (c.verdict || "keep").toLowerCase();
+    const conf = (c.confidence || "MED").toUpperCase();
+    const saveTxt = c.save ? ("&minus;" + CURRENCY + fmt(c.save) + "/mo") : "no savings";
+    return `<div class="svc-card verdict-${esc(verdict)}">
+      <div class="svc-head">
+        <div class="svc-name">${esc(c.name)}${c.sub ? `<small>${esc(c.sub)}</small>` : ""}</div>
+        <div class="svc-cost">${CURRENCY}${fmt(c.cost)}<span class="per">/ mo</span></div>
+      </div>
+      <div class="svc-save ${c.save ? "" : "zero"}">${saveTxt}</div>
+      <dl class="svc-meta">
+        <dt>Purpose</dt><dd>${esc(c.purpose)}</dd>
+        <dt>Owner</dt><dd class="${isUnknown(c.owner)?"unknown":""}">${esc(c.owner)}</dd>
+        <dt>Created</dt><dd class="${isUnknown(c.created)?"unknown":""}">${esc(c.created)}</dd>
+        <dt>Last used</dt><dd class="${isUnknown(c.lastUsed)?"unknown":""}">${esc(c.lastUsed)}</dd>
+      </dl>
+      ${c.evidence ? `<div class="svc-evidence">${esc(c.evidence)}</div>` : ""}
+      <div class="svc-foot">
+        <span class="badge verdict-${esc(verdict)}">${esc(VERDICT_LABEL[verdict] || verdict)}</span>
+        <span class="conf ${esc(conf)}">conf ${esc(conf)}</span>
+        ${c.project ? `<span class="proj">${esc(c.project)}</span>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+})();
+
+// ---- spend-by-service chart (graceful degradation) ----
+(function renderChart(){
+  const fb = document.getElementById("chartFallback");
+  const canvas = document.getElementById("costChart");
+  if (typeof Chart === "undefined" || !canvas) {
+    if (fb) fb.style.display = "block";
+    if (canvas) canvas.style.display = "none";
+    return;
+  }
+  const rows = [...CARDS].sort((a,b)=>(Number(b.cost)||0)-(Number(a.cost)||0));
+  const palette = ["#a78bfa","#93c5fd","#34d399","#fde68a","#cbd5e1","#fda4af","#60a5fa","#fbbf24","#9ca3af","#fbcfe8"];
+  new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels: rows.map(r=>r.name),
+      datasets: [{
+        label: "Monthly cost (" + CURRENCY + ")",
+        data: rows.map(r=>Number(r.cost)||0),
+        backgroundColor: rows.map((_,i)=>palette[i % palette.length]),
+        borderRadius: 4,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => CURRENCY + fmt(ctx.parsed.x) + "/mo" } }
+      },
+      scales: {
+        x: { ticks:{ color:"#9b9ba3", callback:v=>CURRENCY+fmt(v) }, grid:{ color:"#1f1f24" } },
+        y: { ticks:{ color:"#ececef" }, grid:{ display:false } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
