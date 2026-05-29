@@ -2,7 +2,7 @@
 
 > An executable Claude Code skill that audits a live AWS account end-to-end: it attributes every dollar, finds idle/orphaned/over-provisioned resources, checks Savings Plans and Reserved Instance coverage, and produces an evidence-backed savings plan with confidence levels and reversible, gated actions. It works on any user's own AWS account, is read-only by default, verifies all prices live, and never hardcodes a price. MIT licensed.
 
-The skill targets Claude Code and shells out to the AWS CLI against the account in the caller's current credentials. It is governed by five non-negotiable "Iron Laws": (1) no unverified price ever — every dollar figure comes from the live, Region-specific unit price (AWS Price List Query API or the service pricing page) combined with actual usage (Cost Explorer / CUR), always shown as `unit price -> math -> source`; (2) attribute every dollar or write "unknown — could not verify"; (3) nothing destructive runs unless it is proven-unused, reversible, tested, and certain — otherwise it is a recommendation, not an action; (4) no single probe becomes a fleet-wide fact, and a separate skeptic pass re-derives every load-bearing claim from the primary source; (5) every finding carries its evidence (`current $/mo -> after $/mo -> $ saved -> confidence + evidence + reversibility`).
+The skill targets Claude Code and shells out to the AWS CLI against the account in the caller's current credentials. It is governed by five non-negotiable "Iron Laws": (1) no unverified price ever, every dollar figure comes from the live, Region-specific unit price (AWS Price List Query API or the service pricing page) combined with actual usage (Cost Explorer / CUR), always shown as `unit price -> math -> source`; (2) attribute every dollar or write "unknown, could not verify"; (3) nothing destructive runs unless it is proven-unused, reversible, tested, and certain, otherwise it is a recommendation, not an action; (4) no single probe becomes a fleet-wide fact, and a separate skeptic pass re-derives every load-bearing claim from the primary source; (5) every finding carries its evidence (`current $/mo -> after $/mo -> $ saved -> confidence + evidence + reversibility`).
 
 Who it is for: AWS account owners, FinOps practitioners, DevOps/platform engineers, and anyone whose AWS bill is too high and who wants a careful, auditable, safe-by-default cost review rather than a guess.
 
@@ -11,7 +11,7 @@ Two ways to install. As a Claude Code plugin: run `/plugin marketplace add Aboud
 ## Docs
 
 - [README](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/README.md): What the skill is, who it is for, how to install and run it.
-- [SKILL.md](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/skills/aws-cost-audit/SKILL.md): The skill definition — Iron Laws, workflow, the auto-execute-vs-recommend decision gate, and the highest-ROI checks.
+- [SKILL.md](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/skills/aws-cost-audit/SKILL.md): The skill definition: Iron Laws, workflow, the auto-execute-vs-recommend decision gate, and the highest-ROI checks.
 - [Why these laws (recorded baseline)](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/skills/aws-cost-audit/references/why-these-laws.md): The reproducible agent-failure baseline that each Iron Law fixes.
 - [LICENSE (MIT)](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/LICENSE): Permissive MIT license.
 
@@ -34,5 +34,5 @@ Two ways to install. As a Claude Code plugin: run `/plugin marketplace add Aboud
 
 ## Optional
 
-- [Research notes](https://github.com/Aboudjem/aws-cost-audit-skill/tree/main/docs/research): Background research behind the skill — AWS cost tactics, plugin spec, skill-authoring, and GEO/AEO conventions. Skip if a shorter context is needed.
+- [Research notes](https://github.com/Aboudjem/aws-cost-audit-skill/tree/main/docs/research): Background research behind the skill: AWS cost tactics, plugin spec, skill-authoring, and GEO/AEO conventions. Skip if a shorter context is needed.
 - [Assets](https://github.com/Aboudjem/aws-cost-audit-skill/tree/main/assets): Optional HTML dashboard template generated from verified data. Skip if a shorter context is needed.
