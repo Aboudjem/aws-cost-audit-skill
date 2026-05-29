@@ -43,7 +43,15 @@ region is just an example — use yours.
 
 ## 1. Install — Method A: plugin (recommended)
 
-Run these three commands inside Claude Code:
+**Recommended: via the [10x marketplace](https://github.com/Aboudjem/10x)** — a
+curated set of Claude Code tools. Run these two commands inside Claude Code:
+
+```text
+/plugin marketplace add Aboudjem/10x
+/plugin install aws-cost-audit@10x
+```
+
+**Alternatively, install directly from this repo:**
 
 ```text
 /plugin marketplace add Aboudjem/aws-cost-audit-skill
@@ -51,13 +59,13 @@ Run these three commands inside Claude Code:
 /reload-plugins
 ```
 
-- The first command adds the marketplace from the GitHub repo.
-- The second installs the plugin (`aws-cost-audit`) from that marketplace
-  (`aws-cost-audit-skill`).
-- `/reload-plugins` activates it. After this the skill is namespaced as
-  `/aws-cost-audit:aws-cost-audit`.
+- The first command adds the marketplace (10x or this repo).
+- The second installs the `aws-cost-audit` plugin from that marketplace.
+- `/reload-plugins` activates it when installing from the direct-repo path. After
+  activation the skill is namespaced as `/aws-cost-audit:aws-cost-audit`.
 
-To update later: `/plugin marketplace update aws-cost-audit-skill`. To remove:
+To update later: `/plugin marketplace update aws-cost-audit-skill` (direct) or
+`/plugin marketplace update 10x` (10x). To remove:
 `/plugin uninstall aws-cost-audit@aws-cost-audit-skill`.
 
 ---
