@@ -4,7 +4,22 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [Unreleased] - 2026-05-29
+
+Documentation and presentation polish. No behaviour changes.
+
+### Added
+
+- Demo video: `assets/demo.gif` plus an `.mp4`.
+
+### Changed
+
+- Led the marketplace description with "read-only", and stated read-only in the SVG art.
+
+### Fixed
+
+- Animated SVGs now respect `prefers-reduced-motion` (and fixed a blank-step risk in the how-it-works diagram).
+- Removed sentence-break em-dashes from the docs.
 
 ## [0.1.0] - 2026-05-28
 
