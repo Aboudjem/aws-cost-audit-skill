@@ -17,6 +17,7 @@ Two ways to install. As a Claude Code plugin: run `/plugin marketplace add Aboud
 
 ## Install
 
+- [10x marketplace (recommended)](https://github.com/Aboudjem/10x): `/plugin marketplace add Aboudjem/10x` then `/plugin install aws-cost-audit@10x`. The skill is curated in the 10x marketplace alongside other Claude Code tools.
 - [Plugin marketplace + install](https://github.com/Aboudjem/aws-cost-audit-skill#install): `/plugin marketplace add Aboudjem/aws-cost-audit-skill` then `/plugin install aws-cost-audit@aws-cost-audit-skill`.
 - [Drop-in skill](https://github.com/Aboudjem/aws-cost-audit-skill#install): Copy `skills/aws-cost-audit/` into `~/.claude/skills/aws-cost-audit/`.
 - [Plugin manifest](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/.claude-plugin/plugin.json): Plugin name, version, and keywords.

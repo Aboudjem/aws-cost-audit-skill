@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/hero.svg" alt="AWS Cost Audit: an executable, evidence-first AWS cost auditor for Claude Code" width="100%">
+  <img src="assets/hero.png" alt="AWS Cost Audit: an executable, evidence-first AWS cost auditor for Claude Code" width="100%">
 </p>
 
 <h1 align="center">AWS Cost Audit Skill</h1>
@@ -13,6 +13,11 @@
   <img src="https://img.shields.io/badge/Claude%20Code-skill-d97757" alt="Claude Code skill">
   <img src="https://img.shields.io/badge/AWS-cost%20optimization-ff9900" alt="AWS cost optimization">
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs welcome"></a>
+  <a href="https://github.com/Aboudjem/10x"><img src="https://img.shields.io/badge/part%20of-10x%20marketplace-f59e0b" alt="Part of the 10x marketplace"></a>
+</p>
+
+<p align="center">
+  Part of the <a href="https://github.com/Aboudjem/10x"><b>10x</b> marketplace</a> — a curated set of Claude Code tools that ship quality.
 </p>
 
 ---
@@ -29,9 +34,16 @@ Think of it as a careful FinOps engineer that shows its work.
 
 ## Install
 
-Pick whichever you prefer. Both use the same skill.
+Pick whichever you prefer. All three install the same skill.
 
-**As a Claude Code plugin** (recommended):
+**From the [10x marketplace](https://github.com/Aboudjem/10x)** (recommended — it's curated there alongside other Claude Code tools):
+
+```text
+/plugin marketplace add Aboudjem/10x
+/plugin install aws-cost-audit@10x
+```
+
+**From this repo directly:**
 
 ```text
 /plugin marketplace add Aboudjem/aws-cost-audit-skill
