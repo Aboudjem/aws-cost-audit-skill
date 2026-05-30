@@ -36,7 +36,7 @@ Additional hygiene for agents editing this repo: never commit a real 12-digit AW
 - `skills/aws-cost-audit/SKILL.md`: the skill: Iron Laws, ordered workflow, the auto-execute-vs-recommend decision gate, highest-ROI checks, and a full worked example.
 - `skills/aws-cost-audit/references/`: load-on-demand detail (hunt list, pricing verification, safety/gating, output/reporting, dashboard). `references/why-these-laws.md` records the agent-failure baseline each law fixes.
 - `skills/aws-cost-audit/scripts/`: generic, parameterized, dry-run-by-default helpers (no hardcoded account/ARN/price), when present.
-- `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`: plugin and marketplace manifests.
+- `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`, and `.copilot-plugin/plugin.json`: the plugin manifests for Claude Code, Cursor, and Copilot. The skill is distributed through the [10x marketplace](https://github.com/Aboudjem/10x), which holds the marketplace manifest; this repo ships none of its own.
 - `examples/`: worked example audit runs.
 - `assets/`: optional HTML dashboard template generated from verified data.
 - `docs/research/`: background research behind the skill.
@@ -45,7 +45,7 @@ Additional hygiene for agents editing this repo: never commit a real 12-digit AW
 ## Validate before claiming done
 
 - `SKILL.md` front matter parses (valid YAML: `name`, `description`, `license`).
-- `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` are valid JSON and name the repo `Aboudjem/aws-cost-audit-skill`.
+- `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`, and `.copilot-plugin/plugin.json` are valid JSON and name the repo `Aboudjem/aws-cost-audit-skill`.
 - No hardcoded price, account id, ARN, or concrete resource id anywhere in the repo.
 - All AWS CLI commands are read-only unless explicitly inside the gated remediation path.
 

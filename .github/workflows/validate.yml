@@ -185,8 +185,9 @@ jobs:
           import json, sys
 
           targets = [
-              ".claude-plugin/marketplace.json",
               ".claude-plugin/plugin.json",
+              ".cursor-plugin/plugin.json",
+              ".copilot-plugin/plugin.json",
           ]
           ok = True
           for path in targets:
