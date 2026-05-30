@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AWS Cost Audit Skill - audit your AWS bill with Claude</title>
+  <meta name="description" content="Ask Claude to audit your AWS bill. Get an evidence-first savings plan where every number is checked against live AWS pricing, and nothing gets deleted without your say-so. A skill-only Claude Code plugin, read-only by default." />
+  <meta property="og:title" content="AWS Cost Audit Skill" />
+  <meta property="og:description" content="An evidence-first AWS cost auditor for Claude Code. Verifies prices live, hardcodes none, never deletes without sign-off." />
+  <meta property="og:image" content="assets/dashboard-preview.png" />
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --panel: #14181d;
+      --ink: #e8ebef;
+      --muted: #9aa4af;
+      --accent: #ff9900;
+      --border: #232a31;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+    header { padding: 64px 0 24px; text-align: center; }
+    header img.hero { width: min(720px, 100%); height: auto; border-radius: var(--radius); }
+    h1 { font-size: 2rem; margin: 22px 0 0; }
+    .tagline { font-size: 1.15rem; color: var(--muted); margin: 16px auto 0; max-width: 680px; }
+    .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 28px 0 8px; }
+    .btn {
+      display: inline-block; padding: 11px 18px; border-radius: 10px;
+      border: 1px solid var(--border); color: var(--ink); font-weight: 600;
+    }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #1a1205; }
+    .demo { margin: 36px 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
+    .demo img { display: block; width: 100%; height: auto; }
+    .caption { color: var(--muted); font-size: 0.9rem; text-align: center; margin: -22px 0 36px; }
+    .illustrative { color: var(--accent); font-weight: 600; }
+    section { margin: 44px 0; }
+    h2 { font-size: 1.4rem; margin: 0 0 14px; }
+    pre {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px 16px; overflow-x: auto; font-size: 0.92rem;
+    }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+    .card h3 { margin: 0 0 6px; font-size: 1rem; }
+    .card p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+    footer { color: var(--muted); text-align: center; padding: 40px 0 64px; font-size: 0.9rem; border-top: 1px solid var(--border); margin-top: 48px; }
+  </style>
+</head>
+<body>
+  <header class="wrap">
+    <img class="hero" src="assets/hero.svg" alt="AWS Cost Audit Skill" onerror="this.style.display='none'" />
+    <h1>AWS Cost Audit Skill</h1>
+    <p class="tagline">Ask Claude to audit your AWS bill. Get a clear savings plan where every number is checked against live AWS pricing, and nothing gets deleted without your say-so.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/Aboudjem/aws-cost-audit-skill">View on GitHub</a>
+      <a class="btn" href="sample-dashboard.html">See a sample dashboard</a>
+      <a class="btn" href="https://github.com/Aboudjem/10x">10x marketplace</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="demo">
+      <img src="assets/demo.gif" alt="Claude running an AWS cost audit and streaming an evidence-first savings plan" onerror="this.src='assets/dashboard-preview.png'" />
+    </div>
+    <p class="caption">All figures shown are <span class="illustrative">illustrative</span> (synthetic data, no real account). In a real run every dollar is re-derived live from the AWS Price List Query API for your exact Region.</p>
+
+    <section>
+      <h2>What it is</h2>
+      <p>A <a href="https://www.claude.com/product/claude-code">Claude Code</a> skill that audits a live AWS account the way a careful FinOps engineer would: it attributes every dollar, finds the waste, and hands you a plain-language report split into "save now safely" and "maximum theoretical save". It reads only by default, it never guesses a price, and it never deletes anything on its own.</p>
+    </section>
+
+    <section>
+      <h2>Install it</h2>
+      <p>From the 10x marketplace (recommended), inside Claude Code:</p>
+      <pre><code>/plugin marketplace add Aboudjem/10x
+/plugin install aws-cost-audit@10x</code></pre>
+      <p>Into another AI CLI (Codex, Gemini, Copilot, and more), one line links the skill into that CLI's skills directory:</p>
+      <pre><code>curl -fsSL https://raw.githubusercontent.com/Aboudjem/aws-cost-audit-skill/main/install.sh | bash -s codex</code></pre>
+      <p>You need the AWS CLI configured with read access to the account you want to audit. <code>ReadOnlyAccess</code> is enough.</p>
+    </section>
+
+    <section>
+      <h2>Why you can trust the numbers</h2>
+      <div class="grid">
+        <div class="card"><h3>No made-up prices</h3><p>Every dollar comes from the live AWS price for your Region plus your actual usage, shown as unit price, math, source.</p></div>
+        <div class="card"><h3>Attribute every dollar</h3><p>Cost, purpose, owner, created-when, last-used per resource. If a fact cannot be verified, it says "unknown".</p></div>
+        <div class="card"><h3>Nothing destructive without proof</h3><p>A change runs only if proven unused, reversible, dry-run-tested, and certain. Otherwise it stays a recommendation.</p></div>
+        <div class="card"><h3>One sample is never the fleet</h3><p>A separate skeptic pass re-derives the headline numbers from the source before they ship.</p></div>
+        <div class="card"><h3>Every finding shows its evidence</h3><p>Current cost, cost after, dollars saved, a confidence level, the proof, and how to undo it.</p></div>
+        <div class="card"><h3>No data leaves your machine</h3><p>It uses your existing AWS CLI credentials locally. Nothing is uploaded to a third party.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>See it for yourself</h2>
+      <p>Open the <a href="sample-dashboard.html">sample dashboard</a> (synthetic data, clearly labelled) to see the report shape: monthly run-rate, "save now safely" vs "maximum theoretical save", and a per-resource view. The <a href="https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/examples/sample-report.md">sample report</a> shows the per-finding contract in full.</p>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    Built and maintained by <a href="https://github.com/Aboudjem">Adam Boudjemaa</a>. MIT licensed.
+    <br />
+    <a href="https://github.com/Aboudjem/aws-cost-audit-skill">github.com/Aboudjem/aws-cost-audit-skill</a>
+  </footer>
+</body>
+</html>

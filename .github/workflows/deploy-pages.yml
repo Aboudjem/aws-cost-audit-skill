@@ -1,0 +1,52 @@
+name: Deploy Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "assets/**"
+      - "examples/**"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble static site
+        run: |
+          set -euo pipefail
+          mkdir -p _site/assets
+          cp -r site/. _site/
+          # Reuse the already-shipped demo assets; never rebuild them here.
+          for f in demo.gif hero.svg how-it-works.svg dashboard-preview.png; do
+            [ -f "assets/$f" ] && cp "assets/$f" "_site/assets/$f" || true
+          done
+          # Ship the real synthetic sample dashboard so visitors can open it.
+          if [ -f examples/sample-dashboard.html ]; then
+            cp examples/sample-dashboard.html _site/sample-dashboard.html
+          fi
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
