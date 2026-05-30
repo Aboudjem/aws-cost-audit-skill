@@ -20,6 +20,10 @@
   Part of the <a href="https://github.com/Aboudjem/10x"><b>10x</b> marketplace</a>, a curated set of Claude Code tools that ship quality.
 </p>
 
+<p align="center">
+  <b>English</b> · <a href="READMEs/zh-CN.md">简体中文</a> · <a href="READMEs/ja.md">日本語</a> · <a href="READMEs/es.md">Español</a> · <a href="READMEs/fr.md">Français</a>
+</p>
+
 ---
 
 ![aws-cost-audit demo](assets/demo.gif)
@@ -65,6 +69,57 @@ cp -r aws-cost-audit-skill/skills/aws-cost-audit ~/.claude/skills/aws-cost-audit
 
 You also need the [AWS CLI](https://aws.amazon.com/cli/) set up with read access to the account you want to audit. `ReadOnlyAccess` is enough for the audit itself.
 
+### Other AI CLIs (one line)
+
+This is a skill-only plugin (no MCP server). The installer symlinks the `aws-cost-audit` skill into another CLI's skills directory:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Aboudjem/aws-cost-audit-skill/main/install.sh | bash -s <platform>
+```
+
+| Platform | Skills directory | Link style |
+|:--|:--|:--|
+| gemini, codex, opencode, pi | `~/.agents/skills` | per-skill |
+| vscode, copilot | `~/.copilot/skills` | per-skill |
+| trae | `~/.trae/skills` | per-skill |
+| vibe | `~/.vibe/skills` | per-skill |
+| openclaw | `~/.openclaw/skills` | folder |
+| antigravity | `~/.gemini/antigravity/skills` | folder |
+| hermes, cline, kimi | `~/.<cli>/skills` | folder |
+
+Pass `all` to link into every platform above. Use `--update` to relink the latest, `--uninstall` to remove the links.
+
+<details>
+<summary>Codex, Gemini, OpenCode, pi</summary>
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Aboudjem/aws-cost-audit-skill/main/install.sh | bash -s codex
+```
+</details>
+
+<details>
+<summary>VS Code (Copilot)</summary>
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Aboudjem/aws-cost-audit-skill/main/install.sh | bash -s copilot
+```
+</details>
+
+<details>
+<summary>Windows (PowerShell)</summary>
+
+```powershell
+git clone https://github.com/Aboudjem/aws-cost-audit-skill
+./aws-cost-audit-skill/install.ps1 copilot
+```
+</details>
+
+<details>
+<summary>Other editors (manual)</summary>
+
+The skill is plain Markdown plus shell scripts. Copy `skills/aws-cost-audit/SKILL.md` and the `references/` folder into a context directory your editor reads, then run the helper scripts in `skills/aws-cost-audit/scripts/` directly. They depend only on the AWS CLI.
+</details>
+
 ## Use it in 3 steps
 
 1. **Install it** (above).
@@ -92,7 +147,7 @@ That is the whole thing. Nothing is changed in your account unless you ask, and 
 
 ## What a run looks like
 
-No recording exists yet (AWS calls require live credentials; see the deferred items note in [CONTRIBUTING.md](CONTRIBUTING.md)). Here is what happens step by step, mirrored in the [sample report](examples/sample-report.md) and the [sample dashboard](examples/sample-dashboard.html) (both use synthetic data, clearly labelled):
+The recording above (`assets/demo.gif`) is illustrative: it uses synthetic data, not a real account, because AWS calls require live credentials (see the deferred-items note in [CONTRIBUTING.md](CONTRIBUTING.md)). Here is what happens step by step, mirrored in the [sample report](examples/sample-report.md) and the [sample dashboard](examples/sample-dashboard.html) (both use synthetic data, clearly labelled):
 
 1. **Identity check.** `aws sts get-caller-identity` confirms the account and region before anything else runs.
 2. **Spend baseline.** Cost Explorer (`aws ce get-cost-and-usage`) pulls the trailing 30 and 90-day spend, broken down by service and region. You see a table: service → $/mo → share of total.
@@ -179,6 +234,16 @@ The skill's logic (Iron Laws, workflow, safety gates) is fully portable. Only th
 ## Contributing
 
 Issues and PRs are welcome. The one firm rule: this skill is built test-first, so a change that adds behavior needs the failing baseline it fixes. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Star History
+
+<a href="https://star-history.com/#Aboudjem/aws-cost-audit-skill&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Aboudjem/aws-cost-audit-skill&type=Date&theme=dark">
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Aboudjem/aws-cost-audit-skill&type=Date">
+    <img alt="Star history of Aboudjem/aws-cost-audit-skill" src="https://api.star-history.com/svg?repos=Aboudjem/aws-cost-audit-skill&type=Date">
+  </picture>
+</a>
 
 ## License
 
