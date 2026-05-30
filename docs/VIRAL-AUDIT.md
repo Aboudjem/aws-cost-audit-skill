@@ -1,6 +1,6 @@
 # Viral-Readiness Audit — aws-cost-audit-skill
 
-_Engine run: 2026-05-30 · Supernova standard_
+_2026-05-30_
 
 ## Score summary
 
@@ -37,8 +37,8 @@ _Engine run: 2026-05-30 · Supernova standard_
 
 ## Engine assessment
 
-The engine correctly identified the single remaining gap (`has_tests`). Type (`claude-plugin`) and packaging (`plugin`) are accurate — the repo ships a Claude Code skill via a plugin manifest with no MCP server, matching the packaging recommendation exactly. No false gaps were observed. The "add AGENTS.md" suggestion in the packaging note was already satisfied; the engine's bonus-signal detection correctly flagged it as present.
+The one real gap was `has_tests` — fixed. Type (`claude-plugin`) and packaging (`plugin`) are right: the repo ships a Claude Code skill via a plugin manifest with no MCP server. `AGENTS.md` was already present; no changes needed there.
 
-## Two-sentence read
+## Read
 
-This skill is a surgical FinOps tool for Claude Code: it audits a live AWS account with live prices, zero hardcoded values, and a read-only-first safety model that mirrors the AWS Well-Architected cost-optimization pillar. The repo is production-grade (demo GIF, dashboard, multi-language docs, multi-CLI installer, releases) and is one well-placed community post away from breakout growth in the r/aws and FinOps Foundation audiences.
+AWS cost audit skill for Claude Code: audits a live account with live prices, zero hardcoded values, and a read-only-first safety model that follows the Well-Architected cost-optimization pillar. Demo GIF, dashboard, multi-language docs, multi-CLI installer, and releases are all shipped. The r/aws and FinOps Foundation audiences are the natural landing spots.

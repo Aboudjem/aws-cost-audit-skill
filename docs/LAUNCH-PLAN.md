@@ -1,6 +1,6 @@
 # Launch Plan — aws-cost-audit-skill
 
-_June 2026 · Supernova Pillar 1: Borrowed-reach first_
+_June 2026 · borrowed-reach first_
 
 ## Situation
 
@@ -99,9 +99,9 @@ The ceiling is higher if one r/aws post hits the front page (r/aws has 2M+ membe
 
 ---
 
-## Pillar 1 checklist (Supernova Standard)
+## Launch checklist
 
-- [x] Borrowed reach first (warm community channels before cold outreach)
+- [x] Warm channels first (community before cold outreach)
 - [x] Evidence-led posts (sample report + dashboard as social proof)
 - [x] Cross-platform (Reddit + LinkedIn + FinOps Slack + GitHub Discussions)
 - [x] Second wave planned (SEO/GEO + community saves accumulation)
