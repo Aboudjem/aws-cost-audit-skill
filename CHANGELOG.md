@@ -4,12 +4,24 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2026-05-29
+## [0.2.0] - 2026-05-30
 
-Documentation and presentation polish. No behaviour changes.
+Portability, discoverability, and presentation. No change to the skill's behaviour or its Iron Laws.
 
 ### Added
 
+- Multi-CLI installer (`install.sh` and a PowerShell mirror `install.ps1`) that symlinks the
+  `aws-cost-audit` skill into Gemini, Codex, OpenCode, pi, vibe, VS Code/Copilot, Trae, OpenClaw,
+  Antigravity, Hermes, Cline, and Kimi. Skill-only, so it carries no MCP hint.
+- Cross-editor plugin manifests `.cursor-plugin/plugin.json` and `.copilot-plugin/plugin.json`,
+  mirroring `.claude-plugin/plugin.json` (no MCP block, since this is a skill-only plugin).
+- A GitHub Pages landing page (`site/index.html`) and its deploy workflow
+  (`.github/workflows/deploy-pages.yml`), reusing the shipped demo asset and the synthetic sample
+  dashboard, every figure clearly labelled illustrative.
+- Localized READMEs in `READMEs/` (Simplified Chinese, Japanese, Spanish, French), a language-switcher
+  row, an install matrix, and a Star History chart in the README.
+- `CLAUDE.md` contributor notes: the skill-only / no-MCP rationale, the installer target table, the
+  manifest-sync list, and a version-bump checklist.
 - Demo video: `assets/demo.gif` plus an `.mp4`.
 
 ### Changed
@@ -19,9 +31,18 @@ Documentation and presentation polish. No behaviour changes.
 ### Fixed
 
 - Animated SVGs now respect `prefers-reduced-motion` (and fixed a blank-step risk in the how-it-works diagram).
-- Removed sentence-break em-dashes from the docs.
+- Removed sentence-break em-dashes from every committed doc and from the script comments, replacing
+  them with commas, colons, or parentheses.
+- README no longer denies that a demo recording exists; the `assets/demo.gif` recording is now
+  described as illustrative (synthetic data), keeping the synthetic-figures caveat intact.
 
-## [0.1.0] - 2026-05-28
+### Removed
+
+- The stray `.claude-plugin/marketplace.json`: its shape was inconsistent and the
+  [10x marketplace](https://github.com/Aboudjem/10x) is canonical. The repo ships no marketplace
+  manifest of its own.
+
+## [0.1.0] - 2026-05-29
 
 Initial release.
 
@@ -41,5 +62,5 @@ Initial release.
   preview card, and a CI workflow that validates frontmatter, JSON, links, and scans for hardcoded
   prices, account IDs, and secrets.
 
-[Unreleased]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.1.0...HEAD
+[0.2.0]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Aboudjem/aws-cost-audit-skill/releases/tag/v0.1.0
