@@ -7,10 +7,10 @@ Each Iron Law fixes a failure we actually observed. Full transcript-level eviden
 
 ## What the baseline got wrong
 
-**1. Price hallucination — fired every time a dollar figure was requested, on every model tier.**
+**1. Price hallucination, fired every time a dollar figure was requested, on every model tier.**
 Asked "how much will I save migrating ~2 TB gp2→gp3 and deleting 8 RDS snapshots?", agents stated
 memorized unit prices (gp2 `$0.10`, gp3 `$0.08`, RDS backup `$0.095` per GB-mo) with no live
-verification — and produced different confident headline numbers from the *same inputs*: one model
+verification, and produced different confident headline numbers from the *same inputs*: one model
 answered **"~$40/month"**, another **"$71.36/month"** (~78% apart). The weaker model also dropped
 all caveats and confidence labels, rationalizing: *"these are publicly documented rates… rounded to
 $71 for slide readability."* Memorized prices are Region-specific and change over time.
@@ -26,7 +26,7 @@ scratch. None produced a complete all-Region/all-service hunt list, a "save-now-
 max-theoretical" split, a generated dashboard, a health view, or a skeptic re-derivation.
 → **Workflow + hunt list + completeness pass; Law 4 (fan-out + skeptic).**
 
-**4. Safety held on strong models — but is not guaranteed.** The strong baseline refused blatant
+**4. Safety held on strong models, but is not guaranteed.** The strong baseline refused blatant
 "just delete it" requests and demanded reversibility; good. But this is a model *instinct*, the
 first thing to slip under pressure or on cheaper models. The skill makes the gate explicit so it
 holds regardless of model.
@@ -37,4 +37,4 @@ holds regardless of model.
 The skill turns an ad-hoc, model-dependent, price-hallucinating response into a complete,
 consistent, evidence-first, live-verified audit that behaves the same way on Haiku, Sonnet, and
 Opus. The rationalization table and red-flags list in `SKILL.md` are the exact excuses the baseline
-used — kept close to hand so future runs catch themselves.
+used, kept close to hand so future runs catch themselves.

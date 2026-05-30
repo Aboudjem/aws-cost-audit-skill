@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# verify-price.sh — Look up the LIVE unit price for a service from the AWS
-# Price List Query API. This proves "Law 1: never assume a price — verify it
+# verify-price.sh: Look up the LIVE unit price for a service from the AWS
+# Price List Query API. This proves "Law 1: never assume a price: verify it
 # live for your exact region." This script hardcodes NO prices.
 #
 # Wrapper around `aws pricing get-products`. The Price List Query API is only
 # served from two endpoints (us-east-1 and ap-south-1); the region you are
 # PRICING is passed as a filter (regionCode), independent of the API endpoint.
-# Ref: AWS Price List API — using the AWS Price List Query API.
+# Ref: AWS Price List API: using the AWS Price List Query API.
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=_lib.sh
@@ -92,7 +92,7 @@ info "Matching products: $COUNT"
 
 if [ "$RAW" = "1" ] || ! command -v jq >/dev/null 2>&1; then
   printf '%s\n' "$RESULT"
-  [ "$RAW" = "1" ] || warn "jq not installed — printed raw JSON. Install jq for a parsed table."
+  [ "$RAW" = "1" ] || warn "jq not installed, printed raw JSON. Install jq for a parsed table."
   exit 0
 fi
 

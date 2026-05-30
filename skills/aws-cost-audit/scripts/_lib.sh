@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# _lib.sh — shared helpers for the aws-cost-audit scripts.
+# _lib.sh: shared helpers for the aws-cost-audit scripts.
 # Sourced by the other scripts; not meant to be run directly.
 #
 # Contains NO hardcoded account id, region, ARN, resource id, or price.
 # Region is resolved from (in order): --region arg handled by caller,
 # $AWS_REGION, $AWS_DEFAULT_REGION, `aws configure get region`.
-# If none can be found the caller is told to set one — we never assume one.
+# If none can be found the caller is told to set one: we never assume one.
 
 set -euo pipefail
 
@@ -26,7 +26,7 @@ require_cmd() {
 preflight() {
   require_cmd aws
   # jq is optional but recommended; warn rather than fail.
-  command -v jq >/dev/null 2>&1 || warn "jq not found — some output will be raw JSON."
+  command -v jq >/dev/null 2>&1 || warn "jq not found, some output will be raw JSON."
 }
 
 # ---- region resolution ------------------------------------------------------

@@ -9,8 +9,8 @@ expected to treat each other with courtesy and good faith.
 ## Our standard
 
 This project adopts the **Contributor Covenant, version 2.1**, as its Code of Conduct. The full,
-canonical text — including the expected behavior, unacceptable behavior, enforcement
-responsibilities, scope, and enforcement guidelines — is published here:
+canonical text, including the expected behavior, unacceptable behavior, enforcement
+responsibilities, scope, and enforcement guidelines, is published here:
 
 - Full text: https://www.contributor-covenant.org/version/2/1/code_of_conduct/
 - Plain-language summary and FAQ: https://www.contributor-covenant.org/faq/

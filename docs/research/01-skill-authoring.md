@@ -1,4 +1,4 @@
-# 01 — Claude Code / Anthropic Agent Skill Authoring: Best Practices + Repo Teardown
+# 01: Claude Code / Anthropic Agent Skill Authoring: Best Practices + Repo Teardown
 
 **Research scope:** Official Anthropic Agent Skills docs, the agentskills.io open specification, and a teardown of real, popular Claude skill/plugin repos on GitHub. Goal: ground the design of a generic, reference-grade "AWS cost audit" skill that ships as a public repo.
 
@@ -10,13 +10,13 @@
 
 ## 1. What a Skill is (official)
 
-An Agent Skill is a **directory** containing, at minimum, a `SKILL.md` file with YAML frontmatter plus a Markdown body, and optionally bundled `scripts/`, `references/`, and `assets/`. Skills package instructions, metadata, and optional resources that Claude loads **on demand** when relevant — unlike prompts (one-off) or CLAUDE.md (always loaded). Source: [Agent Skills overview](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview); [agentskills.io spec](https://agentskills.io/specification).
+An Agent Skill is a **directory** containing, at minimum, a `SKILL.md` file with YAML frontmatter plus a Markdown body, and optionally bundled `scripts/`, `references/`, and `assets/`. Skills package instructions, metadata, and optional resources that Claude loads **on demand** when relevant, unlike prompts (one-off) or CLAUDE.md (always loaded). Source: [Agent Skills overview](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview); [agentskills.io spec](https://agentskills.io/specification).
 
-Claude Code-specific framing: create a skill "when you keep pasting the same instructions, checklist, or multi-step procedure into chat, or when a section of CLAUDE.md has grown into a procedure rather than a fact. Unlike CLAUDE.md content, a skill's body loads only when it's used." Custom commands have been **merged into skills** — `.claude/commands/deploy.md` and `.claude/skills/deploy/SKILL.md` both create `/deploy`. Source: [Claude Code skills doc](https://code.claude.com/docs/en/skills).
+Claude Code-specific framing: create a skill "when you keep pasting the same instructions, checklist, or multi-step procedure into chat, or when a section of CLAUDE.md has grown into a procedure rather than a fact. Unlike CLAUDE.md content, a skill's body loads only when it's used." Custom commands have been **merged into skills**, `.claude/commands/deploy.md` and `.claude/skills/deploy/SKILL.md` both create `/deploy`. Source: [Claude Code skills doc](https://code.claude.com/docs/en/skills).
 
 ---
 
-## 2. SKILL.md frontmatter — the authoritative field tables
+## 2. SKILL.md frontmatter: the authoritative field tables
 
 There are **three overlapping field sets**. Knowing which applies where prevents over- or under-specifying frontmatter.
 
@@ -40,12 +40,12 @@ The agentskills.io spec backs Claude Code's skills, and Claude Code "extends the
 | `metadata` | No | Arbitrary string→string map (e.g. `author`, `version`). Use unique key names to avoid conflicts. |
 | `allowed-tools` | No | Space-separated string of pre-approved tools, e.g. `Bash(git:*) Bash(jq:*) Read`. **Experimental**; support varies by agent. |
 
-### 2c. Claude Code extended frontmatter (richest — relevant for a shipped CC skill)
+### 2c. Claude Code extended frontmatter (richest: relevant for a shipped CC skill)
 
-Claude Code supports a larger set; **all fields are optional**, and only `description` is recommended. Source: [Claude Code skills doc — Frontmatter reference](https://code.claude.com/docs/en/skills).
+Claude Code supports a larger set; **all fields are optional**, and only `description` is recommended. Source: [Claude Code skills doc, Frontmatter reference](https://code.claude.com/docs/en/skills).
 
-- **`name`**: display name in skill listings; defaults to the directory name. (Note: in Claude Code, the directory name — not `name` — is what you type after `/`, except for a plugin-root `SKILL.md`.)
-- **`description`** (recommended): what + when. **Put the key use case first** — the combined `description` + `when_to_use` text is truncated at **1,536 characters** in the skill listing. If omitted, the first paragraph of body content is used.
+- **`name`**: display name in skill listings; defaults to the directory name. (Note: in Claude Code, the directory name, not `name`, is what you type after `/`, except for a plugin-root `SKILL.md`.)
+- **`description`** (recommended): what + when. **Put the key use case first**, the combined `description` + `when_to_use` text is truncated at **1,536 characters** in the skill listing. If omitted, the first paragraph of body content is used.
 - **`when_to_use`**: extra trigger phrases / example requests; appended to `description`, counts toward the 1,536-char cap.
 - **`argument-hint`**: autocomplete hint, e.g. `[filename] [format]`.
 - **`arguments`**: named positional args for `$name` substitution.
@@ -65,9 +65,9 @@ Claude Code supports a larger set; **all fields are optional**, and only `descri
 
 ---
 
-## 3. Progressive disclosure — the core design principle (3 levels)
+## 3. Progressive disclosure: the core design principle (3 levels)
 
-Skills load progressively; structure to exploit it. Source: [overview — How Skills work](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview); [agentskills.io spec](https://agentskills.io/specification); [best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+Skills load progressively; structure to exploit it. Source: [overview, How Skills work](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview); [agentskills.io spec](https://agentskills.io/specification); [best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
 | Level | When loaded | Token cost (official) | Content |
 |---|---|---|---|
@@ -79,7 +79,7 @@ Hard guidance:
 - **Keep the SKILL.md body under 500 lines.** Split detail into separate files. ([best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices); [agentskills.io spec](https://agentskills.io/specification); [Claude Code skills doc](https://code.claude.com/docs/en/skills).)
 - **Keep file references one level deep from SKILL.md.** Claude may only partially read (`head -100`) nested references, getting incomplete info. All reference files should link directly from SKILL.md. ([best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).)
 - **For reference files >100 lines, add a table of contents** at the top so partial reads still surface the full scope. ([best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).)
-- **No context penalty for bundled content until accessed** — bundle comprehensive API docs / large datasets freely. ([overview](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview).)
+- **No context penalty for bundled content until accessed**, bundle comprehensive API docs / large datasets freely. ([overview](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview).)
 
 The official PDF skill (`anthropics/skills`) is a concrete model: a ~2,000-word body with sections (Overview, Quick Start, Python Libraries, Command-Line Tools, Common Tasks, Quick Reference, Next Steps) that defers `REFERENCE.md` (advanced) and `FORMS.md` (form-filling) until needed. Source: [pdf/SKILL.md](https://raw.githubusercontent.com/anthropics/skills/main/skills/pdf/SKILL.md).
 
@@ -87,29 +87,29 @@ The official PDF skill (`anthropics/skills`) is a concrete model: a ~2,000-word 
 
 ## 4. Writing the `description` (most important authoring decision)
 
-The description is **how the skill is discovered** — Claude uses it to pick from 100+ skills. Source: [best practices — Writing effective descriptions](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+The description is **how the skill is discovered**, Claude uses it to pick from 100+ skills. Source: [best practices, Writing effective descriptions](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
 - **Always third person.** It is injected into the system prompt; inconsistent POV causes discovery problems. Good: "Processes Excel files and generates reports." Avoid: "I can help you..." / "You can use this to...".
 - **State both WHAT and WHEN**, and include specific trigger keywords. Official example: `Extract text and tables from PDF files, fill forms, merge documents. Use when working with PDF files or when the user mentions PDFs, forms, or document extraction.`
 - **Avoid vague descriptions** ("Helps with documents", "Processes data").
 - **Be "pushy" about triggers.** The official `skill-creator` advises including contexts where the skill applies "even if they don't explicitly ask for it," because Claude tends to **undertrigger** skills. Source: [skill-creator/SKILL.md](https://raw.githubusercontent.com/anthropics/skills/main/skills/skill-creator/SKILL.md).
-- **Put the key use case first** — text is truncated (1,536 chars in Claude Code listings; 1,024 char hard cap on the field itself). Source: [Claude Code skills doc](https://code.claude.com/docs/en/skills); [best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+- **Put the key use case first**, text is truncated (1,536 chars in Claude Code listings; 1,024 char hard cap on the field itself). Source: [Claude Code skills doc](https://code.claude.com/docs/en/skills); [best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
 **Draft for the AWS cost audit skill** (third person, keyword-rich, WHAT+WHEN, real PDF-skill phrasing as the template):
-> "Audits an AWS account for cost savings — finds idle/oversized resources, untagged spend, unused EBS volumes and Elastic IPs, old snapshots, and Savings Plan / Reserved Instance opportunities using Cost Explorer and read-only AWS CLI queries. Use whenever the user wants to reduce, review, or analyze their AWS bill or asks about AWS costs, FinOps, idle resources, or rightsizing."
+> "Audits an AWS account for cost savings, finds idle/oversized resources, untagged spend, unused EBS volumes and Elastic IPs, old snapshots, and Savings Plan / Reserved Instance opportunities using Cost Explorer and read-only AWS CLI queries. Use whenever the user wants to reduce, review, or analyze their AWS bill or asks about AWS costs, FinOps, idle resources, or rightsizing."
 
 ---
 
 ## 5. Naming conventions (official)
 
-Source: [best practices — Naming conventions](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+Source: [best practices, Naming conventions](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
 - Prefer **gerund form** (verb + -ing): `processing-pdfs`, `analyzing-spreadsheets`, `testing-code`.
 - Acceptable: noun phrases (`pdf-processing`, `spreadsheet-analysis`) or action-oriented (`analyze-spreadsheets`).
 - **Avoid**: vague (`helper`, `utils`, `tools`), overly generic (`documents`, `data`, `files`), reserved words (`anthropic-*`, `claude-*`), inconsistent patterns.
 - Reminder: `name` is lowercase + numbers + hyphens only, and (per the open spec) must match the parent directory name.
 
-> Note: real production skills don't always use the gerund form — the official skill is named `pdf`, not `processing-pdfs`. Gerund is a recommendation, not a hard rule. (`pdf` / `xlsx` / `docx` are the actual directory names: [anthropics/skills tree](https://github.com/anthropics/skills/tree/main/skills).)
+> Note: real production skills don't always use the gerund form, the official skill is named `pdf`, not `processing-pdfs`. Gerund is a recommendation, not a hard rule. (`pdf` / `xlsx` / `docx` are the actual directory names: [anthropics/skills tree](https://github.com/anthropics/skills/tree/main/skills).)
 
 ---
 
@@ -117,7 +117,7 @@ Source: [best practices — Naming conventions](https://platform.claude.com/docs
 
 Source: [best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) unless noted.
 
-- **Concise is key.** "The context window is a public good." Default assumption: Claude is already smart — only add context it doesn't have. Challenge each line's token cost.
+- **Concise is key.** "The context window is a public good." Default assumption: Claude is already smart, only add context it doesn't have. Challenge each line's token cost.
 - **Set appropriate degrees of freedom**, matched to task fragility:
   - **High freedom** (text instructions) when multiple approaches are valid / context-dependent.
   - **Medium freedom** (pseudocode / parameterized scripts) when a preferred pattern exists.
@@ -133,14 +133,14 @@ Source: [best practices](https://platform.claude.com/docs/en/agents-and-tools/ag
 ### Skills with executable code
 - **Solve, don't punt**: scripts handle errors explicitly rather than failing for Claude to fix.
 - **No "voodoo constants"**: justify/document every magic number.
-- **Prefer utility scripts** for deterministic ops — more reliable, save tokens, ensure consistency. **Make execution intent explicit**: "Run `analyze_form.py`" (execute) vs. "See `analyze_form.py` for the algorithm" (read).
-- **Create verifiable intermediate outputs** ("plan-validate-execute"): write a plan file, validate it with a script, then execute — for batch/destructive/high-stakes operations.
+- **Prefer utility scripts** for deterministic ops, more reliable, save tokens, ensure consistency. **Make execution intent explicit**: "Run `analyze_form.py`" (execute) vs. "See `analyze_form.py` for the algorithm" (read).
+- **Create verifiable intermediate outputs** ("plan-validate-execute"): write a plan file, validate it with a script, then execute, for batch/destructive/high-stakes operations.
 - **Don't assume tools are installed**: state `pip install …` / dependencies.
 - **MCP tool references must be fully qualified**: `ServerName:tool_name` (e.g. `GitHub:create_issue`), else "tool not found."
 
 ### Anti-patterns
-- **No Windows-style backslash paths** — always forward slashes (`scripts/helper.py`), cross-platform.
-- **Don't offer too many options** — give one default with an escape hatch, not "pypdf or pdfplumber or PyMuPDF or…".
+- **No Windows-style backslash paths**, always forward slashes (`scripts/helper.py`), cross-platform.
+- **Don't offer too many options**, give one default with an escape hatch, not "pypdf or pdfplumber or PyMuPDF or…".
 
 ### Writing style (from skill-creator)
 "Explain to the model **why** things are important" rather than heavy-handed capitalized commands; "leverage theory of mind to make skills general rather than narrow." Source: [skill-creator/SKILL.md](https://raw.githubusercontent.com/anthropics/skills/main/skills/skill-creator/SKILL.md).
@@ -149,7 +149,7 @@ Source: [best practices](https://platform.claude.com/docs/en/agents-and-tools/ag
 
 ## 7. Evaluation-driven development (official)
 
-**Build evaluations BEFORE writing extensive documentation.** Source: [best practices — Evaluation and iteration](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+**Build evaluations BEFORE writing extensive documentation.** Source: [best practices, Evaluation and iteration](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
 1. Identify gaps: run Claude on representative tasks without the skill; document failures.
 2. Create evaluations: build **three** scenarios testing those gaps.
@@ -170,7 +170,7 @@ Eval JSON shape (from the docs):
   ]
 }
 ```
-> The docs note there is **no built-in runner** for these evals — users build their own. The `skill-creator` workflow does spawn parallel with-skill vs. baseline test runs and an `eval-viewer/generate_review.py` browser review. ([skill-creator/SKILL.md](https://raw.githubusercontent.com/anthropics/skills/main/skills/skill-creator/SKILL.md).)
+> The docs note there is **no built-in runner** for these evals, users build their own. The `skill-creator` workflow does spawn parallel with-skill vs. baseline test runs and an `eval-viewer/generate_review.py` browser review. ([skill-creator/SKILL.md](https://raw.githubusercontent.com/anthropics/skills/main/skills/skill-creator/SKILL.md).)
 
 **The "Claude A / Claude B" loop**: develop the skill with one Claude (the author/refiner) and test it on a fresh Claude with the skill loaded; bring observed failures back to the author Claude. Checklist for completion is in §8.
 
@@ -178,7 +178,7 @@ Eval JSON shape (from the docs):
 
 ## 8. Official "checklist for effective skills"
 
-Source: [best practices — Checklist](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+Source: [best practices, Checklist](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
 **Core quality:** description is specific + has key terms; description has what AND when; body under 500 lines; details in separate files; no time-sensitive info (or in "old patterns"); consistent terminology; concrete (not abstract) examples; file references one level deep; progressive disclosure used; workflows have clear steps.
 **Code/scripts:** scripts solve (don't punt); explicit error handling; no voodoo constants; required packages listed + verified; scripts documented; no Windows paths; validation steps for critical ops; feedback loops for quality-critical tasks.
@@ -208,7 +208,7 @@ Sources: [agentskills.io spec](https://agentskills.io/specification); [overview]
 | Project | `.claude/skills/<skill-name>/SKILL.md` | This project only |
 | Plugin | `<plugin>/skills/<skill-name>/SKILL.md` | Where the plugin is enabled |
 
-Precedence: enterprise > personal > project; plugin skills are namespaced `plugin-name:skill-name` and can't conflict. Project skills load from `.claude/skills/` in the start dir and every parent up to repo root (monorepo-friendly). Source: [Claude Code skills doc — Where skills live](https://code.claude.com/docs/en/skills).
+Precedence: enterprise > personal > project; plugin skills are namespaced `plugin-name:skill-name` and can't conflict. Project skills load from `.claude/skills/` in the start dir and every parent up to repo root (monorepo-friendly). Source: [Claude Code skills doc, Where skills live](https://code.claude.com/docs/en/skills).
 
 ---
 
@@ -216,7 +216,7 @@ Precedence: enterprise > personal > project; plugin skills are namespaced `plugi
 
 To ship a skill as an installable Claude Code plugin + marketplace. Sources: [Create plugins](https://code.claude.com/docs/en/plugins); [anthropics/skills marketplace.json](https://github.com/anthropics/skills/blob/main/.claude-plugin/marketplace.json).
 
-### Plugin manifest — `.claude-plugin/plugin.json`
+### Plugin manifest: `.claude-plugin/plugin.json`
 ```json
 {
   "name": "my-plugin",
@@ -225,7 +225,7 @@ To ship a skill as an installable Claude Code plugin + marketplace. Sources: [Cr
   "author": { "name": "Your Name" }
 }
 ```
-Fields: `name` (unique id + skill namespace), `description`, `version` (optional — if set, users only get updates when bumped; if omitted with git distribution, the commit SHA is the version), `author` (optional). More fields (`homepage`, `repository`, `license`) in the plugins reference.
+Fields: `name` (unique id + skill namespace), `description`, `version` (optional, if set, users only get updates when bumped; if omitted with git distribution, the commit SHA is the version), `author` (optional). More fields (`homepage`, `repository`, `license`) in the plugins reference.
 
 ### Plugin directory structure
 ```
@@ -236,9 +236,9 @@ my-plugin/
     └── aws-cost-audit/
         └── SKILL.md
 ```
-**Common mistake (called out in the docs):** do NOT put `skills/`, `agents/`, `commands/`, or `hooks/` inside `.claude-plugin/` — they live at the **plugin root**.
+**Common mistake (called out in the docs):** do NOT put `skills/`, `agents/`, `commands/`, or `hooks/` inside `.claude-plugin/`, they live at the **plugin root**.
 
-### Marketplace — `.claude-plugin/marketplace.json`
+### Marketplace: `.claude-plugin/marketplace.json`
 The official `anthropics/skills` marketplace.json shape:
 ```json
 {
@@ -268,7 +268,7 @@ Top-level keys: `name`, `owner`, `metadata`, `plugins[]`. Each plugin entry: `na
 
 Sources: [Create plugins](https://code.claude.com/docs/en/plugins); [anthropics/skills README via overview](https://github.com/anthropics/skills).
 
-**Design takeaway:** ship the repo BOTH ways — (a) drop-in: `skills/aws-cost-audit/SKILL.md` usable by copying to `~/.claude/skills/` or `.claude/skills/`; and (b) plugin: add `.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json` so users can `/plugin marketplace add <you>/<repo>` then `/plugin install`. This mirrors what the most-installed repos do (§11).
+**Design takeaway:** ship the repo BOTH ways, (a) drop-in: `skills/aws-cost-audit/SKILL.md` usable by copying to `~/.claude/skills/` or `.claude/skills/`; and (b) plugin: add `.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json` so users can `/plugin marketplace add <you>/<repo>` then `/plugin install`. This mirrors what the most-installed repos do (§11).
 
 ---
 
@@ -278,7 +278,7 @@ Star counts via GitHub REST API on 2026-05-28. Ranked by relevance + reach.
 
 | Repo | Stars | What it is | Layout / distribution | Notable for authoring |
 |---|---:|---|---|---|
-| [obra/superpowers](https://github.com/obra/superpowers) | **211,074** | "Agentic skills framework & software-development methodology." | `/skills` dir, one subdir + `SKILL.md` per skill. **No traditional marketplace.json shown** — uses per-agent install (Claude Code: `/plugin install superpowers@claude-plugins-official`; also Codex, Factory Droid `droid plugin marketplace add <repo>`, Gemini `gemini extensions install <repo>`, Copilot). 16 documented skills in 4 categories (Testing/Debugging/Collaboration/Meta). | README shape: Quickstart → How it works → Sponsorship → Installation → Basic Workflow → What's Inside → Philosophy → Contributing → License → Community. Emphasizes agent autonomy + verification and **anti-pattern references inside skills**. Multi-harness install is the headline differentiator. |
+| [obra/superpowers](https://github.com/obra/superpowers) | **211,074** | "Agentic skills framework & software-development methodology." | `/skills` dir, one subdir + `SKILL.md` per skill. **No traditional marketplace.json shown**, uses per-agent install (Claude Code: `/plugin install superpowers@claude-plugins-official`; also Codex, Factory Droid `droid plugin marketplace add <repo>`, Gemini `gemini extensions install <repo>`, Copilot). 16 documented skills in 4 categories (Testing/Debugging/Collaboration/Meta). | README shape: Quickstart → How it works → Sponsorship → Installation → Basic Workflow → What's Inside → Philosophy → Contributing → License → Community. Emphasizes agent autonomy + verification and **anti-pattern references inside skills**. Multi-harness install is the headline differentiator. |
 | [anthropics/skills](https://github.com/anthropics/skills) | **142,827** | Official Anthropic skills repo + the spec + a template. | Root: `.claude-plugin/`, `skills/`, `spec/`, `template/`, `README.md`, `THIRD_PARTY_NOTICES.md`. 17 example skills (`pdf`, `xlsx`, `docx`, `pptx`, `skill-creator`, `mcp-builder`, `brand-guidelines`, `webapp-testing`, `frontend-design`, `algorithmic-art`, etc.). Ships a real `marketplace.json` grouping skills into plugins (document-skills / example-skills / claude-api). | The canonical reference. Document skills are **source-available, not OSS** (`license: Proprietary. LICENSE.txt…`); example skills Apache-2.0. Template is minimal (`name` + `description` + "# Insert instructions below"). `skill-creator` is the meta-skill. |
 | [hesreallyhim/awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code) | **45,076** | Curated list of skills, hooks, slash-commands, orchestrators, plugins. | Awesome-list (README index, not installable). | Reference for category taxonomy and how the community frames "skills vs hooks vs commands vs agents." |
 | [wshobson/agents](https://github.com/wshobson/agents) | **36,089** | "Multi-harness agentic plugin marketplace" (Claude Code, Codex, Cursor, OpenCode, Gemini). | Plugin marketplace repo. | Reinforces the multi-harness distribution pattern (same as superpowers). |
@@ -286,28 +286,28 @@ Star counts via GitHub REST API on 2026-05-28. Ranked by relevance + reach.
 | [alirezarezvani/claude-skills](https://github.com/alirezarezvani/claude-skills) | **16,445** | "337 Claude Code skills & agent skills & plugins" multi-tool bundle. | Large skill/agent/command bundle, multi-agent (Claude Code, Codex, Gemini, Cursor, +). | Example of a mega-collection; less useful as an authoring model (breadth over depth). |
 | [travisvn/awesome-claude-skills](https://github.com/travisvn/awesome-claude-skills) | **12,979** | Curated awesome-list focused on Claude **Skills**. | README index. Sections: Getting Started (install across Claude.ai / CLI / API) → Official Skills (by category) → Community Skills (tables) → Skill Creation (skill-creator vs manual) → Docs → Updates → Skills-vs-other comparison → Tutorials/Articles/Security → Troubleshooting/FAQ. Skill entries = hyperlinked name + 2–3 sentence description; **no star counts or install commands per entry**. | Best model for a **README shape** for a single-skill repo's docs: lead with three-platform install (CLI `/plugin marketplace add anthropics/skills`, web Settings>Capabilities>Skills, API `/v1/skills`), then usage, then authoring, then troubleshooting/FAQ. |
 
-> The "alirezarezvani has 5,200 stars / is the most comprehensive" figure that appears in some 2026 blog posts is stale — the live API shows 16,445 on 2026-05-28. Treat third-party blog star counts as UNVERIFIED; the GitHub API is authoritative.
+> The "alirezarezvani has 5,200 stars / is the most comprehensive" figure that appears in some 2026 blog posts is stale, the live API shows 16,445 on 2026-05-28. Treat third-party blog star counts as UNVERIFIED; the GitHub API is authoritative.
 
 ### What the great ones do differently (synthesis)
 1. **Multi-harness install up top.** The biggest repos (superpowers, wshobson/agents) present install commands for Claude Code AND Codex/Gemini/Cursor/Droid/Copilot. For maximum reach, document at least the Claude Code plugin install plus the generic agentskills.io drop-in.
 2. **Ship both a marketplace and a drop-in.** anthropics/skills ships `marketplace.json`; community repos let you copy a `SKILL.md` directly. Doing both lowers friction.
-3. **A template + a meta-creator.** anthropics/skills includes a `template/` and `skill-creator` skill — strong signal that scaffolding/onboarding matters.
-4. **Anti-patterns live inside the skill** (superpowers), not just the README — the model reads them.
+3. **A template + a meta-creator.** anthropics/skills includes a `template/` and `skill-creator` skill, strong signal that scaffolding/onboarding matters.
+4. **Anti-patterns live inside the skill** (superpowers), not just the README, the model reads them.
 5. **Descriptions are keyword-stuffed and "pushy"** to beat undertriggering (skill-creator guidance), while staying third-person and WHAT+WHEN.
-6. **Awesome-list README taxonomy**: Getting Started (multi-platform install) → Skills by category → Creation → Docs → Troubleshooting/FAQ — a proven structure to mirror.
+6. **Awesome-list README taxonomy**: Getting Started (multi-platform install) → Skills by category → Creation → Docs → Troubleshooting/FAQ, a proven structure to mirror.
 
 ---
 
 ## 12. Security & runtime constraints (affect an AWS skill directly)
 
-- **Trust**: "Use Skills only from trusted sources." Malicious skills can exfiltrate data or misuse tools; skills that fetch external URLs are especially risky. Audit all bundled files. For an AWS skill (cloud credentials in scope), this is critical — scope `allowed-tools` to **read-only** AWS CLI verbs and avoid any network-fetch of remote instructions. Source: [overview — Security considerations](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview).
+- **Trust**: "Use Skills only from trusted sources." Malicious skills can exfiltrate data or misuse tools; skills that fetch external URLs are especially risky. Audit all bundled files. For an AWS skill (cloud credentials in scope), this is critical, scope `allowed-tools` to **read-only** AWS CLI verbs and avoid any network-fetch of remote instructions. Source: [overview, Security considerations](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview).
 - **Runtime environment differs by surface**:
-  - **Claude API**: NO network access, NO runtime package install — only pre-installed packages. (An AWS-CLI-dependent skill effectively targets **Claude Code**, where skills have full network access like any local program.)
+  - **Claude API**: NO network access, NO runtime package install, only pre-installed packages. (An AWS-CLI-dependent skill effectively targets **Claude Code**, where skills have full network access like any local program.)
   - **claude.ai**: variable network access by admin settings.
-  - **Claude Code**: full network access; **global package install discouraged** — install locally only.
-  Source: [overview — Limitations and constraints](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview).
+  - **Claude Code**: full network access; **global package install discouraged**, install locally only.
+  Source: [overview, Limitations and constraints](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview).
 - **Skills do not sync across surfaces** (claude.ai / API / Claude Code are separate); plan distribution per surface. Source: [overview](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview).
-- **Skill content lifecycle (Claude Code)**: once invoked, the rendered SKILL.md stays in context for the session and is NOT re-read each turn — write standing instructions, not one-time steps. Auto-compaction re-attaches the first 5,000 tokens of each recently-invoked skill within a combined 25,000-token budget. Source: [Claude Code skills doc — Skill content lifecycle](https://code.claude.com/docs/en/skills).
+- **Skill content lifecycle (Claude Code)**: once invoked, the rendered SKILL.md stays in context for the session and is NOT re-read each turn, write standing instructions, not one-time steps. Auto-compaction re-attaches the first 5,000 tokens of each recently-invoked skill within a combined 25,000-token budget. Source: [Claude Code skills doc, Skill content lifecycle](https://code.claude.com/docs/en/skills).
 
 ---
 
@@ -315,11 +315,11 @@ Star counts via GitHub REST API on 2026-05-28. Ranked by relevance + reach.
 
 1. **Name** `aws-cost-audit` (matches directory; no reserved word; noun-phrase acceptable per docs). Body **< 500 lines**; defer detail to `references/` (e.g. `references/savings-plans.md`, `references/idle-resources.md`, `references/tagging.md`) one level deep, each with a ToC if >100 lines.
 2. **Description**: third person, WHAT+WHEN, key use case first, keyword-rich and "pushy" (see §4 draft).
-3. **Lock down tools**: `allowed-tools` limited to read-only AWS CLI patterns (Cost Explorer `aws ce`, `describe*`/`list*`/`get*` calls). Never bundle mutating commands; if recommending remediations, use the **plan-validate-execute** pattern with a human-confirmed plan file, and keep destructive actions at **low freedom** (exact, do-not-modify commands) — or out of scope entirely.
+3. **Lock down tools**: `allowed-tools` limited to read-only AWS CLI patterns (Cost Explorer `aws ce`, `describe*`/`list*`/`get*` calls). Never bundle mutating commands; if recommending remediations, use the **plan-validate-execute** pattern with a human-confirmed plan file, and keep destructive actions at **low freedom** (exact, do-not-modify commands), or out of scope entirely.
 4. **Progressive disclosure**: SKILL.md = overview + audit workflow checklist + navigation; bundle category references and any `scripts/` for deterministic queries/aggregation (execute, don't read). Document required tooling (`aws` CLI, `jq`) and that it targets **Claude Code** (network + local CLI), not the no-network Claude API.
 5. **Evals first**: ≥3 scenarios (e.g. "find idle EC2", "summarize last-month spend by service", "list untagged resources"), baseline without the skill, then write minimal instructions. Test on Haiku/Sonnet/Opus.
 6. **Ship both** drop-in (`skills/aws-cost-audit/`) and plugin (`.claude-plugin/plugin.json` + `marketplace.json`). README modeled on travisvn taxonomy: multi-platform install first, then usage, authoring/customization, security note, troubleshooting/FAQ. Include a `LICENSE` (open-source, e.g. MIT/Apache-2.0) and `metadata.version`.
-7. **No time-sensitive facts and no specific AWS prices in the skill body** — costs change; have the skill compute from live Cost Explorer / pricing data instead. Use an "Old patterns" `<details>` block for any deprecated CLI flags.
+7. **No time-sensitive facts and no specific AWS prices in the skill body**, costs change; have the skill compute from live Cost Explorer / pricing data instead. Use an "Old patterns" `<details>` block for any deprecated CLI flags.
 8. **Validate** with `skills-ref validate ./aws-cost-audit` (agentskills.io) and `claude plugin validate` (Claude Code) before publishing.
 
 ---
@@ -329,10 +329,10 @@ Star counts via GitHub REST API on 2026-05-28. Ranked by relevance + reach.
 All accessed **2026-05-28**.
 
 **Official Anthropic / Claude docs (primary)**
-- Agent Skills — overview: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview
+- Agent Skills, overview: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview
 - Skill authoring best practices: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
-- Claude Code — Extend Claude with skills: https://code.claude.com/docs/en/skills
-- Claude Code — Create plugins: https://code.claude.com/docs/en/plugins
+- Claude Code, Extend Claude with skills: https://code.claude.com/docs/en/skills
+- Claude Code, Create plugins: https://code.claude.com/docs/en/plugins
 - Equipping agents for the real world with Agent Skills (engineering blog): https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills
 
 **Open specification (authoritative)**
@@ -340,10 +340,10 @@ All accessed **2026-05-28**.
 
 **Official repo + real skill source**
 - anthropics/skills: https://github.com/anthropics/skills
-- anthropics/skills — marketplace.json: https://github.com/anthropics/skills/blob/main/.claude-plugin/marketplace.json
-- anthropics/skills — pdf/SKILL.md: https://raw.githubusercontent.com/anthropics/skills/main/skills/pdf/SKILL.md
-- anthropics/skills — skill-creator/SKILL.md: https://raw.githubusercontent.com/anthropics/skills/main/skills/skill-creator/SKILL.md
-- anthropics/skills — template/SKILL.md: https://github.com/anthropics/skills/blob/main/template/SKILL.md
+- anthropics/skills, marketplace.json: https://github.com/anthropics/skills/blob/main/.claude-plugin/marketplace.json
+- anthropics/skills, pdf/SKILL.md: https://raw.githubusercontent.com/anthropics/skills/main/skills/pdf/SKILL.md
+- anthropics/skills, skill-creator/SKILL.md: https://raw.githubusercontent.com/anthropics/skills/main/skills/skill-creator/SKILL.md
+- anthropics/skills, template/SKILL.md: https://github.com/anthropics/skills/blob/main/template/SKILL.md
 
 **Popular repos torn down (live star counts via GitHub REST API, 2026-05-28)**
 - obra/superpowers (211,074★): https://github.com/obra/superpowers
@@ -359,9 +359,9 @@ All accessed **2026-05-28**.
 ## Uncertainties / UNVERIFIED
 
 - **`anthropics/skills` star count (142,827).** Verified live via GitHub API on 2026-05-28, but the figure is surprisingly high for a skills repo and a WebFetch summary independently reported ~143k; plausibly inflated by the repo's prominence. Treated as accurate per the API but flagged for re-confirmation.
-- **superpowers 211,074★** likewise far exceeds typical skill repos; verified via API but unusually large — re-confirm before quoting in marketing.
-- **Third-party blog star figures** (e.g. "alirezarezvani ~5,200★", "seo-geo-claude-skills 864★", "Pika-Skills 704★") are from secondary sources and conflict with live API numbers; UNVERIFIED — use the GitHub API as the source of truth.
-- **superpowers having "no marketplace.json"** is from a WebFetch summary of the README, not a direct file listing; the repo may still contain a `.claude-plugin/marketplace.json`. UNVERIFIED — confirm by listing the repo tree if this detail is load-bearing.
+- **superpowers 211,074★** likewise far exceeds typical skill repos; verified via API but unusually large, re-confirm before quoting in marketing.
+- **Third-party blog star figures** (e.g. "alirezarezvani ~5,200★", "seo-geo-claude-skills 864★", "Pika-Skills 704★") are from secondary sources and conflict with live API numbers; UNVERIFIED, use the GitHub API as the source of truth.
+- **superpowers having "no marketplace.json"** is from a WebFetch summary of the README, not a direct file listing; the repo may still contain a `.claude-plugin/marketplace.json`. UNVERIFIED, confirm by listing the repo tree if this detail is load-bearing.
 - **Exact `~100 tokens` / `<5k tokens` / `25,000-token compaction budget` / `5,000-token re-attach` figures** are quoted from official docs as written; actual runtime token accounting may vary by model and version.
 - **`allowed-tools` semantics differ** between the agentskills.io spec ("experimental, varies by agent") and Claude Code (well-defined permission grant). The cross-tool behavior of `allowed-tools` outside Claude Code is not guaranteed.
 - **No specific AWS prices, CLI flags, or service feature names were asserted** in this note about AWS itself; any AWS-specific commands in §13 are illustrative patterns to be verified against current AWS CLI docs during the build phase, not confirmed facts.

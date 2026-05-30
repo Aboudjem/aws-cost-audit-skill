@@ -1,23 +1,23 @@
-# Pricing Verification — Live Prices, Real Usage, and the Skeptic Re-Derivation
+# Pricing Verification: Live Prices, Real Usage, and the Skeptic Re-Derivation
 
 > **Why this file exists:** Every dollar figure in a cost-audit finding must be *derived*, never
 > guessed. This reference is the procedure for getting (1) a **live, region-correct unit price**
 > from AWS and (2) the user's **actual usage**, then combining them into a savings number whose
-> math is fully shown — followed by a **separate skeptic pass** that re-derives each load-bearing
+> math is fully shown, followed by a **separate skeptic pass** that re-derives each load-bearing
 > figure from the primary source.
 >
-> **HARD RULE — no hardcoded prices.** Do not write any `$/unit` rate into a finding from memory or
+> **HARD RULE: no hardcoded prices.** Do not write any `$/unit` rate into a finding from memory or
 > from this file. AWS prices change and vary by Region. Always pull the rate live for the user's
 > exact `regionCode` at audit time, and show where it came from.
 
 ---
 
-## 1. Live unit price — AWS Price List Query API
+## 1. Live unit price: AWS Price List Query API
 
 ### 1.1 The endpoint-vs-target-region gotcha (read this first)
 
 The **Price List Query API is only served from a few Regions** (commonly `us-east-1` and
-`ap-south-1`). This is the API *endpoint* location — it has nothing to do with which Region's
+`ap-south-1`). This is the API *endpoint* location, it has nothing to do with which Region's
 prices you get.
 
 - Call the API with `--region us-east-1` (or `ap-south-1`) so the request reaches an endpoint.
@@ -30,7 +30,7 @@ fails with an endpoint/connection error. Endpoint location and priced Region are
 
 ### 1.2 Discover the service code
 
-Prices are grouped by **service code** (note: not always the obvious name — EBS volumes live under
+Prices are grouped by **service code** (note: not always the obvious name, EBS volumes live under
 `AmazonEC2`, not a separate EBS code; S3 is `AmazonS3`; RDS is `AmazonRDS`).
 
 ```bash
@@ -55,14 +55,14 @@ aws pricing get-attribute-values --service-code AmazonEC2 \
   --query 'AttributeValues[].Value' --output text
 ```
 
-Use this whenever a filter returns 0 or too many rows — you almost always have a slightly-wrong
+Use this whenever a filter returns 0 or too many rows, you almost always have a slightly-wrong
 attribute name or value. (`get-attribute-values` CLI reference.)
 
-### 1.4 Worked example — gp3 $/GB-month for a target Region
+### 1.4 Worked example: gp3 $/GB-month for a target Region
 
 Goal: the per-GB-month On-Demand storage rate for gp3 in `$REGION` (set this to the user's actual
 Region, e.g. `us-east-1` as a neutral example). The filter set below is verified to return exactly
-**one** PriceList entry, which is what you want — one SKU, one rate.
+**one** PriceList entry, which is what you want, one SKU, one rate.
 
 ```bash
 REGION="$REGION"   # e.g. us-east-1 ; set to the user's Region, never hardcode a default
@@ -94,15 +94,15 @@ aws pricing get-products --service-code AmazonEC2 --region us-east-1 \
     .terms.OnDemand
     | to_entries[0].value.priceDimensions
     | to_entries[0].value
-    | "\(.pricePerUnit.USD) USD per \(.unit)  —  \(.description)"'
+    | "\(.pricePerUnit.USD) USD per \(.unit), \(.description)"'
 ```
 
 Verified output shape for this SKU: `unit` = `GB-Mo`, `pricePerUnit` carries a `USD` key, and the
 human `description` even restates the rate (e.g. "... per GB-month of General Purpose (gp3)
-provisioned storage — <Region>"). Use the parsed `pricePerUnit.USD` as the load-bearing number;
+provisioned storage, <Region>"). Use the parsed `pricePerUnit.USD` as the load-bearing number;
 the `description` is a useful cross-check.
 
-The same recipe generalizes — change service code + filters:
+The same recipe generalizes, change service code + filters:
 
 - **gp2 vs gp3 delta:** run the query twice (`Value=gp2`, then `Value=gp3`), subtract the two
   `pricePerUnit.USD` rates.
@@ -126,7 +126,7 @@ The same recipe generalizes — change service code + filters:
 
 ---
 
-## 2. Actual usage — Cost Explorer (and resource-level data)
+## 2. Actual usage: Cost Explorer (and resource-level data)
 
 A live unit price alone is not a saving. You need the **usage delta** that the action removes or
 re-rates. Get it from Cost Explorer; never assume a quantity.
@@ -155,7 +155,7 @@ aws ce get-cost-and-usage \
 it up against the Price List unit (e.g. `GB-Mo`). (Cost Explorer `get-cost-and-usage` reference.)
 
 Pick the metric deliberately: `UnblendedCost` is the standard per-account actual; `AmortizedCost`
-spreads SP/RI upfront fees — use it when commitments are in play so you don't double-count.
+spreads SP/RI upfront fees, use it when commitments are in play so you don't double-count.
 
 ### 2.2 Per-resource cost (only if Cost Explorer resource-level data is enabled)
 
@@ -173,18 +173,18 @@ aws ce get-cost-and-usage-with-resources \
 ```
 
 The richer alternative is the **Cost and Usage Report (CUR / CUR 2.0)**, which has a per-line-item
-`resource_id`, `line_item_usage_amount`, and `line_item_unblended_cost` — the authoritative
+`resource_id`, `line_item_usage_amount`, and `line_item_unblended_cost`, the authoritative
 per-resource truth when queried in Athena.
 
 **When resource-level data is NOT enabled:** say so explicitly. State the figure at
 **service / usage-type level only**, and label any single-resource attribution as **UNVERIFIED**.
-Do **not** pro-rate a service-level total down to one resource by a guessed share — that invents a
+Do **not** pro-rate a service-level total down to one resource by a guessed share, that invents a
 number. Either get the real per-resource line (enable resource-level CE / query CUR) or keep the
 claim at the level the data actually supports.
 
 ---
 
-## 3. The math rule — always show unit price → math → source
+## 3. The math rule: always show unit price → math → source
 
 Every dollar claim is computed as:
 
@@ -194,14 +194,14 @@ estimated_saving = live_unit_price  ×  actual_usage_delta
 
 and is presented with all three of these, in order:
 
-1. **Unit price** — the exact `pricePerUnit.USD` value, its `unit`, the `regionCode`, and the
+1. **Unit price**, the exact `pricePerUnit.USD` value, its `unit`, the `regionCode`, and the
    `get-products` filter that produced it.
-2. **The math** — the usage delta (from Cost Explorer / CUR, with its source command) multiplied by
+2. **The math**, the usage delta (from Cost Explorer / CUR, with its source command) multiplied by
    the unit price, with units that cancel cleanly (e.g. `GB-Mo × USD/GB-Mo = USD/mo`).
-3. **The source** — link/command for both the price (Price List API call) and the usage (CE/CUR
+3. **The source**, link/command for both the price (Price List API call) and the usage (CE/CUR
    query), plus the access date.
 
-Worked shape (numbers are placeholders — fill from live calls):
+Worked shape (numbers are placeholders, fill from live calls):
 
 ```
 Action: migrate a detached gp2 volume's data off / delete it.
@@ -216,7 +216,7 @@ Action: migrate a detached gp2 volume's data off / delete it.
 
 Rules that keep this honest:
 
-- **Units must cancel.** If they don't, the figure is wrong — stop.
+- **Units must cancel.** If they don't, the figure is wrong, stop.
 - **Match the metric to the claim.** Rate-optimization (gp2→gp3, storage class, SP/RI) needs the
   rate *delta*; usage-optimization (delete idle, schedule-off) needs the avoided *quantity × rate*.
 - **Region-correct, every time.** Re-pull the price for the user's Region; never reuse another
@@ -228,7 +228,7 @@ Rules that keep this honest:
 
 ## 4. The Skeptic Routine (separate re-derivation pass)
 
-The skeptic pass is a **distinct pass from the one that produced the finding** — a separate review
+The skeptic pass is a **distinct pass from the one that produced the finding**, a separate review
 lane, not self-approval in the same breath. Its job: independently re-derive every load-bearing
 dollar figure **from the primary source**, not from any summary, table, or another agent's
 conclusion.
@@ -257,10 +257,10 @@ Re-run the commands.
 
 Tag every load-bearing dollar figure with exactly one verdict:
 
-- **CONFIRMED** — independent re-derivation from primary matches the finding (within rounding).
-- **CORRECTED** — re-derivation disagrees; record the corrected number, the primary value it came
+- **CONFIRMED**, independent re-derivation from primary matches the finding (within rounding).
+- **CORRECTED**, re-derivation disagrees; record the corrected number, the primary value it came
   from, and what the original got wrong (wrong Region, stale rate, wrong unit, pro-rated guess).
-- **UNVERIFIED** — primary data unavailable (e.g. resource-level CE/CUR not enabled, or the Price
+- **UNVERIFIED**, primary data unavailable (e.g. resource-level CE/CUR not enabled, or the Price
   List filter returns 0/many rows and the SKU can't be pinned). State the limitation; do **not**
   emit a confident dollar number.
 
@@ -272,13 +272,13 @@ UNVERIFIED figures must be labeled as such in the output, never silently rounded
 ## Sources
 *Verified against AWS CLI v2 (`aws pricing` / `aws ce`) and AWS docs; access date 2026-05-28.*
 
-- AWS Price List Query API — finding services/products (`GetProducts`; endpoint Regions; `regionCode` filter): https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/using-price-list-query-api.html
-- AWS CLI — `pricing get-products`: https://docs.aws.amazon.com/cli/latest/reference/pricing/get-products.html
-- AWS CLI — `pricing describe-services`: https://docs.aws.amazon.com/cli/latest/reference/pricing/describe-services.html
-- AWS CLI — `pricing get-attribute-values`: https://docs.aws.amazon.com/cli/latest/reference/pricing/get-attribute-values.html
+- AWS Price List Query API, finding services/products (`GetProducts`; endpoint Regions; `regionCode` filter): https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/using-price-list-query-api.html
+- AWS CLI, `pricing get-products`: https://docs.aws.amazon.com/cli/latest/reference/pricing/get-products.html
+- AWS CLI, `pricing describe-services`: https://docs.aws.amazon.com/cli/latest/reference/pricing/describe-services.html
+- AWS CLI, `pricing get-attribute-values`: https://docs.aws.amazon.com/cli/latest/reference/pricing/get-attribute-values.html
 - AWS Price List Bulk API (offline price list files): https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/price-changes.html
-- AWS CLI — `ce get-cost-and-usage` (grouping by SERVICE / USAGE_TYPE; metrics): https://docs.aws.amazon.com/cli/latest/reference/ce/get-cost-and-usage.html
-- AWS CLI — `ce get-cost-and-usage-with-resources` (resource-level; requires enablement): https://docs.aws.amazon.com/cli/latest/reference/ce/get-cost-and-usage-with-resources.html
-- Cost Explorer — enabling resource-level data / hourly & resource granularity: https://docs.aws.amazon.com/cost-management/latest/userguide/ce-data.html
-- AWS Cost and Usage Reports (CUR 2.0 — per-line-item `resource_id`, `line_item_unblended_cost`): https://docs.aws.amazon.com/cur/latest/userguide/what-is-cur.html
+- AWS CLI, `ce get-cost-and-usage` (grouping by SERVICE / USAGE_TYPE; metrics): https://docs.aws.amazon.com/cli/latest/reference/ce/get-cost-and-usage.html
+- AWS CLI, `ce get-cost-and-usage-with-resources` (resource-level; requires enablement): https://docs.aws.amazon.com/cli/latest/reference/ce/get-cost-and-usage-with-resources.html
+- Cost Explorer, enabling resource-level data / hourly & resource granularity: https://docs.aws.amazon.com/cost-management/latest/userguide/ce-data.html
+- AWS Cost and Usage Reports (CUR 2.0, per-line-item `resource_id`, `line_item_unblended_cost`): https://docs.aws.amazon.com/cur/latest/userguide/what-is-cur.html
 - AWS Pricing Calculator (scenario modeling cross-check): https://calculator.aws/

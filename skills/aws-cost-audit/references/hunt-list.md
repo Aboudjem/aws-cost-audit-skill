@@ -1,17 +1,17 @@
-# Hunt List — the high-ROI AWS cost-audit checks
+# Hunt List: the high-ROI AWS cost-audit checks
 
 Every check below has a **verified read-only detection command**, why it saves, its
 reversibility/risk, and **where to verify the price live** for the user's exact Region. This is the
 working catalog the audit walks resource-by-resource (SKILL.md step 2).
 
 > **Price discipline (Iron Law 1):** this file states **no dollar amount as fact**. Every "Price
-> source" line points to the live, authoritative source — the AWS Price List Query API or the
-> per-service pricing page — for the user's exact Region. Never hardcode a price.
+> source" line points to the live, authoritative source, the AWS Price List Query API or the
+> per-service pricing page, for the user's exact Region. Never hardcode a price.
 >
 > **Region discipline:** commands use `$REGION` as a parameter. Sweep **all** Regions (see
 > [§22 Cross-Region ghosts](#22-cross-region-ghost-resources)); don't assume one default. The single
 > exception is the Price List Query API, whose endpoint is reachable from a fixed set of Regions
-> (commonly `us-east-1`) — that is an API-endpoint constraint, **not** the Region whose prices you
+> (commonly `us-east-1`), that is an API-endpoint constraint, **not** the Region whose prices you
 > are pricing. Always pass the *target* Region as a filter (`regionCode`).
 >
 > **Two levers:** **Rate optimization** = pay less per unit (Savings Plans, RIs, Spot, gp3, storage
@@ -32,7 +32,7 @@ working catalog the audit walks resource-by-resource (SKILL.md step 2).
   3. [gp2 → gp3 volume migration](#3-gp2--gp3-volume-migration)
   4. [Old EBS snapshots & orphaned AMIs](#4-old-ebs-snapshots--orphaned-amis)
   5. [NAT Gateway data-processing & cross-AZ transfer](#5-nat-gateway-data-processing--cross-az-transfer)
-  6. [VPC endpoints — add gateway, remove idle interface](#6-vpc-endpoints--add-gateway-remove-idle-interface)
+  6. [VPC endpoints, add gateway, remove idle interface](#6-vpc-endpoints-add-gateway-remove-idle-interface)
   7. [Idle ALB / NLB & empty target groups](#7-idle-alb--nlb--empty-target-groups)
   8. [Compute rightsizing (EC2 / ASG / RDS / ECS-Fargate)](#8-compute-rightsizing-ec2--asg--rds--ecs-fargate)
   9. [Over-provisioned Lambda memory](#9-over-provisioned-lambda-memory)
@@ -40,7 +40,7 @@ working catalog the audit walks resource-by-resource (SKILL.md step 2).
   11. [Stopped EC2 still paying for EBS](#11-stopped-ec2-still-paying-for-ebs)
   12. [Savings Plans / RI coverage + utilization](#12-savings-plans--ri-coverage--utilization)
   13. [Newer / Graviton generation migration](#13-newer--graviton-generation-migration)
-  14. [S3 lifecycle — storage-class transitions](#14-s3-lifecycle--storage-class-transitions)
+  14. [S3 lifecycle, storage-class transitions](#14-s3-lifecycle-storage-class-transitions)
   15. [S3 incomplete multipart uploads](#15-s3-incomplete-multipart-uploads)
   16. [S3 versioning without lifecycle (noncurrent sprawl)](#16-s3-versioning-without-lifecycle-noncurrent-sprawl)
   17. [S3 Bucket Keys for SSE-KMS](#17-s3-bucket-keys-for-sse-kms)
@@ -49,7 +49,7 @@ working catalog the audit walks resource-by-resource (SKILL.md step 2).
   20. [CloudWatch Container Insights](#20-cloudwatch-container-insights)
   21. [Data transfer / egress](#21-data-transfer--egress)
   22. [Cross-Region ghost resources](#22-cross-region-ghost-resources)
-  23. [Guardrails — Budgets + Cost Anomaly Detection](#23-guardrails--budgets--cost-anomaly-detection)
+  23. [Guardrails, Budgets + Cost Anomaly Detection](#23-guardrails-budgets-cost-anomaly-detection)
 - [Reversibility / risk cheat-sheet](#reversibility--risk-cheat-sheet)
 - [Where to verify prices](#where-to-verify-prices-never-hard-code)
 - [Sources](#sources)
@@ -78,7 +78,7 @@ aws cost-optimization-hub get-recommendation --recommendation-id <id>
 aws cost-optimization-hub list-enrollment-statuses
 ```
 
-> Verified note: a `recommendationId` is valid only ~24h — recommendations refresh daily.
+> Verified note: a `recommendationId` is valid only ~24h, recommendations refresh daily.
 
 ### Compute Optimizer
 
@@ -98,7 +98,7 @@ aws compute-optimizer get-ecs-service-recommendations          # ECS on Fargate
 `findingReasonCodes`, `utilizationMetrics`, and `recommendationOptions[]`. Each option carries
 `savingsOpportunity` (`savingsOpportunityPercentage`, `estimatedMonthlySavings` →
 `{currency, value}`), `savingsOpportunityAfterDiscounts`, and `migrationEffort`. Rank by
-`estimatedMonthlySavings.value` — it is **AWS's own savings estimate**, good for ranking findings,
+`estimatedMonthlySavings.value`, it is **AWS's own savings estimate**, good for ranking findings,
 **not** a quoted price you may restate as fact.
 
 ### Trusted Advisor
@@ -113,9 +113,9 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
 ## 1. Idle / unassociated Elastic IPs (and all public IPv4)
 
 - **What:** An allocated EIP not attached to a running resource. Note the **Feb 1, 2024** change:
-  AWS now charges an hourly rate for **all public IPv4 addresses — attached or not** (previously
+  AWS now charges an hourly rate for **all public IPv4 addresses, attached or not** (previously
   only *un*associated EIPs were charged). This applies broadly (EC2, RDS, EKS nodes, etc.), so
-  stale advice that "an EIP is only charged when unassociated" is **outdated** — flag it. A 12-month
+  stale advice that "an EIP is only charged when unassociated" is **outdated**, flag it. A 12-month
   Free Tier of 750 IPv4-hours/month was added for new accounts.
 - **Detect:** `aws ec2 describe-addresses --region "$REGION"`. An **unassociated** EIP is missing
   `AssociationId`, `InstanceId`, and `NetworkInterfaceId` (those appear only when associated). Use
@@ -123,7 +123,7 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
   Advisor: **Unassociated Elastic IP Addresses**.
 - **Why it saves:** Each idle EIP accrues an hourly charge; releasing it stops the charge
   immediately. Inventorying all public IPv4 catches the broader post-2024 charge.
-- **Reversibility/risk:** Releasing is **not** reversible to the same IP — you lose that specific
+- **Reversibility/risk:** Releasing is **not** reversible to the same IP, you lose that specific
   address (DNS / allowlist impact). Confirm the IP isn't referenced before `release-address`.
 - **Price source:** Amazon VPC pricing page (public IPv4 address charges).
 
@@ -135,7 +135,7 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
   `available` = unattached. Trusted Advisor: **Underutilized Amazon EBS volumes** (flags unattached,
   or <1 IOPS/day for 7 days).
 - **Why it saves:** You pay for provisioned capacity regardless of attachment.
-- **Reversibility/risk:** Snapshot first, then `delete-volume`. Deletion is destructive — a detached
+- **Reversibility/risk:** Snapshot first, then `delete-volume`. Deletion is destructive, a detached
   volume may still hold needed data.
 - **Price source:** Amazon EBS pricing page.
 
@@ -143,7 +143,7 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
 
 - **What:** gp3 decouples IOPS/throughput from size and is generally cheaper per GB than gp2 at the
   same baseline (rate optimization). AWS's storage blog frames gp2→gp3 as "save up to 20%" on
-  per-GiB cost, with a 3,000 IOPS / 125 MiB/s baseline included regardless of size — confirm the
+  per-GiB cost, with a 3,000 IOPS / 125 MiB/s baseline included regardless of size, confirm the
   exact included baseline and the per-GB / per-IOPS / per-throughput rates live.
 - **Detect:** `aws ec2 describe-volumes --region "$REGION" --filters Name=volume-type,Values=gp2`.
   Compute Optimizer also surfaces EBS recommendations via `get-ebs-volume-recommendations`.
@@ -154,7 +154,7 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
 - **Why it saves:** Lower $/GB plus the included gp3 baseline.
 - **Reversibility/risk:** Low risk; reversible (modify back). **Footgun:** if you "match" gp2 burst
   behaviour by over-provisioning gp3 IOPS/throughput above the free baseline, you can erase the
-  savings — provision extra IOPS/throughput only when measured demand requires it.
+  savings, provision extra IOPS/throughput only when measured demand requires it.
 - **Price source:** Amazon EBS pricing page (gp2 vs gp3 per-GB and per-IOPS/throughput).
 
 ## 4. Old EBS snapshots & orphaned AMIs
@@ -167,15 +167,15 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
   - `aws ec2 deregister-image --image-id $AMI` (optionally `--delete-associated-snapshots`).
   - `aws ec2 delete-snapshot --snapshot-id $SNAP`.
 - **Why it saves:** Snapshot storage is billed per GB of changed/stored data.
-- **Reversibility/risk:** Destructive — snapshots are backups; verify no DR/compliance retention
+- **Reversibility/risk:** Destructive, snapshots are backups; verify no DR/compliance retention
   requirement first. Softer steps: **AMI archive** or **disable AMI**. Verified footguns:
   - You **cannot** delete a snapshot still referenced by a registered AMI ("the snapshot is
-    currently in use by an AMI") — **deregister the AMI first**.
+    currently in use by an AMI"), **deregister the AMI first**.
   - Deregistering an AMI does **not** delete its backing snapshots, so you keep paying for them
     unless you also delete them. After deleting any compute object, **sweep for orphaned
     snapshots/volumes/IPs it leaves behind.**
   - A **disabled** AMI still blocks its snapshot from deletion **and is hidden** from the console /
-    `describe-images` by default — switch the filter to disabled images to find the blocker.
+    `describe-images` by default, switch the filter to disabled images to find the blocker.
   - A snapshot shared by multiple AMIs is not deleted even if requested.
 - **Price source:** Amazon EBS pricing page (snapshot storage).
 
@@ -196,23 +196,23 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
   twice (NAT processing + transfer). Removing it from the NAT path removes both.
 - **Fix:** Use **gateway VPC endpoints** for S3/DynamoDB (see §6); co-locate NAT in the same AZ as
   high-traffic instances and route intra-AZ (a NAT-per-AZ removes cross-AZ fees but adds per-gateway
-  hourly charges — a volume trade-off). For low-bandwidth workloads, a self-managed NAT instance
+  hourly charges, a volume trade-off). For low-bandwidth workloads, a self-managed NAT instance
   (e.g. the open-source **fck-nat** AMI) can be far cheaper than a managed NAT, at the cost of owning
   patching/HA and a bandwidth ceiling (small instances cap around a few Gbps burst); above that, the
   managed NAT gateway is recommended. The headline "90–99% NAT savings" blog figures are
-  vendor-specific and workload-dependent — the *direction* is sound, the magnitude is unverified.
-- **Reversibility/risk:** Removing/replacing NAT requires routing changes — test connectivity.
+  vendor-specific and workload-dependent, the *direction* is sound, the magnitude is unverified.
+- **Reversibility/risk:** Removing/replacing NAT requires routing changes, test connectivity.
   Adding endpoints is low risk. A NAT instance shifts operational burden to you.
 - **Price source:** Amazon VPC pricing page (NAT Gateway hourly + per-GB; cross-AZ data transfer).
 
-## 6. VPC endpoints — add gateway, remove idle interface
+## 6. VPC endpoints: add gateway, remove idle interface
 
 - **What (two sub-tactics):**
   1. **Add gateway endpoints** for S3 and DynamoDB to bypass NAT data-processing. **Verified:**
      "There is no additional charge for using gateway endpoints," and gateway endpoints support
      **only S3 and DynamoDB**. Create with
      `aws ec2 create-vpc-endpoint --vpc-endpoint-type Gateway --service-name com.amazonaws.$REGION.s3 --route-table-ids ...`.
-  2. **Remove idle interface (PrivateLink) endpoints** — interface endpoints carry an **hourly fee +
+  2. **Remove idle interface (PrivateLink) endpoints**, interface endpoints carry an **hourly fee +
      per-GB** charge, so idle ones are pure waste. (Interface endpoints cover ECR, CloudWatch, SQS,
      SNS, etc., where they *are* needed.)
 - **Detect:** `aws ec2 describe-vpc-endpoints --region "$REGION"`. Trusted Advisor: **Inactive VPC
@@ -220,8 +220,8 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
 - **Why it saves:** Gateway endpoints eliminate NAT processing for S3/DynamoDB at zero endpoint
   cost; deleting idle interface endpoints removes hourly charges.
 - **Reversibility/risk:** Adding a gateway endpoint rewrites route tables (auto-managed prefix-list
-  routes you can't manually edit) — test S3/DynamoDB reachability. Deleting an interface endpoint
-  breaks private DNS for that service — verify nothing depends on it.
+  routes you can't manually edit), test S3/DynamoDB reachability. Deleting an interface endpoint
+  breaks private DNS for that service, verify nothing depends on it.
 - **Price source:** Amazon VPC pricing page (interface endpoint hourly + per-GB).
 
 ## 7. Idle ALB / NLB & empty target groups
@@ -236,13 +236,13 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
   = no traffic; AWS recommends alarming on `UnHealthyHostCount`/host counts to detect "no registered
   targets."
 - **Why it saves:** LB-hour + LCU charges with zero business value.
-- **Reversibility/risk:** Deleting an LB breaks any DNS/Route 53 alias pointing at it — confirm it's
+- **Reversibility/risk:** Deleting an LB breaks any DNS/Route 53 alias pointing at it, confirm it's
   truly unused.
 - **Price source:** Elastic Load Balancing pricing page (per-hour + LCU).
 
 ## 8. Compute rightsizing (EC2 / ASG / RDS / ECS-Fargate)
 
-- **What:** Over-provisioned compute — the biggest single usage-optimization lever for most
+- **What:** Over-provisioned compute, the biggest single usage-optimization lever for most
   accounts. Most instances are oversized because someone picked a "safe" type at setup and never
   revisited.
 - **Detect (verified):** Compute Optimizer `get-ec2-instance-recommendations`,
@@ -253,7 +253,7 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
   `finding`/`migrationEffort`.
 - **Why it saves:** Move `OVER_PROVISIONED` resources to `OPTIMIZED` instance/family/size.
 - **Reversibility/risk:** Resizing EC2/RDS usually needs a restart (downtime window); reversible.
-  Validate against **peak-load** CloudWatch metrics (p99/max), not just averages — one low-CPU
+  Validate against **peak-load** CloudWatch metrics (p99/max), not just averages, one low-CPU
   sample is not the fleet. **Right-size BEFORE committing** to Savings Plans/RIs (see §12).
 - **Price source:** EC2 / RDS / Fargate pricing pages; Compute Optimizer's own
   `estimatedMonthlySavings` for prioritization only.
@@ -267,7 +267,7 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
   version.) Trusted Advisor: **AWS Lambda over-provisioned functions for memory size**, **AWS Lambda
   functions with excessive timeouts**.
 - **Why it saves:** Right-sized memory can cut cost and sometimes latency at once.
-- **Reversibility/risk:** Low — a single config change
+- **Reversibility/risk:** Low, a single config change
   (`update-function-configuration --memory-size`), instantly reversible. Re-test latency/timeout
   after the change.
 - **Price source:** AWS Lambda pricing page.
@@ -275,16 +275,16 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
 ## 10. Dev/test running 24/7 → schedule to zero
 
 - **What:** Non-production EC2/RDS left running outside business hours. Dev/staging/QA commonly run
-  24/7 but are used ~8×5 — repeatedly cited as a large, low-risk win.
+  24/7 but are used ~8×5, repeatedly cited as a large, low-risk win.
 - **Detect:** Inventory by tag/environment; look for instances with flat off-hours utilization.
   FinOps "Usage Optimization" explicitly calls out running resources "only when needed, particularly
   for pre-production environments."
 - **Fix:** **Instance Scheduler on AWS** (an AWS Solution) uses resource tags + Lambda + EventBridge
   + a DynamoDB config table to stop/start EC2 and RDS on a schedule across Regions/accounts. AWS
   states business-hours-only scheduling can yield up to ~70% savings on those instances (vendor
-  FinOps blogs cite 40–65% — directional, not guaranteed). Alternative: **Systems Manager Quick
+  FinOps blogs cite 40–65%, directional, not guaranteed). Alternative: **Systems Manager Quick
   Setup → Resource Scheduler** for tag-based stop/start.
-- **Why it saves:** Stopped EC2 stops compute charges (EBS still bills — see §2/§11); stopped RDS
+- **Why it saves:** Stopped EC2 stops compute charges (EBS still bills, see §2/§11); stopped RDS
   pauses compute (storage still bills).
 - **Reversibility/risk:** Fully reversible (start instance). Caveats: a stopped RDS instance
   auto-restarts after 7 days; stopping breaks anything expecting 24/7 availability. Tag carefully so
@@ -308,29 +308,29 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
 - **What (rate optimization):** Savings Plans / RIs trade a 1- or 3-year commitment for a lower rate
   vs On-Demand. Audit both **coverage** (how much eligible spend is committed) and **utilization**
   (how much of the commitment is actually used). The WAF notes SPs/RIs offer "up to 75% off
-  On-Demand" and Spot "up to 90%" — confirm current figures on the pricing pages.
+  On-Demand" and Spot "up to 90%", confirm current figures on the pricing pages.
 - **Detect (verified, under `aws ce`):**
-  - `aws ce get-savings-plans-coverage` — eligible spend covered.
-  - `aws ce get-savings-plans-utilization` — verified output: `Utilization` =
+  - `aws ce get-savings-plans-coverage`, eligible spend covered.
+  - `aws ce get-savings-plans-utilization`, verified output: `Utilization` =
     `{TotalCommitment, UsedCommitment, UnusedCommitment, UtilizationPercentage}`; `Savings` =
     `{NetSavings, OnDemandCostEquivalent}`; plus `AmortizedCommitment`. **Low `UtilizationPercentage`
     / high `UnusedCommitment` = over-committed (waste).**
-  - `aws ce get-savings-plans-utilization-details` — per-SP detail.
-  - `aws ce get-reservation-coverage` / `aws ce get-reservation-utilization` — RI equivalents.
+  - `aws ce get-savings-plans-utilization-details`, per-SP detail.
+  - `aws ce get-reservation-coverage` / `aws ce get-reservation-utilization`, RI equivalents.
   - Purchase guidance: `aws ce get-savings-plans-purchase-recommendation`,
     `get-reservation-purchase-recommendation`. Trusted Advisor: **AWS Savings Plans purchase
     recommendations for compute**, **Amazon EC2 Reserved Instance optimization / lease expiration**.
 - **Why it saves:** Coverage gaps = paying On-Demand unnecessarily; low utilization = paying for
   unused commitment.
 - **Reversibility/risk:** **Commitments are largely irreversible.** Right-size **first**, then
-  commit to the new lower baseline — commit-then-shrink leaves you paying for capacity you no longer
+  commit to the new lower baseline, commit-then-shrink leaves you paying for capacity you no longer
   use for 1–3 years. Prefer **Compute Savings Plans** for flexibility (they apply across instance
   family/size/Region/OS/tenancy and to Fargate/Lambda; EC2 Instance SPs are narrower but deeper);
   size to a conservative baseline, not peak. Exit valves to verify against live docs: Standard RIs
   can be sold on the RI Marketplace; Savings Plans cannot be sold or cancelled (a 7-day return
-  window is widely repeated by the community but `UNVERIFIED` against a primary AWS doc — confirm
+  window is widely repeated by the community but `UNVERIFIED` against a primary AWS doc, confirm
   before asserting). Watch **RI lease expiration** so coverage doesn't silently lapse. Never auto-run
-  a purchase — always a recommendation requiring human sign-off.
+  a purchase, always a recommendation requiring human sign-off.
 - **Price source:** Savings Plans / EC2 / RDS pricing pages; `get-savings-plans-purchase-recommendation`
   for sizing.
 
@@ -342,13 +342,13 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
   and compare against current-generation/Graviton equivalents; Compute Optimizer recommendations may
   point to newer families.
 - **Why it saves:** Better price-performance per vCPU/GB on newer generations. Specific percentage
-  gains are vendor/blog figures and vary by workload — treat as **directional**, verify live.
+  gains are vendor/blog figures and vary by workload, treat as **directional**, verify live.
 - **Reversibility/risk:** Requires an instance-type change (restart window) and, for Graviton, an
-  **architecture change (x86 → ARM)** — validate that the workload/runtime/dependencies have ARM
+  **architecture change (x86 → ARM)**, validate that the workload/runtime/dependencies have ARM
   builds and re-test before switching. Reversible by changing the type back.
 - **Price source:** EC2 / RDS / Aurora pricing pages (per-family rates).
 
-## 14. S3 lifecycle — storage-class transitions
+## 14. S3 lifecycle: storage-class transitions
 
 - **What:** Hot data sitting in S3 Standard that could move to IA / Glacier tiers, or be
   auto-deleted.
@@ -358,11 +358,11 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
 - **Fix:** `aws s3api put-bucket-lifecycle-configuration` with `Transition`/`Expiration` rules; or
   enable **S3 Intelligent-Tiering** for unknown/changing access patterns. (Since Sept 2021, objects
   <128 KB incur no Intelligent-Tiering monitoring charge and stay in Frequent Access; for huge
-  counts of small-but-≥128 KB objects, monitoring can exceed the tiering benefit — S3 Standard +
+  counts of small-but-≥128 KB objects, monitoring can exceed the tiering benefit, S3 Standard +
   explicit lifecycle may win. Break-even is workload-specific.)
 - **Why it saves:** Lower per-GB rate on colder tiers; expiration deletes data you no longer need.
 - **Reversibility/risk:** Transitions to deep-archive tiers add retrieval latency + retrieval fees;
-  expiration deletes data permanently — model access patterns first. **Footgun:** archive classes
+  expiration deletes data permanently, model access patterns first. **Footgun:** archive classes
   have **minimum storage durations** (Deep Archive commonly 180 days; confirm IA/Flexible-Retrieval
   minimums on the live class table). Deleting, overwriting, **or transitioning** an object before
   its minimum incurs a prorated early-deletion fee. Aggressively lifecycling **short-lived** objects
@@ -380,7 +380,7 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
 - **Fix (verified):** Add a lifecycle rule with `AbortIncompleteMultipartUpload` →
   `DaysAfterInitiation` (e.g. 7) so S3 auto-aborts stale uploads and deletes their parts. Apply via
   `put-bucket-lifecycle-configuration`.
-- **Why it saves:** Pure waste — billed parts that will never become an object.
+- **Why it saves:** Pure waste, billed parts that will never become an object.
 - **Reversibility/risk:** Very low. Set the window longer than your largest legitimate upload
   duration so in-flight uploads aren't aborted.
 - **Price source:** Amazon S3 pricing page (incomplete-upload parts bill as storage).
@@ -392,30 +392,29 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
   configured**; check `aws s3api get-bucket-versioning --bucket $BUCKET` + the lifecycle config.
 - **Fix:** Lifecycle rules with `NoncurrentVersionTransition` / `NoncurrentVersionExpiration`.
 - **Why it saves:** Noncurrent versions are billed like any object.
-- **Reversibility/risk:** Expiring noncurrent versions reduces rollback depth — set retention to
+- **Reversibility/risk:** Expiring noncurrent versions reduces rollback depth, set retention to
   match recovery needs. (Versioning + noncurrent-expiry actually makes deletes *reversible* during
-  the retention window — a safety feature, not a cost of this tactic.)
+  the retention window, a safety feature, not a cost of this tactic.)
 - **Price source:** Amazon S3 pricing page.
 
 ## 17. S3 Bucket Keys for SSE-KMS
 
 - **What:** Buckets using SSE-KMS call KMS once **per object** operation; KMS bills per API request,
   so high-throughput buckets rack up KMS request charges.
-- **Detect:** `aws s3api get-bucket-encryption --bucket $BUCKET` — look for `SSEAlgorithm: aws:kms`
+- **Detect:** `aws s3api get-bucket-encryption --bucket $BUCKET`, look for `SSEAlgorithm: aws:kms`
   and whether `BucketKeyEnabled` is set. Review KMS request volume in CloudWatch / Cost Explorer.
-- **Fix:** Enable **S3 Bucket Keys** on the bucket — S3 generates a short-lived bucket-level key
+- **Fix:** Enable **S3 Bucket Keys** on the bucket, S3 generates a short-lived bucket-level key
   instead of calling KMS per object. AWS states this can reduce SSE-KMS request costs "up to 99%."
 - **Why it saves:** Collapses many per-object KMS calls into far fewer bucket-level calls.
 - **Reversibility/risk:** Low, and reversible (toggle off). **Footgun:** enabling Bucket Keys does
-  **not** retroactively cover existing objects — re-encrypt/copy them to benefit.
+  **not** retroactively cover existing objects, re-encrypt/copy them to benefit.
 - **Price source:** AWS KMS pricing page (per-request) and Amazon S3 pricing page.
 
 ## 18. CloudWatch Logs retention
 
 - **What:** Log groups default to **never expire**, so ingested logs accrue archival storage cost
   forever ("zombie storage").
-- **Detect:** `aws logs describe-log-groups --region "$REGION"` and inspect `retentionInDays` —
-  **absent = never expire.** AWS Config managed rule `cw-loggroup-retention-period-check` flags this.
+- **Detect:** `aws logs describe-log-groups --region "$REGION"` and inspect `retentionInDays`,   **absent = never expire.** AWS Config managed rule `cw-loggroup-retention-period-check` flags this.
 - **Fix (verified):** `aws logs put-retention-policy --log-group-name $GROUP --retention-in-days $N`.
   Valid `retentionInDays` values (per the `PutRetentionPolicy` API): `1, 3, 5, 7, 14, 30, 60, 90,
   120, 150, 180, 365, 400, 545, 731, 1096, 1827, 2192, 2557, 2922, 3288, 3653`. To restore
@@ -425,22 +424,22 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
 - **Reversibility/risk:** Setting retention is reversible, but **already-expired data is gone**
   (deletion typically within ~72h of hitting the setting). Keep retention long enough for
   compliance/forensics. (Note: CloudWatch Logs bills separately for **ingestion, storage, and
-  query/scan** — retention only addresses storage.)
+  query/scan**, retention only addresses storage.)
 - **Price source:** Amazon CloudWatch pricing page (logs ingestion + storage + query).
 
 ## 19. CloudWatch high-cardinality metrics & orphaned alarms
 
 - **What:** Two adjacent CloudWatch wastes. **High-cardinality custom metrics:** publishing a custom
   metric with a high-cardinality dimension (e.g. `userId`, `requestId`) creates one billable metric
-  *per unique value* — thousands of metrics from one metric name. **Orphaned alarms:** alarms on
+  *per unique value*, thousands of metrics from one metric name. **Orphaned alarms:** alarms on
   terminated/deleted resources don't auto-clean and keep billing.
-- **Detect:** `aws cloudwatch list-metrics --region "$REGION"` — look for metric names with very many
+- **Detect:** `aws cloudwatch list-metrics --region "$REGION"`, look for metric names with very many
   dimension values. `aws cloudwatch describe-alarms --region "$REGION"`, then check each alarm's
   dimensions against still-existing resources. Cost Explorer grouped by Usage Type for CloudWatch
   confirms the line item.
 - **Why it saves:** Per-unique-dimension metric billing and forgotten alarms are pure waste.
 - **Reversibility/risk:** Low. Removing a high-cardinality dimension changes how you can slice that
-  metric — confirm nothing depends on the per-value breakdown first.
+  metric, confirm nothing depends on the per-value breakdown first.
 - **Price source:** Amazon CloudWatch pricing page (per-metric, per-alarm).
 
 ## 20. CloudWatch Container Insights
@@ -472,7 +471,7 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
   endpoints remove S3/DynamoDB from the NAT path (§5); co-locate chatty components in the same AZ.
 - **Reversibility/risk:** Low for adding endpoints / re-architecting routing; test connectivity
   after route changes.
-- **Price source:** Amazon VPC / EC2 / S3 pricing pages (data-transfer rates per boundary — vary by
+- **Price source:** Amazon VPC / EC2 / S3 pricing pages (data-transfer rates per boundary, vary by
   Region).
 
 ## 22. Cross-Region ghost resources
@@ -488,10 +487,10 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
   production footprint before sweeping.
 - **Price source:** per-service pricing pages (rates vary by Region).
 
-## 23. Guardrails — Budgets + Cost Anomaly Detection
+## 23. Guardrails: Budgets + Cost Anomaly Detection
 
 - **What:** Detective/preventive controls so future waste is caught fast. **Important:** AWS does
-  **not** offer a true hard cap that stops services — Budgets and Anomaly Detection **alert** but
+  **not** offer a true hard cap that stops services, Budgets and Anomaly Detection **alert** but
   don't halt spend, so a runaway/forgotten job can bill until noticed. Wire up **Budget Actions**
   (which *can* trigger automated responses, e.g. applying a restrictive IAM policy or stopping
   instances) if you want enforcement.
@@ -517,25 +516,25 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
 |---|---|
 | **Low risk, easily reversible** | gp2→gp3 (§3), Lambda memory (§9), dev scheduling (§10), add gateway endpoints (§6), S3 Bucket Keys (§17), log retention set (§18), high-cardinality metric/alarm cleanup (§19), Container Insights toggle (§20), Budgets/Anomaly Detection (§23) |
 | **Reversible but needs a maintenance window** | EC2/RDS rightsizing & restart (§8), Graviton/newer-generation migration (§13) |
-| **Destructive — snapshot/verify first** | Release EIP (§1), delete unattached EBS (§2), delete snapshots / deregister AMIs (§4), terminate stopped EC2 (§11), delete idle LB (§7), delete interface endpoint (§6), S3 expiration / transition to deep archive (§14/§16) |
-| **Largely irreversible — commit cautiously, never auto-run** | Savings Plans / RI purchases (§12) |
+| **Destructive, snapshot/verify first** | Release EIP (§1), delete unattached EBS (§2), delete snapshots / deregister AMIs (§4), terminate stopped EC2 (§11), delete idle LB (§7), delete interface endpoint (§6), S3 expiration / transition to deep archive (§14/§16) |
+| **Largely irreversible, commit cautiously, never auto-run** | Savings Plans / RI purchases (§12) |
 
 ---
 
 ## Where to verify prices (NEVER hard-code)
 
-- **AWS Price List Query API** — programmatic, current public prices.
+- **AWS Price List Query API**, programmatic, current public prices.
   `aws pricing get-products --service-code <code> --filters ...`; discover attributes via
   `describe-services` / `get-attribute-values`. Always pass the **target Region** as a
   `regionCode` filter (the API endpoint itself is reachable only from a fixed set of Regions, e.g.
-  `us-east-1` — that is not the Region you are pricing). Use this in automation for live, per-Region
+  `us-east-1`, that is not the Region you are pricing). Use this in automation for live, per-Region
   rates.
-- **AWS Price List Bulk API** — bulk price-list files for offline analysis.
-- **AWS Pricing Calculator** (`calculator.aws`) — model scenarios / estimate before changes.
-- **Per-service pricing pages** — EC2, EBS, S3, VPC (NAT + endpoints + data transfer), CloudWatch,
+- **AWS Price List Bulk API**, bulk price-list files for offline analysis.
+- **AWS Pricing Calculator** (`calculator.aws`), model scenarios / estimate before changes.
+- **Per-service pricing pages**, EC2, EBS, S3, VPC (NAT + endpoints + data transfer), CloudWatch,
   Lambda, ELB, RDS, KMS, Savings Plans. Authoritative for the headline rates this file deliberately
   does not quote.
-- **Compute Optimizer / Cost Optimization Hub `estimatedMonthlySavings`** — AWS's own savings
+- **Compute Optimizer / Cost Optimization Hub `estimatedMonthlySavings`**, AWS's own savings
   estimates, good for **ranking** findings (estimates, not quotes you may restate as fact).
 
 ---
@@ -544,28 +543,28 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
 
 *All accessed 2026-05-28. Carried from the research notes `docs/research/03-aws-cost-tactics.md` and
 `docs/research/04-practitioner-intel.md` (which hold the corroboration labels). No dollar amount in
-this file is stated as fact — verify every price live.*
+this file is stated as fact, verify every price live.*
 
 **Frameworks**
-- AWS Well-Architected Framework — Cost Optimization Pillar (welcome / design goals): https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html
-- AWS Well-Architected Framework — Cost Optimization pillar (framework page): https://docs.aws.amazon.com/wellarchitected/latest/framework/cost-optimization.html
+- AWS Well-Architected Framework, Cost Optimization Pillar (welcome / design goals): https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html
+- AWS Well-Architected Framework, Cost Optimization pillar (framework page): https://docs.aws.amazon.com/wellarchitected/latest/framework/cost-optimization.html
 - WAF COST08-BP03 Implement services to reduce data transfer costs: https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/cost_data_transfer_implement_services.html
-- FinOps Foundation — Framework Overview: https://www.finops.org/framework/
-- FinOps Foundation — Domains: https://www.finops.org/framework/domains/
-- FinOps Foundation — Capabilities (incl. Usage Optimization): https://www.finops.org/framework/capabilities/
-- FinOps Foundation — 2025 Framework (Scopes added): https://www.finops.org/insights/2025-finops-framework/
+- FinOps Foundation, Framework Overview: https://www.finops.org/framework/
+- FinOps Foundation, Domains: https://www.finops.org/framework/domains/
+- FinOps Foundation, Capabilities (incl. Usage Optimization): https://www.finops.org/framework/capabilities/
+- FinOps Foundation, 2025 Framework (Scopes added): https://www.finops.org/insights/2025-finops-framework/
 
 **Managed detectors**
-- AWS Trusted Advisor — Cost optimization checks (check names): https://docs.aws.amazon.com/awssupport/latest/user/cost-optimization-checks.html
-- AWS Trusted Advisor — opt in to Compute Optimizer for checks: https://docs.aws.amazon.com/awssupport/latest/user/compute-optimizer-with-trusted-advisor.html
+- AWS Trusted Advisor, Cost optimization checks (check names): https://docs.aws.amazon.com/awssupport/latest/user/cost-optimization-checks.html
+- AWS Trusted Advisor, opt in to Compute Optimizer for checks: https://docs.aws.amazon.com/awssupport/latest/user/compute-optimizer-with-trusted-advisor.html
 - "Optimize Your AWS Spend with New Cost Savings Features in AWS Trusted Advisor" (Cost Optimization Hub), AWS Cloud Financial Management blog (June 5, 2025): https://aws.amazon.com/blogs/aws-cloud-financial-management/optimize-your-aws-spend-with-new-cost-savings-features-in-aws-trusted-advisor/
-- AWS Cost Optimization Hub — CLI reference: https://docs.aws.amazon.com/cli/latest/reference/cost-optimization-hub/
-- Cost Optimization Hub — list-recommendations: https://docs.aws.amazon.com/cli/latest/reference/cost-optimization-hub/list-recommendations.html
-- Cost Optimization Hub — get-recommendation: https://docs.aws.amazon.com/cli/latest/reference/cost-optimization-hub/get-recommendation.html
-- Compute Optimizer — get-ec2-instance-recommendations: https://docs.aws.amazon.com/cli/latest/reference/compute-optimizer/get-ec2-instance-recommendations.html
-- Compute Optimizer — get-lambda-function-recommendations: https://docs.aws.amazon.com/cli/latest/reference/compute-optimizer/get-lambda-function-recommendations.html
-- Compute Optimizer — get-ecs-service-recommendations: https://docs.aws.amazon.com/cli/latest/reference/compute-optimizer/get-ecs-service-recommendations.html
-- Compute Optimizer — get-auto-scaling-group-recommendations: https://docs.aws.amazon.com/cli/latest/reference/compute-optimizer/get-auto-scaling-group-recommendations.html
+- AWS Cost Optimization Hub, CLI reference: https://docs.aws.amazon.com/cli/latest/reference/cost-optimization-hub/
+- Cost Optimization Hub, list-recommendations: https://docs.aws.amazon.com/cli/latest/reference/cost-optimization-hub/list-recommendations.html
+- Cost Optimization Hub, get-recommendation: https://docs.aws.amazon.com/cli/latest/reference/cost-optimization-hub/get-recommendation.html
+- Compute Optimizer, get-ec2-instance-recommendations: https://docs.aws.amazon.com/cli/latest/reference/compute-optimizer/get-ec2-instance-recommendations.html
+- Compute Optimizer, get-lambda-function-recommendations: https://docs.aws.amazon.com/cli/latest/reference/compute-optimizer/get-lambda-function-recommendations.html
+- Compute Optimizer, get-ecs-service-recommendations: https://docs.aws.amazon.com/cli/latest/reference/compute-optimizer/get-ecs-service-recommendations.html
+- Compute Optimizer, get-auto-scaling-group-recommendations: https://docs.aws.amazon.com/cli/latest/reference/compute-optimizer/get-auto-scaling-group-recommendations.html
 
 **Per-tactic primary docs**
 - EC2 describe-volumes (status filter values): https://docs.aws.amazon.com/cli/latest/reference/ec2/describe-volumes.html
@@ -583,10 +582,10 @@ this file is stated as fact — verify every price live.*
 - VPC Gateway endpoints (no charge; S3/DynamoDB only; routing): https://docs.aws.amazon.com/vpc/latest/privatelink/gateway-endpoints.html
 - Reduce data transfer charges for a NAT gateway (AWS re:Post KB): https://repost.aws/knowledge-center/vpc-reduce-nat-gateway-transfer-costs
 - Amazon VPC Pricing (NAT GW, endpoints, IPv4, data transfer): https://aws.amazon.com/vpc/pricing/
-- fck-nat (open-source NAT-instance alternative) — repo: https://github.com/AndrewGuenther/fck-nat ; docs: https://fck-nat.dev/v1.4.0/
-- ELB — CloudWatch metrics for ALB (RequestCount only when traffic flows): https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html
-- S3 — Configure lifecycle to delete incomplete multipart uploads (AbortIncompleteMultipartUpload / DaysAfterInitiation): https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpu-abort-incomplete-mpu-lifecycle-config.html
-- S3 — Examples of S3 Lifecycle configurations: https://docs.aws.amazon.com/AmazonS3/latest/userguide/lifecycle-configuration-examples.html
+- fck-nat (open-source NAT-instance alternative), repo: https://github.com/AndrewGuenther/fck-nat ; docs: https://fck-nat.dev/v1.4.0/
+- ELB, CloudWatch metrics for ALB (RequestCount only when traffic flows): https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html
+- S3, Configure lifecycle to delete incomplete multipart uploads (AbortIncompleteMultipartUpload / DaysAfterInitiation): https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpu-abort-incomplete-mpu-lifecycle-config.html
+- S3, Examples of S3 Lifecycle configurations: https://docs.aws.amazon.com/AmazonS3/latest/userguide/lifecycle-configuration-examples.html
 - S3 lifecycle transition considerations (minimum durations): https://docs.aws.amazon.com/AmazonS3/latest/userguide/lifecycle-transition-general-considerations.html
 - S3 archival storage (Glacier minimums): https://docs.aws.amazon.com/AmazonS3/latest/userguide/archival-storage.html
 - S3 Glacier Deep Archive early-delete fee (re:Post): https://www.repost.aws/questions/QUXN4-OJkTReG5j7p_nK63vA/s3-glacier-deep-archive-early-delete-fee
@@ -594,21 +593,21 @@ this file is stated as fact — verify every price live.*
 - S3 Intelligent-Tiering class page: https://aws.amazon.com/s3/storage-classes/intelligent-tiering/
 - S3 Bucket Keys reduce KMS up to 99% (AWS Storage Blog): https://aws.amazon.com/blogs/storage/reducing-aws-key-management-service-costs-by-up-to-99-with-s3-bucket-keys/
 - S3 Bucket Keys (S3 User Guide): https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-key.html
-- CloudWatch Logs — PutRetentionPolicy (default never expire; retentionInDays values): https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutRetentionPolicy.html
-- CloudWatch Logs — put-retention-policy CLI: https://docs.aws.amazon.com/cli/latest/reference/logs/put-retention-policy.html
-- CloudWatch Logs — log groups & streams (retention default): https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html
-- AWS Config — cw-loggroup-retention-period-check: https://docs.aws.amazon.com/config/latest/developerguide/cw-loggroup-retention-period-check.html
+- CloudWatch Logs, PutRetentionPolicy (default never expire; retentionInDays values): https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutRetentionPolicy.html
+- CloudWatch Logs, put-retention-policy CLI: https://docs.aws.amazon.com/cli/latest/reference/logs/put-retention-policy.html
+- CloudWatch Logs, log groups & streams (retention default): https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html
+- AWS Config, cw-loggroup-retention-period-check: https://docs.aws.amazon.com/config/latest/developerguide/cw-loggroup-retention-period-check.html
 - Amazon CloudWatch pricing (logs ingestion/storage/query; per-observation EKS / flat ECS): https://aws.amazon.com/cloudwatch/pricing/
 - "Diving into Container Insights cost optimizations for Amazon EKS" (AWS containers blog): https://aws.amazon.com/blogs/containers/diving-into-container-insights-cost-optimizations-for-amazon-eks/
-- Amazon CloudWatch — Container Insights: https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html
-- Cost Explorer — get-savings-plans-utilization (Utilization/Savings fields): https://docs.aws.amazon.com/cli/latest/reference/ce/get-savings-plans-utilization.html
-- Cost Explorer — get-savings-plans-coverage: https://docs.aws.amazon.com/cli/latest/reference/ce/get-savings-plans-coverage.html
+- Amazon CloudWatch, Container Insights: https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html
+- Cost Explorer, get-savings-plans-utilization (Utilization/Savings fields): https://docs.aws.amazon.com/cli/latest/reference/ce/get-savings-plans-utilization.html
+- Cost Explorer, get-savings-plans-coverage: https://docs.aws.amazon.com/cli/latest/reference/ce/get-savings-plans-coverage.html
 - Cost Explorer (ce) command index: https://docs.aws.amazon.com/cli/latest/reference/ce/
 - Compute Savings Plans vs RIs (Savings Plans User Guide): https://docs.aws.amazon.com/savingsplans/latest/userguide/sp-ris.html
-- Instance Scheduler on AWS — solution overview (stop/start EC2 & RDS; ~70% claim): https://docs.aws.amazon.com/solutions/latest/instance-scheduler-on-aws/solution-overview.html
-- Systems Manager — Schedule stop/start via Quick Setup: https://docs.aws.amazon.com/systems-manager/latest/userguide/quick-setup-scheduler.html
-- AWS Cost Anomaly Detection — getting started: https://docs.aws.amazon.com/cost-management/latest/userguide/getting-started-ad.html
-- AWS Cost Anomaly Detection — product page + FAQ: https://aws.amazon.com/aws-cost-management/aws-cost-anomaly-detection/ , https://aws.amazon.com/aws-cost-management/aws-cost-anomaly-detection/faqs/
+- Instance Scheduler on AWS, solution overview (stop/start EC2 & RDS; ~70% claim): https://docs.aws.amazon.com/solutions/latest/instance-scheduler-on-aws/solution-overview.html
+- Systems Manager, Schedule stop/start via Quick Setup: https://docs.aws.amazon.com/systems-manager/latest/userguide/quick-setup-scheduler.html
+- AWS Cost Anomaly Detection, getting started: https://docs.aws.amazon.com/cost-management/latest/userguide/getting-started-ad.html
+- AWS Cost Anomaly Detection, product page + FAQ: https://aws.amazon.com/aws-cost-management/aws-cost-anomaly-detection/ , https://aws.amazon.com/aws-cost-management/aws-cost-anomaly-detection/faqs/
 - Anomaly Detection on by default for new Cost Explorer users: https://aws.amazon.com/blogs/aws-cloud-financial-management/new-aws-cost-explorer-users-can-now-automatically-detect-cost-anomalies/
-- AWS Price List Query API — finding services/products (GetProducts): https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/using-price-list-query-api.html
-- AWS Pricing CLI — get-products: https://docs.aws.amazon.com/cli/latest/reference/pricing/get-products.html
+- AWS Price List Query API, finding services/products (GetProducts): https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/using-price-list-query-api.html
+- AWS Pricing CLI, get-products: https://docs.aws.amazon.com/cli/latest/reference/pricing/get-products.html

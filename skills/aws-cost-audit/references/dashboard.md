@@ -1,7 +1,7 @@
 # Generating the HTML dashboard
 
 The dashboard is an **optional** deliverable: one self-contained `index.html` you hand the user after
-the audit. It renders the verified savings model as a dark, single-page view — a "pay today" header, a
+the audit. It renders the verified savings model as a dark, single-page view, a "pay today" header, a
 **"save now safely" vs "max theoretical"** split, a spend-by-service chart, and one card per resource
 (cost / purpose / owner / created / last-used / verdict / confidence).
 
@@ -18,7 +18,7 @@ those verified values into a template.
   IP, no resource id (`i-…`, `vol-…`, `nat-…`, `E…` CloudFront id, `eipalloc-…`). Use a generic account
   alias for the label, and resource *names/types* (not ARNs) in the cards.
 - **"unknown" is a valid value.** If owner, created, or last-used could not be read from an API, write
-  `"unknown — could not verify"` (or `"unknown — predates CloudTrail window"`). Never guess. The
+  `"unknown, could not verify"` (or `"unknown, predates CloudTrail window"`). Never guess. The
   template styles `unknown` values in muted italic automatically.
 - **No emojis.** Plain text only.
 - **Self-contained.** One file. Fonts and Chart.js load from CDN; the dashboard degrades gracefully to
@@ -28,13 +28,13 @@ those verified values into a template.
 
 From the verified savings model (Law 5 output contract), collect:
 
-1. **Headline run-rate** — the monthly "pay today" figure, reconciled to Cost Explorer.
-2. **Period spend + window** — the analyzed window (e.g. `30d unblended <start> → <end>`) and its total.
-3. **Save-now-safely total** — sum of High-confidence, reversible, tested savings only.
-4. **Max-theoretical total** — sum of all recommended savings (incl. sign-off / commitment / unverified-
+1. **Headline run-rate**, the monthly "pay today" figure, reconciled to Cost Explorer.
+2. **Period spend + window**, the analyzed window (e.g. `30d unblended <start> → <end>`) and its total.
+3. **Save-now-safely total**, sum of High-confidence, reversible, tested savings only.
+4. **Max-theoretical total**, sum of all recommended savings (incl. sign-off / commitment / unverified-
    reversibility items).
-5. **Per-resource rows** — for each resource or service group, the full card object (schema below).
-6. **Region note** — which Region(s) the live prices were verified for.
+5. **Per-resource rows**, for each resource or service group, the full card object (schema below).
+6. **Region note**, which Region(s) the live prices were verified for.
 
 ## The template
 
@@ -51,11 +51,11 @@ deliverable, **read the template, substitute the placeholders, and write the res
 | `{{ACCOUNT_LABEL}}` | Generic account alias, e.g. `account: prod-shared` | **Never** the raw 12-digit id |
 | `{{GENERATED_AT}}` | ISO date/time of the audit data | e.g. `2026-05-28` |
 | `{{PERIOD_LABEL}}` | Cost window | e.g. `30d unblended 2026-04-23 → 2026-05-23` |
-| `{{TOTAL_MONTHLY}}` | Monthly run-rate number | **no currency symbol** — symbol is separate |
+| `{{TOTAL_MONTHLY}}` | Monthly run-rate number | **no currency symbol**, symbol is separate |
 | `{{PERIOD_SPEND}}` | Spend over the window, number | no symbol |
 | `{{SAVE_NOW}}` | Save-now-safely total, number | no symbol |
 | `{{MAX_THEORETICAL}}` | Max-theoretical total, number | no symbol |
-| `{{CURRENCY}}` | Currency symbol, e.g. `$` | Cost Explorer reports in the account's billing currency — use that symbol, do not assume USD |
+| `{{CURRENCY}}` | Currency symbol, e.g. `$` | Cost Explorer reports in the account's billing currency, use that symbol, do not assume USD |
 | `{{REGION_NOTE}}` | Free text on price provenance | e.g. `prices verified live for ap-south-1 + us-east-1` |
 
 ### JS data placeholders (substitute with valid JSON)
@@ -80,18 +80,18 @@ const CARDS = [ { /* card 1 */ }, { /* card 2 */ } ];
 
 ### Card object schema
 
-Every card needs every field. Where a value is unverifiable, use an `"unknown — …"` string rather than
+Every card needs every field. Where a value is unverifiable, use an `"unknown, …"` string rather than
 omitting or guessing it.
 
 ```js
 {
   name:       "RDS db.r7g.large (prod)",   // resource or service-group label (type/name, NOT an ARN)
-  sub:        "marketplace database",       // optional subtitle (purpose hint / generic id — no real ARN)
+  sub:        "marketplace database",       // optional subtitle (purpose hint / generic id, no real ARN)
   cost:       170,                           // current monthly cost, number (from CE/CUR, no symbol)
   save:       85,                            // monthly savings if the action is taken; 0 for KEEP
   purpose:    "Production marketplace DB",   // plain-language purpose
-  owner:      "Platform team",               // owning team/app/repo, or "unknown — could not verify"
-  created:    "2024-02-11",                  // or "unknown — predates CloudTrail window"
+  owner:      "Platform team",               // owning team/app/repo, or "unknown, could not verify"
+  created:    "2024-02-11",                  // or "unknown, predates CloudTrail window"
   lastUsed:   "3.8% avg CPU over 14d",       // last-used signal (CW/access-log/last-invocation) or "unknown"
   verdict:    "optimize",                     // delete | optimize | keep | decision  (see below)
   confidence: "HIGH",                         // HIGH | MED | LOW
@@ -121,15 +121,15 @@ should count toward `{{SAVE_NOW}}`; everything else is part of `{{MAX_THEORETICA
 
 ## Generation procedure
 
-1. Confirm the savings model is verified (prices live, skeptic pass done). If not, stop — the dashboard
+1. Confirm the savings model is verified (prices live, skeptic pass done). If not, stop, the dashboard
    only renders verified data.
 2. Read `assets/dashboard-template.html`.
 3. Build the `CARDS` JSON array from the per-resource findings. Scrub every value: no ARNs, IPs,
-   account ids, or raw resource ids; `unknown — …` for anything unverifiable.
+   account ids, or raw resource ids; `unknown, …` for anything unverifiable.
 4. Compute the four headline numbers from the model (run-rate, period spend, save-now, max-theoretical)
-   — these are sums of values you already verified, not new estimates.
+, these are sums of values you already verified, not new estimates.
 5. Substitute all `{{…}}` string placeholders and the `/*{{SERVICE_CARDS_JSON}}*/ []` array.
-6. Write the result as the user's `index.html` (in their chosen output dir — not over the template).
+6. Write the result as the user's `index.html` (in their chosen output dir, not over the template).
 7. **Verify the output**: open it / load it headless and confirm cards render, the chart draws (or the
    fallback shows), and a grep for forbidden tokens (12-digit ids, `arn:aws:`, `i-`, `vol-`, raw IPs)
    comes back empty.
@@ -138,11 +138,11 @@ should count toward `{{SAVE_NOW}}`; everything else is part of `{{MAX_THEORETICA
 
 - [ ] No hardcoded price anywhere; every number traces to the verified run.
 - [ ] No account id / ARN / IP / resource id; account shown via a generic alias.
-- [ ] Every card has owner / created / last-used (or an explicit `unknown — …`).
+- [ ] Every card has owner / created / last-used (or an explicit `unknown, …`).
 - [ ] `{{SAVE_NOW}}` ≤ `{{MAX_THEORETICAL}}` and both ≤ run-rate; save-now is HIGH-confidence + reversible only.
 - [ ] Verdicts and confidence match the savings model exactly.
 - [ ] File opens standalone; chart degrades to text fallback if the CDN is blocked.
 - [ ] No emojis.
 
 A filled, synthetic example lives at `examples/sample-dashboard.html` (data is obviously fake and marked
-`SAMPLE — synthetic data`). Use it to sanity-check rendering, never as a source of real numbers.
+`SAMPLE, synthetic data`). Use it to sanity-check rendering, never as a source of real numbers.

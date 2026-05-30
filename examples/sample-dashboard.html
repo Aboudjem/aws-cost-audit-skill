@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!--
-  SAMPLE — SYNTHETIC DATA. NOT A REAL AUDIT.
+  SAMPLE, SYNTHETIC DATA. NOT A REAL AUDIT.
   ==========================================
   Generated from assets/dashboard-template.html with obviously-fake numbers for the
   account alias "<demo-account>". Every figure here is invented for layout review only.
   A real run substitutes VERIFIED values (live prices + actual usage). Do not treat any
   number on this page as a real AWS price or cost.
 -->
-<title>AWS cost audit — SAMPLE</title>
+<title>AWS cost audit, SAMPLE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -174,10 +174,10 @@ footer code{background:var(--panel);border:1px solid var(--border);padding:1px 6
 </head>
 <body>
 
-<div class="sample-banner">SAMPLE — synthetic data — not a real audit — every figure invented for layout review</div>
+<div class="sample-banner">SAMPLE, synthetic data, not a real audit, every figure invented for layout review</div>
 
 <header>
-  <div class="brand">AWS cost audit — SAMPLE</div>
+  <div class="brand">AWS cost audit, SAMPLE</div>
   <div class="meta">account: &lt;demo-account&gt; &middot; 30d unblended 2026-04-23 &rarr; 2026-05-23</div>
   <div class="sp"></div>
   <div class="updated">generated 2026-05-28</div>
@@ -255,14 +255,14 @@ footer code{background:var(--panel);border:1px solid var(--border);padding:1px 6
 
 <footer>
   account &lt;demo-account&gt; &middot; generated 2026-05-28 &middot; window <code>30d unblended 2026-04-23 &rarr; 2026-05-23</code> &middot;
-  SAMPLE — synthetic data. On a real dashboard every dollar figure comes from live AWS Price List Query API unit price &times; actual Cost Explorer / CUR usage, re-derived by a separate skeptic pass &middot;
+  SAMPLE, synthetic data. On a real dashboard every dollar figure comes from live AWS Price List Query API unit price &times; actual Cost Explorer / CUR usage, re-derived by a separate skeptic pass &middot;
   read-only audit; no destructive action taken &middot; verdicts are recommendations unless explicitly marked shipped.
 </footer>
 
 </main>
 
 <script>
-// SAMPLE — synthetic data. Every value below is invented for layout review only.
+// SAMPLE, synthetic data. Every value below is invented for layout review only.
 // On a real run this array is generated from verified findings (see references/dashboard.md).
 const CARDS = [
   {
@@ -287,7 +287,7 @@ const CARDS = [
     name:"NAT Gateway data processing", sub:"single AZ",
     cost:520, save:300,
     purpose:"Egress for private subnets",
-    owner:"unknown — could not verify", created:"unknown — predates CloudTrail window", lastUsed:"active daily",
+    owner:"unknown, could not verify", created:"unknown, predates CloudTrail window", lastUsed:"active daily",
     verdict:"decision", confidence:"MED",
     evidence:"SAMPLE: most bytes are S3/ECR pulls; VPC gateway/interface endpoints would cut data-processing. Routing change needs review.",
     project:"Shared infra"
@@ -305,7 +305,7 @@ const CARDS = [
     name:"Unattached EBS volumes (x6)", sub:"gp3, 780 GB total",
     cost:190, save:190,
     purpose:"Detached volumes left after instance teardown",
-    owner:"unknown — could not verify", created:"2025-02-14", lastUsed:"0 I/O for 90d",
+    owner:"unknown, could not verify", created:"2025-02-14", lastUsed:"0 I/O for 90d",
     verdict:"delete", confidence:"HIGH",
     evidence:"SAMPLE: VolumeReadOps/WriteOps = 0 for 90d, status available, no references. Snapshot first, then delete (reversible).",
     project:"Shared infra"
@@ -323,7 +323,7 @@ const CARDS = [
     name:"CloudWatch Logs (no retention)", sub:"42 log groups",
     cost:160, save:90,
     purpose:"Application + access logs with retention set to Never expire",
-    owner:"Platform team", created:"unknown — predates CloudTrail window", lastUsed:"active daily",
+    owner:"Platform team", created:"unknown, predates CloudTrail window", lastUsed:"active daily",
     verdict:"optimize", confidence:"HIGH",
     evidence:"SAMPLE: 42 groups with no retentionInDays. Setting 30-90d retention is reversible and cuts stored GB.",
     project:"Shared infra"
@@ -332,7 +332,7 @@ const CARDS = [
     name:"Old RDS snapshots (x4)", sub:"orphaned manual snapshots",
     cost:240, save:240,
     purpose:"Manual snapshots whose source DBs were deleted",
-    owner:"unknown — could not verify", created:"2024-05-30", lastUsed:"source DB deleted >12mo ago",
+    owner:"unknown, could not verify", created:"2024-05-30", lastUsed:"source DB deleted >12mo ago",
     verdict:"decision", confidence:"HIGH",
     evidence:"SAMPLE: source DBs no longer exist. Deletion is irreversible → recommendation requiring sign-off, not auto-run.",
     project:"Marketplace"
@@ -341,7 +341,7 @@ const CARDS = [
     name:"Unassociated Elastic IPs (x3)", sub:"InstanceId=null",
     cost:30, save:30,
     purpose:"Reserved public IPs not attached to anything",
-    owner:"unknown — could not verify", created:"unknown — predates CloudTrail window", lastUsed:"unattached",
+    owner:"unknown, could not verify", created:"unknown, predates CloudTrail window", lastUsed:"unattached",
     verdict:"decision", confidence:"MED",
     evidence:"SAMPLE: verify each via describe-network-interfaces (some may back a NAT/ALB ENI). Release loses the IP → irreversible.",
     project:"Shared infra"

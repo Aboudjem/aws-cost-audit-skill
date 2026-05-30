@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# delete-unattached-ebs.sh — Gated deletion of an unattached EBS volume.
+# delete-unattached-ebs.sh: Gated deletion of an unattached EBS volume.
 #
 # SAFETY ORDER OF OPERATIONS:
 #   1. Require the volume status to be 'available' (i.e. NOT attached).
@@ -109,7 +109,7 @@ else
   SNAP_ID="$(aws ec2 create-snapshot --volume-id "$VOL_ID" --region "$REGION" \
     --description "pre-delete safety snapshot of $VOL_ID ($TS)" \
     --query 'SnapshotId' --output text)"
-  info "Snapshot started: $SNAP_ID — waiting for completion..."
+  info "Snapshot started: $SNAP_ID, waiting for completion..."
   aws ec2 wait snapshot-completed --snapshot-ids "$SNAP_ID" --region "$REGION"
   info "Snapshot $SNAP_ID completed."
 fi

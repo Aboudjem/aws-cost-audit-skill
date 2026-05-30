@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# set-log-retention.sh — Gated put-retention-policy on CloudWatch log group(s).
+# set-log-retention.sh: Gated put-retention-policy on CloudWatch log group(s).
 #
 # Default is DRY-RUN. Pass --apply to actually set retention. Before changing a
 # group it saves the group's CURRENT retention to a rollback artifact so you can

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# inventory-regions.sh — Read-only multi-region inventory hunt.
+# inventory-regions.sh: Read-only multi-region inventory hunt.
 #
 # Loops over every region returned by `aws ec2 describe-regions` (or a
 # --regions subset) and runs a battery of read-only describe-*/list-* calls,
@@ -76,7 +76,7 @@ dump() {
   if aws "$@" --region "$region" --output json > "$out" 2>"$out.err"; then
     rm -f "$out.err"
   else
-    warn "  [$region] $name failed (service may be unavailable here) — see $out.err"
+    warn "  [$region] $name failed (service may be unavailable here), see $out.err"
   fi
 }
 

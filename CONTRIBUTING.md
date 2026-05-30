@@ -1,7 +1,7 @@
 # Contributing to AWS Cost Audit Skill
 
 Thanks for wanting to help. This is an executable Claude Code skill that audits a
-**live AWS account** — any user's own account, read from their current AWS
+**live AWS account**, any user's own account, read from their current AWS
 credentials. Because it touches real billing data and can recommend real changes,
 it is built carefully and tested-first. This guide explains how to add to it
 without breaking that contract.
@@ -46,18 +46,18 @@ section of the skill traces back to a failure we watched happen first.
 **The rule: no new skill section, Law, or behavioral guarantee lands without a
 failing baseline test first.**
 
-1. **RED — watch it fail.** Before you write skill text, run the scenario against
+1. **RED, watch it fail.** Before you write skill text, run the scenario against
    an agent that does *not* have your change (or doesn't have the skill at all) and
    record what it does wrong, verbatim. Test the weak case too, not just a strong
-   model — the skill must hold on cheaper models and under pressure. See
+   model, the skill must hold on cheaper models and under pressure. See
    `docs/research/RED-baseline-findings.md` and `references/why-these-laws.md` for
    the format: identical inputs, the wrong/inconsistent output, and *why* it's
    dangerous.
-2. **GREEN — write the minimum that fixes it.** Add the skill text / gate /
+2. **GREEN, write the minimum that fixes it.** Add the skill text / gate /
    contract that makes that exact failure stop happening. Re-run the same scenario
    and show it now behaves. Map your change 1:1 to the baseline it fixes.
-3. **REFACTOR — tighten.** Clean up wording, move detail into `references/` if
-   `SKILL.md` is getting heavy, deduplicate — without changing behavior. Re-run to
+3. **REFACTOR, tighten.** Clean up wording, move detail into `references/` if
+   `SKILL.md` is getting heavy, deduplicate, without changing behavior. Re-run to
    confirm the test still passes.
 
 A PR that adds behavior but cites no baseline failure it fixes will be sent back
@@ -67,18 +67,18 @@ doing it" is.
 ## Hard rules you must keep
 
 These are non-negotiable. They mirror the skill's Iron Laws in `AGENTS.md` /
-`SKILL.md`. Don't look for loopholes — violating the letter violates the spirit.
+`SKILL.md`. Don't look for loopholes, violating the letter violates the spirit.
 
 - **Generic and account-agnostic.** The skill must work on *any* user's account,
   read live from their credentials. Never assume an account, Region, service, or
-  resource — read them. Parameterize the Region; never hardcode one as the default
+  resource, read them. Parameterize the Region; never hardcode one as the default
   (use `us-east-1` only as a neutral *example*).
 - **Zero secrets, zero account-specific data.** Never commit a 12-digit AWS account
   id, a concrete ARN, a public IP, or a concrete resource id (instance / volume /
   NAT / ENI / CloudFront / allocation id). Use placeholders: `<your-account>`,
   `$REGION`, `vol-EXAMPLE`, etc. The `.gitignore` already blocks audit output,
-  credentials, and generated reports — don't override it.
-- **ZERO hardcoded AWS prices — verify live.** Never write a unit price, a monthly
+  credentials, and generated reports, don't override it.
+- **ZERO hardcoded AWS prices, verify live.** Never write a unit price, a monthly
   cost, or a "$X saved" figure into the skill, a script, a reference, or an example.
   Every dollar must come from BOTH the live, Region-specific unit price (AWS Price
   List Query API or the service's pricing page) AND the user's actual usage (Cost
@@ -87,10 +87,9 @@ These are non-negotiable. They mirror the skill's Iron Laws in `AGENTS.md` /
 - **Nothing destructive without the gate.** Discovery is read-only (describe / list
   / get only). Anything that deletes, terminates, releases, detaches, expires, or
   purchases is allowed only when it is proven-unused (multiple live signals over
-  30–90 days), reversible, tested in dry-run, and the blast radius is 100% known —
-  and only behind the executor → verifier → rollback gate. Irreversible or uncertain
+  30–90 days), reversible, tested in dry-run, and the blast radius is 100% known,   and only behind the executor → verifier → rollback gate. Irreversible or uncertain
   actions are NEVER auto-run; they are recommendations needing explicit human
-  sign-off. When in doubt, recommend — don't act.
+  sign-off. When in doubt, recommend, don't act.
 - **Don't invent AWS facts.** No made-up CLI flags, service behaviors, or pricing.
   Cite AWS primary docs for any load-bearing claim.
 
@@ -112,7 +111,7 @@ Before opening a PR, verify your change three ways:
    cp -r skills/aws-cost-audit ~/.claude/skills/aws-cost-audit
    ```
    Then ask Claude Code to do the thing your change affects (e.g. "audit my AWS
-   bill", "find my unused AWS resources"). Use a real account *you own* — never
+   bill", "find my unused AWS resources"). Use a real account *you own*, never
    paste someone else's account data into the repo or a PR.
 
 3. **Run scripts in dry-run.** The helper scripts are dry-run-by-default and must
@@ -128,21 +127,21 @@ isn't a placeholder, fix it.
 ## Commit and PR etiquette
 
 - Branch off the default branch; don't commit directly to it.
-- Keep commits focused and messages descriptive (what changed and *why* — link the
+- Keep commits focused and messages descriptive (what changed and *why*, link the
   baseline failure your change fixes).
 - One logical change per PR. Smaller PRs get reviewed faster.
 - In the PR description, include: the RED baseline (the failure you observed), the
   GREEN fix, and how you verified it (validate output, a sample run, dry-run logs
   with any account-specific values redacted).
-- Be kind in review. We give and receive feedback in good faith — see
+- Be kind in review. We give and receive feedback in good faith, see
   `CODE_OF_CONDUCT.md`.
 
 ## CI must pass
 
 Every PR runs CI. It must be green before merge. CI enforces the same gates you
-ran locally — plugin validation, manifest JSON validity, and a scan for hardcoded
+ran locally, plugin validation, manifest JSON validity, and a scan for hardcoded
 secrets / account ids / prices. If CI fails, read the log and push a fix; don't ask
 for a merge override.
 
-Thanks again — careful contributions to a tool that touches people's real cloud
+Thanks again, careful contributions to a tool that touches people's real cloud
 bills genuinely matter.

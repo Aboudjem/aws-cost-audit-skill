@@ -1,4 +1,4 @@
-# 02 — Claude Code Plugin + Marketplace Spec (LOAD-BEARING)
+# 02: Claude Code Plugin + Marketplace Spec (LOAD-BEARING)
 
 > Research note for shipping a generic "AWS cost audit" Claude Code skill as a public GitHub repo.
 > Goal: the install path MUST actually work. Everything below is sourced from the OFFICIAL Claude Code docs.
@@ -6,12 +6,12 @@
 > **Important doc-location fact (verified):** The canonical docs now live at **`code.claude.com/docs/en/...`**.
 > The older `docs.claude.com/en/docs/claude-code/plugins` and `.../plugins-marketplaces` URLs **301-redirect**
 > to `code.claude.com/docs/en/plugins` and the marketplace page now lives at `code.claude.com/docs/en/plugin-marketplaces`
-> (note: **no trailing `-marketplaces` plural on the old slug** — the new slug is `plugin-marketplaces`).
+> (note: **no trailing `-marketplaces` plural on the old slug**, the new slug is `plugin-marketplaces`).
 > Access date for all sources: **2026-05-28**.
 
 ---
 
-## TL;DR — the exact install path a user runs
+## TL;DR: the exact install path a user runs
 
 Two shippable distribution shapes. Both are confirmed by official docs.
 
@@ -39,7 +39,7 @@ Two shippable distribution shapes. Both are confirmed by official docs.
 
 ---
 
-## (a) `.claude-plugin/marketplace.json` — exact fields + real example
+## (a) `.claude-plugin/marketplace.json`: exact fields + real example
 
 **Location (verbatim):** "Create `.claude-plugin/marketplace.json` in your repository root."
 Source: code.claude.com/docs/en/plugin-marketplaces
@@ -55,18 +55,18 @@ Source: code.claude.com/docs/en/plugin-marketplaces
 **Owner fields:** `name` (string, **required**), `email` (string, optional).
 
 ### Optional top-level fields (verbatim)
-`$schema` (string — "JSON Schema URL for editor autocomplete and validation. Claude Code ignores this field at load time."), `description` (string), `version` (string), `metadata.pluginRoot` (string — base directory prepended to relative plugin source paths), `allowCrossMarketplaceDependenciesOn` (array). Note: "`description` and `version` are also accepted under `metadata` for backward compatibility."
+`$schema` (string, "JSON Schema URL for editor autocomplete and validation. Claude Code ignores this field at load time."), `description` (string), `version` (string), `metadata.pluginRoot` (string, base directory prepended to relative plugin source paths), `allowCrossMarketplaceDependenciesOn` (array). Note: "`description` and `version` are also accepted under `metadata` for backward compatibility."
 
-### Reserved marketplace names (cannot be used by third parties) — verbatim
+### Reserved marketplace names (cannot be used by third parties): verbatim
 `claude-code-marketplace`, `claude-code-plugins`, `claude-plugins-official`, `anthropic-marketplace`, `anthropic-plugins`, `agent-skills`, `anthropic-agent-skills`, `knowledge-work-plugins`, `life-sciences`, `claude-for-legal`, `claude-for-financial-services`, `financial-services-plugins`. Names that impersonate official marketplaces (e.g. `official-claude-plugins`, `anthropic-tools-v2`) are also blocked.
 
-### Plugin entry — required + key optional fields (verbatim)
+### Plugin entry: required + key optional fields (verbatim)
 Required per entry: `name` (string, kebab-case, public-facing) and `source` (string|object).
 Marketplace-specific optional fields: `source`, `category`, `tags`, `strict`, plus you may include any field from the plugin manifest schema (`description`, `version`, `author`, `displayName`, `homepage`, `repository`, `license`, `keywords`, `defaultEnabled`, and component-path fields `skills`/`commands`/`agents`/`hooks`/`mcpServers`/`lspServers`).
 
 `strict` (boolean, default `true`): "Controls whether `plugin.json` is the authority for component definitions." `true` = `plugin.json` is authority and marketplace entry can supplement (merged). `false` = the marketplace entry is the entire definition; if the plugin also has a `plugin.json` declaring components, that's a conflict and the plugin fails to load.
 
-### Real example — minimal walkthrough marketplace.json (verbatim from docs)
+### Real example: minimal walkthrough marketplace.json (verbatim from docs)
 
 ```json
 {
@@ -84,7 +84,7 @@ Marketplace-specific optional fields: `source`, `category`, `tags`, `strict`, pl
 }
 ```
 
-### Real example — fuller marketplace.json (verbatim from docs)
+### Real example: fuller marketplace.json (verbatim from docs)
 
 ```json
 {
@@ -131,7 +131,7 @@ GitHub source example (verbatim): `{ "name": "github-plugin", "source": { "sourc
 
 ---
 
-## (b) `plugin.json` — exact fields + real example, and how it points at skills
+## (b) `plugin.json`: exact fields + real example, and how it points at skills
 
 **Location (verbatim):** "The manifest file at `.claude-plugin/plugin.json` defines your plugin's identity."
 The manifest is **optional**: "If omitted, Claude Code auto-discovers components in default locations and derives the plugin name from the directory name."
@@ -154,10 +154,10 @@ Source: code.claude.com/docs/en/plugins , code.claude.com/docs/en/plugins-refere
 ```
 
 Field notes from quickstart table (verbatim):
-- `name` — "Unique identifier and skill namespace. Skills are prefixed with this (e.g., `/my-first-plugin:hello`)."
-- `description` — "Shown in the plugin manager when browsing or installing plugins."
-- `version` — "Optional. If set, users only receive updates when you bump this field. If omitted and your plugin is distributed via git, the commit SHA is used and every commit counts as a new version."
-- `author` — "Optional. Helpful for attribution."
+- `name`, "Unique identifier and skill namespace. Skills are prefixed with this (e.g., `/my-first-plugin:hello`)."
+- `description`, "Shown in the plugin manager when browsing or installing plugins."
+- `version`, "Optional. If set, users only receive updates when you bump this field. If omitted and your plugin is distributed via git, the commit SHA is used and every commit counts as a new version."
+- `author`, "Optional. Helpful for attribution."
 
 ### Complete plugin.json schema (verbatim from plugins-reference)
 
@@ -243,7 +243,7 @@ Source: code.claude.com/docs/en/discover-plugins and code.claude.com/docs/en/plu
 /plugin marketplace add anthropics/claude-code
 ```
 
-"Add a GitHub repository that contains a `.claude-plugin/marketplace.json` file using the `owner/repo` format—where `owner` is the GitHub username or organization and `repo` is the repository name."
+"Add a GitHub repository that contains a `.claude-plugin/marketplace.json` file using the `owner/repo` format, where `owner` is the GitHub username or organization and `repo` is the repository name."
 
 Other add forms (verbatim):
 - Git URL (any host): `/plugin marketplace add https://gitlab.com/company/plugins.git`
@@ -263,7 +263,7 @@ Other add forms (verbatim):
 "Once you've added marketplaces, you can install plugins directly (installs to user scope by default)." Concrete example from docs: `/plugin install commit-commands@claude-code-plugins`.
 
 ### Activate / manage (verbatim)
-- After installing: `/reload-plugins` — "reloads all active plugins and shows counts for plugins, skills, agents, hooks, plugin MCP servers, and plugin LSP servers."
+- After installing: `/reload-plugins`, "reloads all active plugins and shows counts for plugins, skills, agents, hooks, plugin MCP servers, and plugin LSP servers."
 - Disable: `/plugin disable plugin-name@marketplace-name`
 - Enable: `/plugin enable plugin-name@marketplace-name`
 - Uninstall: `/plugin uninstall plugin-name@marketplace-name`
@@ -317,7 +317,7 @@ Submit via in-app forms (claude.ai/settings/plugins/submit or platform.claude.co
 
 ---
 
-## (d) Plain drop-in skill install — exact path
+## (d) Plain drop-in skill install: exact path
 
 Source: code.claude.com/docs/en/skills
 
@@ -334,7 +334,7 @@ Verbatim quickstart: `mkdir -p ~/.claude/skills/summarize-changes` then save `SK
 
 Override precedence (verbatim): "enterprise overrides personal, and personal overrides project. Plugin skills use a `plugin-name:skill-name` namespace, so they cannot conflict with other levels."
 
-### SKILL.md frontmatter — fields (verbatim)
+### SKILL.md frontmatter: fields (verbatim)
 
 ```yaml
 ---
@@ -371,9 +371,9 @@ Your skill instructions here...
 **Command-name source (verbatim):** for a skill dir under `~/.claude/skills/` or `.claude/skills/`, the **directory name** is the command (e.g. `.claude/skills/deploy-staging/SKILL.md` → `/deploy-staging`). Frontmatter `name` is only the display label there. The one exception is a **plugin-root `SKILL.md`**, where frontmatter `name` sets the command (with plugin dir name as fallback).
 
 **Useful for an AWS cost-audit skill:**
-- `allowed-tools: Bash(aws *)` would pre-approve AWS CLI calls (syntax form `Skill(name *)` / `Bash(cmd *)` confirmed in docs). UNVERIFIED that `Bash(aws *)` specifically is documented — the docs show `Bash(git add *)`, `Bash(git commit *)`, `Bash(python3 *)`, `Bash(gh *)`; the pattern generalizes but the exact `aws` example is not in the docs.
+- `allowed-tools: Bash(aws *)` would pre-approve AWS CLI calls (syntax form `Skill(name *)` / `Bash(cmd *)` confirmed in docs). UNVERIFIED that `Bash(aws *)` specifically is documented, the docs show `Bash(git add *)`, `Bash(git commit *)`, `Bash(python3 *)`, `Bash(gh *)`; the pattern generalizes but the exact `aws` example is not in the docs.
 - Dynamic context injection: `` !`<command>` `` runs a shell command and inlines its output before Claude sees the skill (verbatim). Multi-line via a fenced ```` ```! ```` block. Can be disabled org-wide via `"disableSkillShellExecution": true`.
-- `${CLAUDE_SKILL_DIR}` resolves to the skill's own directory (verbatim) — use it to call bundled scripts regardless of CWD; works at personal/project/plugin levels.
+- `${CLAUDE_SKILL_DIR}` resolves to the skill's own directory (verbatim), use it to call bundled scripts regardless of CWD; works at personal/project/plugin levels.
 - Keep `SKILL.md` under 500 lines (doc Tip); move reference material to supporting files.
 
 ---
@@ -394,14 +394,14 @@ Your skill instructions here...
 Version resolves from the first set of: (1) `version` in `plugin.json`; (2) `version` in the marketplace entry; (3) the git commit SHA of the source (for `github`/`url`/`git-subdir`/relative-path-in-git sources); (4) `unknown` for `npm`/non-git local dirs.
 - Set `version` = pinned; you MUST bump it every release or users get nothing on new commits.
 - Omit `version` = every new commit is a new version (best for actively-developed repos).
-- Do NOT set `version` in both `plugin.json` and the marketplace entry — `plugin.json` wins silently.
+- Do NOT set `version` in both `plugin.json` and the marketplace entry, `plugin.json` wins silently.
 
 ---
 
 ## ${CLAUDE_PLUGIN_ROOT} and friends (verbatim)
-- `${CLAUDE_PLUGIN_ROOT}` — absolute path to the plugin's install dir; use for bundled scripts/configs in hooks, monitors, MCP/LSP. Changes on update; do NOT store state here.
-- `${CLAUDE_PLUGIN_DATA}` — persistent dir surviving updates (resolves to `~/.claude/plugins/data/{id}/`).
-- `${CLAUDE_PROJECT_DIR}` — project root.
+- `${CLAUDE_PLUGIN_ROOT}`, absolute path to the plugin's install dir; use for bundled scripts/configs in hooks, monitors, MCP/LSP. Changes on update; do NOT store state here.
+- `${CLAUDE_PLUGIN_DATA}`, persistent dir surviving updates (resolves to `~/.claude/plugins/data/{id}/`).
+- `${CLAUDE_PROJECT_DIR}`, project root.
 - Plugins are copied to a cache (`~/.claude/plugins/cache`) on install, so paths that traverse outside the plugin root (`../shared-utils`) do NOT work.
 
 ---
@@ -425,4 +425,4 @@ All accessed **2026-05-28**. Old `docs.claude.com/en/docs/claude-code/*` URLs 30
 - Plugins reference (complete schemas): https://code.claude.com/docs/en/plugins-reference
 - Discover and install prebuilt plugins: https://code.claude.com/docs/en/discover-plugins
 - Extend Claude with skills: https://code.claude.com/docs/en/skills
-- Settings (scopes; plugin settings section not captured in fetched window — see uncertainties): https://code.claude.com/docs/en/settings
+- Settings (scopes; plugin settings section not captured in fetched window, see uncertainties): https://code.claude.com/docs/en/settings

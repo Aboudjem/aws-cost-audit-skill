@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# gp2-to-gp3.sh — Gated EBS gp2 -> gp3 conversion via modify-volume.
+# gp2-to-gp3.sh: Gated EBS gp2 -> gp3 conversion via modify-volume.
 #
 # gp3 is typically cheaper per GB than gp2 and decouples IOPS/throughput from
 # size. The migration is online (no detach) and reversible (modify back to gp2).
@@ -79,7 +79,7 @@ if [ "$CUR_TYPE" = "gp3" ]; then
   exit 0
 fi
 if [ "$CUR_TYPE" != "gp2" ]; then
-  warn "Volume type is '$CUR_TYPE', not gp2. Proceeding will still set it to gp3 — review carefully."
+  warn "Volume type is '$CUR_TYPE', not gp2. Proceeding will still set it to gp3, review carefully."
 fi
 
 # Save rollback BEFORE mutating.

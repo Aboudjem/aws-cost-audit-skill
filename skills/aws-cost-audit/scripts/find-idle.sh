@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# find-idle.sh — Read-only finder for common cost-waste candidates in ONE region.
+# find-idle.sh: Read-only finder for common cost-waste candidates in ONE region.
 #
 # Surfaces (prints a candidates table, deletes NOTHING):
 #   - Unassociated Elastic IPs (billed while idle)
@@ -106,7 +106,7 @@ aws logs describe-log-groups --region "$REGION" \
   --query 'logGroups[?retentionInDays==`null`].{LogGroup:logGroupName,StoredBytes:storedBytes}' \
   --output table || warn "describe-log-groups failed"
 
-# 5) gp2 volumes (gp3 migration candidates — usually cheaper + faster)
+# 5) gp2 volumes (gp3 migration candidates: usually cheaper + faster)
 section "gp2 EBS volumes (candidates for gp3 migration)"
 aws ec2 describe-volumes --region "$REGION" \
   --filters Name=volume-type,Values=gp2 \

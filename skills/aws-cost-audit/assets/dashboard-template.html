@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!--
-  AWS COST AUDIT DASHBOARD — GENERIC TEMPLATE
+  AWS COST AUDIT DASHBOARD, GENERIC TEMPLATE
   ============================================
   This file contains ZERO real account data and ZERO hardcoded prices.
   An agent fills the {{PLACEHOLDERS}} below from VERIFIED audit data only
@@ -275,9 +275,9 @@ footer code{background:var(--panel);border:1px solid var(--border);padding:1px 6
 
 <script>
 // ============================================================
-//  DATA — filled by the agent from VERIFIED audit data only.
+//  DATA, filled by the agent from VERIFIED audit data only.
 //  Card schema (every field is required; use the string
-//  "unknown — could not verify" rather than guessing):
+//  "unknown, could not verify" rather than guessing):
 //
 //  {
 //    name:       "RDS db.r7g.large (prod)",     // resource / group label
@@ -285,8 +285,8 @@ footer code{background:var(--panel);border:1px solid var(--border);padding:1px 6
 //    cost:       170,                            // current monthly cost (number)
 //    save:       85,                             // monthly savings if action taken (0 if keep)
 //    purpose:    "Production marketplace DB",    // plain-language
-//    owner:      "Platform team",                // or "unknown — could not verify"
-//    created:    "2024-02-11",                   // or "unknown — predates CloudTrail window"
+//    owner:      "Platform team",                // or "unknown, could not verify"
+//    created:    "2024-02-11",                   // or "unknown, predates CloudTrail window"
 //    lastUsed:   "3.8% avg CPU / 14d",           // last-used signal, or "unknown"
 //    verdict:    "optimize",                      // one of: delete | optimize | keep | decision
 //    confidence: "HIGH",                          // HIGH | MED | LOW

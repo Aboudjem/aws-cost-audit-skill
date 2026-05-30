@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 00-baseline.sh — Read-only Cost Explorer baseline snapshot.
+# 00-baseline.sh: Read-only Cost Explorer baseline snapshot.
 #
 # Pulls (all read-only, all into an output dir as JSON):
 #   - total unblended cost for a period
@@ -97,7 +97,7 @@ run_ce() {
     rm -f "$out.err"
     log "   saved: $out"
   else
-    warn "   FAILED ($label) — see $out.err (Cost Explorer may not be enabled / missing ce:Get* perms)"
+    warn "   FAILED ($label), see $out.err (Cost Explorer may not be enabled / missing ce:Get* perms)"
   fi
 }
 
