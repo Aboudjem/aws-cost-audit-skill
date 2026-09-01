@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Release workflow: pushing a `vX.Y.Z` tag now creates the GitHub release and tells the 10x
+  marketplace to re-sync (`.github/workflows/release.yml`).
+
 ## [0.2.0] - 2026-05-30
 
 Portability, discoverability, and presentation. No change to the skill's behaviour or its Iron Laws.
