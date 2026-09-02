@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "findings": [
+    {
+      "id": "ebs-unattached-example-1",
+      "resource": "vol-EXAMPLE",
+      "region": "<region>",
+      "service": "Amazon EC2",
+      "monthly_cost_estimate": 8.0,
+      "after_monthly_cost": 0,
+      "monthly_saving": 8.0,
+      "purpose": "A storage disk that is not connected to any server.",
+      "owner": "unknown, could not verify",
+      "created_by": "unknown, predates the CloudTrail look-back window",
+      "created_when": "unknown, predates the CloudTrail look-back window",
+      "last_used": "no read or write activity for 90 days (CloudWatch VolumeReadOps and VolumeWriteOps both zero)",
+      "price_source": "aws pricing get-products --service-code AmazonEC2 --region us-east-1 --filters Type=TERM_MATCH,Field=volumeApiName,Value=gp3 Type=TERM_MATCH,Field=regionCode,Value=<region>",
+      "evidence": "aws ec2 describe-volumes --region <region> --filters Name=status,Values=available",
+      "action": "SAFE-TO-DELETE",
+      "reversible": true,
+      "confidence": "High"
+    },
+    {
+      "id": "log-group-never-expires-example-1",
+      "resource": "/aws/lambda/EXAMPLE",
+      "region": "<region>",
+      "service": "Amazon CloudWatch Logs",
+      "monthly_cost_estimate": null,
+      "evidence": "aws logs describe-log-groups --region <region> --query 'logGroups[?!retentionInDays]'",
+      "action": "OPTIMIZE",
+      "reversible": true,
+      "confidence": "Medium"
+    },
+    {
+      "id": "eip-in-use-example-1",
+      "resource": "eipalloc-EXAMPLE",
+      "region": "<region>",
+      "service": "Amazon EC2",
+      "monthly_cost_estimate": 3.6,
+      "evidence": "aws ec2 describe-addresses --region <region> shows an AssociationId",
+      "action": "KEEP",
+      "reversible": false,
+      "confidence": "High"
+    }
+  ]
+}

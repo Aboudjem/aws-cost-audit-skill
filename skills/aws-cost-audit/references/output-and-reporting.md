@@ -83,6 +83,46 @@ Rules for filling it in:
   **OPTIMIZE** (cheaper config, same function, e.g. gp2→gp3, raise log retention, rightsize),
   **SAFE-TO-DELETE** (proven unused; still only a *recommendation* until snapshot + dry-run + sign-off).
 
+## Machine-readable contract: `findings.json`
+
+Everything above is written for a person. A second audit cannot diff against the first from prose,
+so a run may also emit `findings.json`. Treat it as the **machine-checkable core** of the contract
+above, not a replacement for it. The prose contract still governs the `current -> after -> saved`
+math trail and the price source; the JSON pins the fields a tool can check.
+
+JSON, never YAML. This skill is bash plus `jq`, with no YAML parser anywhere, and adding one would
+break the promise that it shells out to a CLI you already have.
+
+Shape: an object with `schema_version` (string) and `findings` (array). Every finding carries these
+nine keys.
+
+| key | type | meaning |
+|---|---|---|
+| `id` | string | stable slug, unique within the file, so two runs can be diffed |
+| `resource` | string | the resource identifier, or a placeholder such as `vol-EXAMPLE` |
+| `region` | string | the region the resource lives in |
+| `service` | string | the AWS service it belongs to |
+| `monthly_cost_estimate` | number or `null` | `null` is the machine form of "unknown, could not verify" (Law 2). Never write a guess here. |
+| `evidence` | string | the exact read-only command or metric that proves the finding (Law 5) |
+| `action` | string | `KEEP`, `OPTIMIZE`, or `SAFE-TO-DELETE` |
+| `reversible` | boolean | `false` means the action needs explicit owner sign-off |
+| `confidence` | string | `High`, `Medium`, or `Low`, per the rubric above |
+
+Eight further keys are optional. They carry the rest of the Artifact 1 block when a run chooses to
+emit it, and they are type-checked when present: `after_monthly_cost` and `monthly_saving` (number
+or `null`), `purpose`, `owner`, `created_by`, `created_when`, `last_used`, and `price_source`
+(strings). Any other key is rejected, so the file cannot drift into a private dialect.
+
+Check a file before you publish it:
+
+```bash
+skills/aws-cost-audit/scripts/findings-validate.sh cost-audit-out/findings.json
+```
+
+Exit `0` means the file satisfies the contract, `1` prints one line per problem, and `2` means the
+file could not be checked at all (unreadable, or `jq` is not installed). A file is never reported
+valid unchecked.
+
 ## Artifact 2: the report skeleton
 
 Order matters: start with what they pay, then what is safe today, then the upside, then the detail,

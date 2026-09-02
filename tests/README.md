@@ -10,7 +10,7 @@ network call is made. The suite exercises the pure-bash helpers in
 bash tests/smoke.sh
 ```
 
-Expected output: `Results: 32 passed, 0 failed` and exit code `0`.
+Expected output: `Results: 42 passed, 0 failed` and exit code `0`.
 
 ## What is tested
 
@@ -27,6 +27,13 @@ Expected output: `Results: 32 passed, 0 failed` and exit code `0`.
   over `AWS_COST_AUDIT_CE_BUDGET` is refused before it is sent, `--no-paginate` is always passed so
   one call is one billed request, a two-page result counts as two, and the per-request price is
   read from `references/pricing-verification.md` rather than hardcoded anywhere in a script
+
+- `findings-validate.sh`: the good fixture passes, the deliberately broken one fails with every
+  planted problem named (missing required key, value outside an enum, wrong type, unknown key,
+  duplicate id), and a machine without `jq` gets exit 2 rather than a false pass
+
+Fixtures live in `tests/fixtures/`. They use placeholders such as `vol-EXAMPLE` and `<region>`, so
+no real account id, ARN, or resource id is committed.
 
 `doctor.sh` is run with a replaced `PATH` pointing at a temporary directory that holds a fake `aws`
 plus symlinks to the few real binaries the script needs. That makes "jq is absent" deterministic

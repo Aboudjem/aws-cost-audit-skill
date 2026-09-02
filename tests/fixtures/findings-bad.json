@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "findings": [
+    {
+      "id": "duplicated-example",
+      "resource": "vol-EXAMPLE",
+      "region": "<region>",
+      "service": "Amazon EC2",
+      "monthly_cost_estimate": 8.0,
+      "action": "SAFE-TO-DELETE",
+      "reversible": true,
+      "confidence": "High"
+    },
+    {
+      "id": "duplicated-example",
+      "resource": "vol-EXAMPLE-2",
+      "region": "<region>",
+      "service": "Amazon EC2",
+      "monthly_cost_estimate": "eight dollars",
+      "evidence": "aws ec2 describe-volumes --region <region>",
+      "action": "SAFE-TO-DELETE",
+      "reversible": "yes",
+      "confidence": "high",
+      "estimated_savings_percent": 100
+    }
+  ]
+}

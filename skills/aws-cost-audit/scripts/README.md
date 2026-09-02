@@ -16,7 +16,9 @@ the AWS Price List Query API (see `verify-price.sh`), never assumed.
 ## Requirements
 
 - AWS CLI v2, configured with credentials for the account you want to audit.
-- `jq` recommended (scripts degrade to raw JSON without it).
+- `jq` recommended (scripts degrade to raw JSON without it). The one exception is
+  `findings-validate.sh`, which needs `jq` to do its job and exits 2 saying so rather
+  than reporting a file as valid when it could not check it.
 - IAM permissions: read-only `Describe*`/`List*`/`Get*` for the services you
   scan, `ce:Get*` for the baseline, `pricing:GetProducts` for price lookups, and
   the relevant mutate permission (`logs:PutRetentionPolicy`, `ec2:ModifyVolume`,
@@ -31,6 +33,7 @@ the AWS Price List Query API (see `verify-price.sh`), never assumed.
 | `inventory-regions.sh` | Loops `describe-regions` and runs read-only inventory per region (EC2, EBS, snapshots, EIPs, ELB, TGs, NAT, RDS, ElastiCache, log groups) | No (read-only) | Finds resources you forgot in other regions | None | N/A (read-only) |
 | `find-idle.sh` | Candidate table: unassociated EIPs, unattached EBS, idle ALBs/empty TGs, never-expire log groups, gp2 volumes | No (read-only) | Pinpoints concrete waste to act on | None | N/A (read-only) |
 | `verify-price.sh` | Live unit price from `pricing get-products` for a service-code + region-code + filters | No (read-only) | Proves savings math with real, current prices (no guessing) | None | N/A (read-only) |
+| `findings-validate.sh` | Checks a `findings.json` file against the contract in `../references/output-and-reporting.md` (jq) | No (read-only) | Lets two audits be diffed instead of re-read | None | N/A (read-only) |
 | `set-log-retention.sh` | Gated `put-retention-policy` with `--days`; one group or all never-expire groups | Yes (`--apply`) | Caps CloudWatch Logs storage growth | Low, too-short retention can drop logs you still need | Re-apply old `--days` (saved in artifact) or `delete-retention-policy` |
 | `gp2-to-gp3.sh` | Gated `modify-volume` gp2→gp3 for a `--volume-id` | Yes (`--apply`) | gp3 is typically cheaper per GB than gp2 | Low, online change, no detach | `modify-volume --volume-type gp2` (prior type saved in artifact) |
 | `delete-unattached-ebs.sh` | Gated delete of an `available` (unattached) volume; snapshots FIRST and waits | Yes (`--apply`) | Stops paying for orphaned volumes | Medium, destructive, but snapshot is the restore point | `create-volume --snapshot-id <snap>` (snap id saved in artifact) |

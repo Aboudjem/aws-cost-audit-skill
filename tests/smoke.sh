@@ -326,6 +326,48 @@ assert_contains "ce_paged_call: fetches page two with --next-page-token" \
   "$(cat "$CE4_CALLS")" "--next-page-token tok-2"
 rm -rf "$CE4"
 
+# ---- findings-validate.sh ---------------------------------------------------
+# Offline. Runs the validator over a good fixture and a deliberately broken one.
+VALIDATE="$HERE/../skills/aws-cost-audit/scripts/findings-validate.sh"
+FIX_GOOD="$HERE/fixtures/findings-good.json"
+FIX_BAD="$HERE/fixtures/findings-bad.json"
+
+# 29. A file that cannot be checked is never reported valid.
+FV0="$(mktemp -d)"
+FV0_RC=0
+FV0_OUT=$(
+  PATH="$(make_stub_path "$FV0/bin" "")" \
+  "$BASH_BIN" "$VALIDATE" "$FIX_GOOD" 2>&1
+) || FV0_RC=$?
+assert_eq "findings-validate: exits 2 when jq is missing, never 0" "$FV0_RC" "2"
+assert_contains "findings-validate: says why it could not check" "$FV0_OUT" "jq is not installed"
+rm -rf "$FV0"
+
+if command -v jq >/dev/null 2>&1; then
+  # 30. The good fixture satisfies the contract.
+  FV1_RC=0
+  FV1_OUT=$(bash "$VALIDATE" "$FIX_GOOD" 2>&1) || FV1_RC=$?
+  assert_eq "findings-validate: good fixture exits 0" "$FV1_RC" "0"
+  assert_contains "findings-validate: counts the findings" "$FV1_OUT" "3 finding(s)"
+
+  # 31. The bad fixture fails, and every planted problem is named.
+  FV2_RC=0
+  FV2_OUT=$(bash "$VALIDATE" "$FIX_BAD" 2>&1) || FV2_RC=$?
+  assert_eq "findings-validate: bad fixture exits 1" "$FV2_RC" "1"
+  assert_contains "findings-validate: catches the missing required key" \
+    "$FV2_OUT" "findings[0].evidence is required but missing"
+  assert_contains "findings-validate: catches the value outside the enum" \
+    "$FV2_OUT" "confidence must be one of High, Medium, Low"
+  assert_contains "findings-validate: catches the duplicate id" \
+    "$FV2_OUT" "duplicate id: duplicated-example"
+  assert_contains "findings-validate: catches a key that is not in the contract" \
+    "$FV2_OUT" "estimated_savings_percent is not a key in the contract"
+  assert_contains "findings-validate: catches the wrong type for a cost" \
+    "$FV2_OUT" "monthly_cost_estimate must be a number or null"
+else
+  printf '[SKIP] findings-validate cases: jq is not installed on this machine\n'
+fi
+
 # ---- summary -----------------------------------------------------------------
 echo ""
 printf 'Results: %d passed, %d failed\n' "$PASS" "$FAIL"
