@@ -6,22 +6,25 @@ The skill targets Claude Code and shells out to the AWS CLI against the account 
 
 Who it is for: AWS account owners, FinOps practitioners, DevOps/platform engineers, and anyone whose AWS bill is too high and who wants a careful, auditable, safe-by-default cost review rather than a guess.
 
-Two ways to install. As a Claude Code plugin: run `/plugin marketplace add Aboudjem/aws-cost-audit-skill` then `/plugin install aws-cost-audit@aws-cost-audit-skill`. As a drop-in skill: copy the `skills/aws-cost-audit/` directory into `~/.claude/skills/aws-cost-audit/`.
+Three ways to install. As a Claude Code plugin through the 10x marketplace: run `claude plugin marketplace add Aboudjem/10x` then `claude plugin install aws-cost-audit@10x`. In any other agent, through the Vercel skills CLI: `npx skills add Aboudjem/aws-cost-audit-skill`. As a drop-in skill: copy the `skills/aws-cost-audit/` directory into `~/.claude/skills/aws-cost-audit/`. There is no direct-from-this-repo plugin path: this repo ships no marketplace manifest of its own.
 
 ## Docs
 
 - [README](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/README.md): What the skill is, who it is for, how to install and run it.
 - [SKILL.md](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/skills/aws-cost-audit/SKILL.md): The skill definition: Iron Laws, workflow, the auto-execute-vs-recommend decision gate, and the highest-ROI checks.
 - [Why these laws (recorded baseline)](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/skills/aws-cost-audit/references/why-these-laws.md): The reproducible agent-failure baseline that each Iron Law fixes.
+- [Quickstart](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/docs/quickstart.md): Prerequisites, install, and what a full run does step by step.
+- [FAQ](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/docs/faq.md): What it covers, what an audit costs to run, what it will not touch, and the five Iron Laws in short form.
+- [How it compares](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/docs/comparison.md): Against a manual audit and against a hosted cost dashboard.
 - [LICENSE (MIT)](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/LICENSE): Permissive MIT license.
 
 ## Install
 
-- [10x marketplace (recommended)](https://github.com/Aboudjem/10x): `/plugin marketplace add Aboudjem/10x` then `/plugin install aws-cost-audit@10x`. The skill is curated in the 10x marketplace alongside other Claude Code tools.
-- [Plugin marketplace + install](https://github.com/Aboudjem/aws-cost-audit-skill#install): `/plugin marketplace add Aboudjem/aws-cost-audit-skill` then `/plugin install aws-cost-audit@aws-cost-audit-skill`.
+- [10x marketplace (recommended)](https://github.com/Aboudjem/10x): `claude plugin marketplace add Aboudjem/10x` then `claude plugin install aws-cost-audit@10x`. The skill is curated in the 10x marketplace alongside other Claude Code tools.
+- [Any other agent, via the Vercel skills CLI](https://github.com/Aboudjem/aws-cost-audit-skill#install): `npx skills add Aboudjem/aws-cost-audit-skill`. Works in Claude Code, Cursor, Codex, Copilot, Gemini CLI and 70+ other agents.
 - [Drop-in skill](https://github.com/Aboudjem/aws-cost-audit-skill#install): Copy `skills/aws-cost-audit/` into `~/.claude/skills/aws-cost-audit/`.
 - [Plugin manifest](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/.claude-plugin/plugin.json): Plugin name, version, and keywords.
-- [Marketplace manifest](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/.claude-plugin/marketplace.json): Marketplace entry consumed by `/plugin marketplace add`.
+- [Editor and agent support](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/docs/editors.md): One install line per agent, the platform-id map, Windows, and the manual copy path.
 
 ## Skill
 

@@ -14,7 +14,7 @@ The skill targets Claude Code and shells out to the AWS CLI. The skill definitio
 
 - If running inside Claude Code with the skill installed: trigger it by describing the user's intent (e.g. "audit my AWS bill", "find unused AWS resources", "check our Savings Plans coverage", "where is my AWS money going"). Claude Code matches these to the skill's description and loads `SKILL.md`.
 - To install via the [10x marketplace](https://github.com/Aboudjem/10x) (recommended): `/plugin marketplace add Aboudjem/10x` then `/plugin install aws-cost-audit@10x`.
-- To install directly from this repo: `/plugin marketplace add Aboudjem/aws-cost-audit-skill` then `/plugin install aws-cost-audit@aws-cost-audit-skill`.
+- There is no direct-from-this-repo plugin path: this repo ships no `.claude-plugin/marketplace.json`, so `/plugin marketplace add Aboudjem/aws-cost-audit-skill` has nothing to resolve. Use 10x, `npx skills add Aboudjem/aws-cost-audit-skill`, or the drop-in copy.
 - To install as a drop-in skill: copy `skills/aws-cost-audit/` into `~/.claude/skills/aws-cost-audit/`.
 - Prerequisite: a working AWS CLI configured with the user's own credentials. Confirm identity first with `aws sts get-caller-identity`. Never assume an account, Region, or resource; read them live. Parameterize the Region (do not hardcode one default).
 
@@ -52,7 +52,7 @@ Additional hygiene for agents editing this repo: never commit a real 12-digit AW
 ## Q&A
 
 **How do I audit my AWS bill with Claude?**
-Install this skill via the [10x marketplace](https://github.com/Aboudjem/10x) (recommended: `/plugin marketplace add Aboudjem/10x` then `/plugin install aws-cost-audit@10x`), directly from this repo (`/plugin marketplace add Aboudjem/aws-cost-audit-skill` then `/plugin install aws-cost-audit@aws-cost-audit-skill`), or by dropping `skills/aws-cost-audit/` into `~/.claude/skills/aws-cost-audit/`. Make sure your AWS CLI is configured with your own credentials, then ask Claude Code to "audit my AWS bill" or "find my unused AWS resources." Claude verifies your identity, pulls Cost Explorer, inventories every Region and service, and returns an evidence-backed savings plan. It is read-only by default and verifies every price live for your exact Region.
+Install this skill via the [10x marketplace](https://github.com/Aboudjem/10x) (recommended: `/plugin marketplace add Aboudjem/10x` then `/plugin install aws-cost-audit@10x`), in any other agent with `npx skills add Aboudjem/aws-cost-audit-skill`, or by dropping `skills/aws-cost-audit/` into `~/.claude/skills/aws-cost-audit/`. Make sure your AWS CLI is configured with your own credentials, then ask Claude Code to "audit my AWS bill" or "find my unused AWS resources." Claude verifies your identity, pulls Cost Explorer, inventories every Region and service, and returns an evidence-backed savings plan. It is read-only by default and verifies every price live for your exact Region.
 
 **Will it delete anything or change my account?**
 Not on its own. The skill is read-only by default. Any change is gated and must be proven-unused, reversible, and tested first; irreversible or uncertain actions are only ever recommendations that need your explicit sign-off.
