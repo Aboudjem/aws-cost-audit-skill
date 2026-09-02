@@ -1,4 +1,4 @@
-# Viral-Readiness Audit — aws-cost-audit-skill
+# Viral-Readiness Audit: aws-cost-audit-skill
 
 _2026-05-30_
 
@@ -7,7 +7,7 @@ _2026-05-30_
 | Signal | Value |
 |---|---|
 | **Score** | 92 → 100 / 100 |
-| **Tier** | 1 — production-ready / viral-ready |
+| **Tier** | 1, production-ready / viral-ready |
 | **Repo type** | claude-plugin |
 | **Recommended packaging** | plugin |
 
@@ -15,12 +15,12 @@ _2026-05-30_
 
 | Gap | Weight | Status |
 |---|---|---|
-| `has_tests` — no `tests/` directory | +8 | Fixed — see `tests/` |
+| `has_tests`, no `tests/` directory | +8 | Fixed, see `tests/` |
 
 ## What was already present (no changes made)
 
-- `AGENTS.md` — cross-harness agent context (do not duplicate)
-- `llms.txt` — LLM/GEO citeability layer (do not duplicate)
+- `AGENTS.md`: cross-harness agent context (do not duplicate)
+- `llms.txt`: LLM/GEO citeability layer (do not duplicate)
 - GitHub releases published
 - `skills/*/references/` progressive-disclosure structure
 - Demo GIF + hero SVG + dashboard preview
@@ -30,14 +30,14 @@ _2026-05-30_
 
 ## What this pass added
 
-1. **`tests/smoke.sh`** — offline smoke test for `_lib.sh` helpers (no AWS credentials required). Tests: `resolve_region` env-var path, `default_out_dir` override, `ensure_dir` creation, `log`/`info`/`warn`/`die` output contracts. Runs in ~100 ms anywhere with bash. See `tests/README.md` for how to run.
-2. **`tests/README.md`** — one-paragraph run guide.
-3. **`docs/VIRAL-AUDIT.md`** — this file.
-4. **`docs/LAUNCH-PLAN.md`** — June 2026 channel-sequenced launch plan.
+1. **`tests/smoke.sh`**: offline smoke test for `_lib.sh` helpers (no AWS credentials required). Tests: `resolve_region` env-var path, `default_out_dir` override, `ensure_dir` creation, `log`/`info`/`warn`/`die` output contracts. Runs in ~100 ms anywhere with bash. See `tests/README.md` for how to run.
+2. **`tests/README.md`**: one-paragraph run guide.
+3. **`docs/VIRAL-AUDIT.md`**: this file.
+4. **`docs/LAUNCH-PLAN.md`**: June 2026 channel-sequenced launch plan.
 
 ## Engine assessment
 
-The one real gap was `has_tests` — fixed. Type (`claude-plugin`) and packaging (`plugin`) are right: the repo ships a Claude Code skill via a plugin manifest with no MCP server. `AGENTS.md` was already present; no changes needed there.
+The one real gap was `has_tests`, now fixed. Type (`claude-plugin`) and packaging (`plugin`) are right: the repo ships a Claude Code skill via a plugin manifest with no MCP server. `AGENTS.md` was already present; no changes needed there.
 
 ## Read
 
