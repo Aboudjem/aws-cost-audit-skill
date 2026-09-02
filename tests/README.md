@@ -10,7 +10,7 @@ network call is made. The suite exercises the pure-bash helpers in
 bash tests/smoke.sh
 ```
 
-Expected output: `Results: 49 passed, 0 failed` and exit code `0`.
+Expected output: `Results: 56 passed, 0 failed` and exit code `0`.
 
 ## What is tested
 
@@ -21,7 +21,10 @@ Expected output: `Results: 49 passed, 0 failed` and exit code `0`.
 - `die`: `[ERROR]` prefix, non-zero exit
 - `doctor.sh`: exits 0 on a healthy stubbed environment, exits 1 with a named blocker when no
   region resolves, treats a missing `jq` as a warning rather than a blocker, skips the identity
-  call under `--offline`, and leaves the billed Cost Explorer probe off unless it is asked for
+  call under `--offline`, and leaves the billed Cost Explorer probe off unless it is asked for.
+  It also accepts `--region`, names a missing `aws` CLI and an unwritable output directory as
+  blockers, and removes an output directory it had to create, since it reports on an
+  environment rather than furnishing one
 
 - `ce_call` / `ce_paged_call` / `ce_report`: each Cost Explorer request is counted, the request
   over `AWS_COST_AUDIT_CE_BUDGET` is refused before it is sent, `--no-paginate` is always passed so

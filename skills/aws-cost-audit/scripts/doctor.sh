@@ -27,11 +27,13 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 usage() {
   cat <<'EOF'
-Usage: doctor.sh [--offline] [--check-cost-explorer] [--output DIR]
+Usage: doctor.sh [--region REGION] [--offline] [--check-cost-explorer] [--output DIR]
 
 Read-only environment check. Changes nothing, has no --apply flag.
 
 Options:
+  --region REGION        Region to check. Falls back to $AWS_REGION /
+                         $AWS_DEFAULT_REGION / `aws configure get region`.
   --offline              Skip every call that needs AWS credentials or network.
                          Also set by AWS_COST_AUDIT_DOCTOR_OFFLINE=1.
   --check-cost-explorer  Also probe whether Cost Explorer is enabled. This makes
@@ -42,14 +44,19 @@ Options:
   -h, --help             Show this help
 
 Exit code: 0 if there are no blockers, 1 if there is at least one.
+
+Read-only against AWS: it issues no mutating call. The only thing it writes is a
+probe file in the output directory, which it removes again.
 EOF
 }
 
 OFFLINE="${AWS_COST_AUDIT_DOCTOR_OFFLINE:-0}"
 CHECK_CE="${AWS_COST_AUDIT_DOCTOR_CE:-0}"
 OUT_DIR_ARG=""
+REGION_ARG=""
 while [ $# -gt 0 ]; do
   case "$1" in
+    --region) REGION_ARG="$2"; shift 2;;
     --offline) OFFLINE=1; shift;;
     --check-cost-explorer) CHECK_CE=1; shift;;
     --output) OUT_DIR_ARG="$2"; shift 2;;
@@ -108,7 +115,7 @@ fi
 
 # ---- 4. region --------------------------------------------------------------
 # resolve_region dies when nothing resolves, so guard the subshell.
-REGION="$(resolve_region "" 2>/dev/null)" || REGION=""
+REGION="$(resolve_region "${REGION_ARG:-}" 2>/dev/null)" || REGION=""
 if [ -n "$REGION" ]; then
   pass "region resolves to $REGION"
 else
@@ -118,12 +125,20 @@ fi
 
 # ---- 5. writable output dir -------------------------------------------------
 OUT_TARGET="${OUT_DIR_ARG:-$(default_out_dir)}"
+# Remember whether the directory was already there, so a check never leaves one
+# behind. This script reports on your environment, it does not furnish it.
+OUT_PREEXISTED=1
+[ -d "$OUT_TARGET" ] || OUT_PREEXISTED=0
 WROTE=0
-if mkdir -p "$OUT_TARGET" 2>/dev/null; then
+if ensure_dir "$OUT_TARGET" 2>/dev/null; then
   PROBE="$OUT_TARGET/.doctor-write-probe.$$"
   if : > "$PROBE" 2>/dev/null; then
     rm -f "$PROBE"
-    WROTE=1
+    if [ -e "$PROBE" ]; then
+      warn "could not remove the write probe $PROBE; delete it by hand."
+    else
+      WROTE=1
+    fi
   fi
 fi
 if [ "$WROTE" = "1" ]; then
@@ -131,6 +146,9 @@ if [ "$WROTE" = "1" ]; then
 else
   hard "output directory not writable: $OUT_TARGET" \
        "pick another with --output DIR or \$OUT_DIR, or fix the permissions"
+fi
+if [ "$OUT_PREEXISTED" = "0" ] && [ -d "$OUT_TARGET" ]; then
+  rmdir "$OUT_TARGET" 2>/dev/null || true
 fi
 
 # ---- 6. Cost Explorer enabled (opt-in, billed) ------------------------------
@@ -149,14 +167,20 @@ else
   else
     CE_START="$(date -u -d '-1 day' +%Y-%m-%d)"
   fi
-  if ce_call ce get-cost-and-usage \
+  CE_RC=0
+  ce_call ce get-cost-and-usage \
        --time-period Start="$CE_START",End="$CE_END" \
        --granularity DAILY --metrics UnblendedCost \
-       --region us-east-1 >/dev/null 2>&1; then
+       --region us-east-1 >/dev/null 2>&1 || CE_RC=$?
+  if [ "$CE_RC" -eq 0 ]; then
     pass "Cost Explorer answered (1 billed request made)"
+  elif [ "$CE_RC" -eq 2 ]; then
+    skipped "Cost Explorer probe (request budget is 0; raise AWS_COST_AUDIT_CE_BUDGET to probe)"
   else
+    # The call failing does not say which of these it was, so name them all
+    # rather than assert one.
     hard "Cost Explorer did not answer" \
-         "enable Cost Explorer in the billing console (data can take up to 24h) and grant ce:Get*"
+         "one of: Cost Explorer not enabled (data can take up to 24h), missing ce:Get*, or the endpoint was unreachable"
   fi
 fi
 

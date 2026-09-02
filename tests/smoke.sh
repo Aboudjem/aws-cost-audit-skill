@@ -166,7 +166,7 @@ BASH_BIN="$(command -v bash)"
 make_stub_path() {
   local dir="$1" region="${2:-}" real b
   mkdir -p "$dir"
-  for b in bash env dirname date head mkdir rm; do
+  for b in bash env dirname date head mkdir rm rmdir; do
     real="$(command -v "$b" 2>/dev/null || true)"
     [ -n "$real" ] && ln -sf "$real" "$dir/$b"
   done
@@ -240,6 +240,67 @@ D17_OUT=$(
 assert_eq "doctor.sh: configured region resolves, exit 0" "$D17_RC" "0"
 assert_contains "doctor.sh: uses aws configure get region" "$D17_OUT" "region resolves to ap-south-1"
 rm -rf "$D17"
+
+# 18a. doctor.sh: --region is a real flag, so the blocker's advice can be followed.
+D18="$(mktemp -d)"
+D18_RC=0
+D18_OUT=$(
+  PATH="$(make_stub_path "$D18/bin" "")" \
+  AWS_REGION="" AWS_DEFAULT_REGION="" OUT_DIR="$D18/out" \
+  "$BASH_BIN" "$DOCTOR" --offline --region eu-central-1 2>&1
+) || D18_RC=$?
+assert_eq "doctor.sh: --region is accepted, exit 0" "$D18_RC" "0"
+assert_contains "doctor.sh: --region wins over the empty environment" \
+  "$D18_OUT" "region resolves to eu-central-1"
+rm -rf "$D18"
+
+# 18b. doctor.sh: a missing aws CLI is a named blocker, not a crash.
+D18B="$(mktemp -d)"
+mkdir -p "$D18B/bin"
+for b in bash env dirname date head mkdir rm rmdir; do
+  real="$(command -v "$b" 2>/dev/null || true)"
+  [ -n "$real" ] && ln -sf "$real" "$D18B/bin/$b"
+done
+D18B_RC=0
+D18B_OUT=$(
+  PATH="$D18B/bin" AWS_REGION="eu-west-1" OUT_DIR="$D18B/out" \
+  "$BASH_BIN" "$DOCTOR" --offline 2>&1
+) || D18B_RC=$?
+assert_eq "doctor.sh: a missing aws CLI exits 1" "$D18B_RC" "1"
+assert_contains "doctor.sh: names the missing aws CLI as the blocker" \
+  "$D18B_OUT" "[FAIL] aws CLI not found on PATH"
+rm -rf "$D18B"
+
+# 18c. doctor.sh: an unwritable output directory is a blocker.
+D18C="$(mktemp -d)"
+mkdir -p "$D18C/locked"
+chmod 500 "$D18C/locked"
+D18C_RC=0
+D18C_OUT=$(
+  PATH="$(make_stub_path "$D18C/bin" "")" \
+  AWS_REGION="eu-west-1" \
+  "$BASH_BIN" "$DOCTOR" --offline --output "$D18C/locked/out" 2>&1
+) || D18C_RC=$?
+assert_eq "doctor.sh: an unwritable output directory exits 1" "$D18C_RC" "1"
+assert_contains "doctor.sh: names the output directory blocker" \
+  "$D18C_OUT" "[FAIL] output directory not writable"
+chmod 700 "$D18C/locked"
+rm -rf "$D18C"
+
+# 18d. doctor.sh: it reports on the environment, it does not furnish it.
+D18D="$(mktemp -d)"
+D18D_TARGET="$D18D/created-by-doctor"
+(
+  PATH="$(make_stub_path "$D18D/bin" "")" \
+  AWS_REGION="eu-west-1" \
+  "$BASH_BIN" "$DOCTOR" --offline --output "$D18D_TARGET" >/dev/null 2>&1
+)
+if [ -d "$D18D_TARGET" ]; then
+  fail "doctor.sh: should not leave an output directory behind" "$D18D_TARGET exists" "removed"
+else
+  ok "doctor.sh: leaves no output directory behind"
+fi
+rm -rf "$D18D"
 
 # ---- ce_call: Cost Explorer request budget ----------------------------------
 # Offline. A fake `aws` records every invocation to a log file and prints a
