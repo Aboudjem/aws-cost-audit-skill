@@ -51,22 +51,16 @@ curated set of Claude Code tools. Run these two commands inside Claude Code:
 /plugin install aws-cost-audit@10x
 ```
 
-**Alternatively, install directly from this repo:**
+- The first command adds the 10x marketplace.
+- The second installs the `aws-cost-audit` plugin from it. After activation the
+  skill is namespaced as `/aws-cost-audit:aws-cost-audit`.
 
-```text
-/plugin marketplace add Aboudjem/aws-cost-audit-skill
-/plugin install aws-cost-audit@aws-cost-audit-skill
-/reload-plugins
-```
+There is no direct-from-this-repo plugin path. This repo ships no marketplace
+manifest of its own, so `/plugin marketplace add Aboudjem/aws-cost-audit-skill`
+has nothing to resolve. Use 10x, the skills CLI, or the drop-in copy below.
 
-- The first command adds the marketplace (10x or this repo).
-- The second installs the `aws-cost-audit` plugin from that marketplace.
-- `/reload-plugins` activates it when installing from the direct-repo path. After
-  activation the skill is namespaced as `/aws-cost-audit:aws-cost-audit`.
-
-To update later: `/plugin marketplace update aws-cost-audit-skill` (direct) or
-`/plugin marketplace update 10x` (10x). To remove:
-`/plugin uninstall aws-cost-audit@aws-cost-audit-skill`.
+To update later: `/plugin marketplace update 10x`. To remove:
+`/plugin uninstall aws-cost-audit@10x`.
 
 ---
 
@@ -105,18 +99,54 @@ want a quick scan or a full account-wide pass.
 
 ---
 
-## 4. What you get
+## 4. What a run does, step by step
+
+Nothing below changes your account. Steps 1 to 6 are read, describe, and list calls only.
+
+1. **Identity check.** `aws sts get-caller-identity` confirms which account and region you are
+   pointed at before anything else runs.
+2. **Environment check.** `skills/aws-cost-audit/scripts/doctor.sh` reports the AWS CLI version,
+   `jq`, the resolved region, and a writable output directory, then lists any blocker. It has no
+   apply flag and removes the probe file it wrote.
+3. **Spend baseline.** Cost Explorer (`aws ce get-cost-and-usage`) pulls the trailing 30 and
+   90-day spend by service and by region. Every request goes through a wrapper that counts pages
+   and stops at `AWS_COST_AUDIT_CE_BUDGET`, so a wide fan-out cannot quietly run up the per
+   request charge.
+4. **Resource inventory.** The skill fans out across every enabled region and lists EC2
+   instances, EBS volumes, RDS instances, NAT gateways, load balancers, S3 buckets, Lambda
+   functions, CloudWatch log groups, snapshots, AMIs, Elastic IPs, and more.
+5. **Waste detection.** Each resource is checked against
+   [the hunt list](../skills/aws-cost-audit/references/hunt-list.md): idle CPU, unattached
+   volumes, old snapshots, gp2 volumes, over-retained logs, missing Savings Plan coverage, and
+   the rest.
+6. **Live price verification.** For every candidate saving, the skill fetches the current,
+   region-specific unit price from the AWS Price List Query API. Those lookups are free. It
+   shows unit price, then the math, then the source, for every dollar figure.
+7. **Report.** Findings are written as `current $/mo -> after $/mo -> $ saved`, each with a
+   confidence level, the evidence, and how to reverse it, split into "save now safely" and
+   "maximum theoretical save". See [`examples/sample-report.md`](../examples/sample-report.md)
+   for the exact shape, and [`findings.json`](../skills/aws-cost-audit/references/output-and-reporting.md)
+   if you want the machine-readable form.
+8. **Dashboard, if you want one.** A single HTML file generated from the findings. It pulls its
+   font and chart library from a CDN. See
+   [`examples/sample-dashboard.html`](../examples/sample-dashboard.html).
+
+Both samples use synthetic data on no real account, clearly labelled.
+
+---
+
+## 5. What you get
 
 - A **verified report**: every dollar attributed (cost, purpose, owner, created-when,
   last-used) or marked "unknown, could not verify". Each finding shows
   `current $/mo → after $/mo → $ saved → confidence + evidence + reversibility`, split
   into "save now safely" vs "max theoretical save".
-- An **optional dashboard**: a self-contained HTML view of the findings you can open
-  in a browser.
+- An **optional dashboard**: a single HTML view of the findings you can open in a
+  browser.
 
 ---
 
-## 5. Safety
+## 6. Safety
 
 - **Read-only by default.** The skill describes and lists; it does not change your
   account on its own.

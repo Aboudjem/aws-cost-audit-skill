@@ -25,7 +25,9 @@ agent you name with `-a`. Add `-g` to install globally instead of into the curre
 Omit `-a` and the CLI detects the agents you already have installed and asks which to use.
 `npx skills add Aboudjem/aws-cost-audit-skill --list` prints what it found without installing.
 The agent codes and paths above come from the skills CLI's own supported-agents table; it covers
-more agents than the nine listed here, so check that table if yours is missing.
+many more agents than the nine listed here, so check that table if yours is missing. Its README
+states: "Supports **OpenCode**, **Claude Code**, **Codex**, **Cursor**, and [73 more]", which is
+where the "70+ agents" figure in this repo's README comes from.
 
 ## Claude Code plugin install
 
@@ -37,12 +39,10 @@ claude plugin marketplace add Aboudjem/10x
 claude plugin install aws-cost-audit@10x
 ```
 
-Or straight from this repo:
-
-```bash
-claude plugin marketplace add Aboudjem/aws-cost-audit-skill
-claude plugin install aws-cost-audit@aws-cost-audit-skill
-```
+There is no direct-from-this-repo plugin path. This repo ships no
+`.claude-plugin/marketplace.json` (the 10x marketplace is canonical), so
+`claude plugin marketplace add Aboudjem/aws-cost-audit-skill` has nothing to resolve. Use the
+10x marketplace, the skills CLI, or the manual copy below.
 
 ## install.sh
 
