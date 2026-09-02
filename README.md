@@ -163,7 +163,7 @@ A real run on a mid-size AWS account typically surfaces findings within a few mi
 
 Most "cut your AWS bill" advice is generic, or it is a tool that quotes a price from memory. This skill is built around five rules it will not break:
 
-1. **No made-up prices.** Every dollar comes from the live AWS price for *your* region plus your *actual* usage. It shows the unit price, the math, and the source. It hardcodes no prices anywhere.
+1. **No made-up prices.** Every dollar comes from the live AWS price for *your* region plus your *actual* usage. It shows the unit price, the math, and the source. It hardcodes no resource prices anywhere. The one figure this repo records is Cost Explorer's own per-request API charge, kept in a reference document with its AWS source so you can check it.
 2. **Attribute every dollar, or say "unknown."** It never invents an owner, a date, or a "last used."
 3. **Nothing destructive without proof.** A change runs only if the resource is proven unused, the action is reversible, it passed a dry run, and the result is certain. Otherwise it stays a recommendation.
 4. **One sample is never the whole fleet.** A separate skeptic pass re-derives the headline numbers from the source before they ship.

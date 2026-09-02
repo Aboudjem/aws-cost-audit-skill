@@ -10,7 +10,7 @@ network call is made. The suite exercises the pure-bash helpers in
 bash tests/smoke.sh
 ```
 
-Expected output: `Results: 42 passed, 0 failed` and exit code `0`.
+Expected output: `Results: 49 passed, 0 failed` and exit code `0`.
 
 ## What is tested
 
@@ -26,7 +26,11 @@ Expected output: `Results: 42 passed, 0 failed` and exit code `0`.
 - `ce_call` / `ce_paged_call` / `ce_report`: each Cost Explorer request is counted, the request
   over `AWS_COST_AUDIT_CE_BUDGET` is refused before it is sent, `--no-paginate` is always passed so
   one call is one billed request, a two-page result counts as two, and the per-request price is
-  read from `references/pricing-verification.md` rather than hardcoded anywhere in a script
+  read from `references/pricing-verification.md` rather than hardcoded anywhere in a script. A
+  malformed `AWS_COST_AUDIT_CE_BUDGET` falls back to the default instead of switching the cap
+  off, and the spend is still reported when a script exits early, through an `EXIT` trap
+- `00-baseline.sh` end to end against a stubbed `aws`: it completes, all six pulls carry
+  `--no-paginate`, and the run reports six counted Cost Explorer requests
 
 - `findings-validate.sh`: the good fixture passes, the deliberately broken one fails with every
   planted problem named (missing required key, value outside an enum, wrong type, unknown key,

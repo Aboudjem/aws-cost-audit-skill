@@ -158,6 +158,8 @@ documented, sourced, checkable number rather than a constant baked into code:
 
 <!-- ce-request-price: usd=0.01 source=https://aws.amazon.com/aws-cost-management/aws-cost-explorer/pricing/ -->
 
+That figure is the cost of *running the audit*, not the price of anything the audit reports on. It never enters a finding. Law 1 governs resource prices, and those are always pulled live for the user's exact Region.
+
 **Verify it live before quoting it.** Like every price in this skill, that figure is a starting
 point from AWS's published pricing page, not a promise. Check the source URL above.
 

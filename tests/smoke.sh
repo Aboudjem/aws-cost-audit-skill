@@ -326,6 +326,74 @@ assert_contains "ce_paged_call: fetches page two with --next-page-token" \
   "$(cat "$CE4_CALLS")" "--next-page-token tok-2"
 rm -rf "$CE4"
 
+# 29b. A malformed budget must not switch the ceiling off.
+CE5="$(mktemp -d)"
+CE5_CALLS="$CE5/calls.log"
+make_ce_stub "$CE5/bin" "$CE5_CALLS" 0
+CE5_OUT=$(
+  _source_lib
+  PATH="$CE5/bin:$PATH"
+  export AWS_COST_AUDIT_CE_BUDGET="not-a-number"
+  printf 'budget=%s' "$(ce_budget 2>/dev/null)"
+)
+assert_eq "ce_budget: a malformed budget falls back to the default, it does not disable the cap" \
+  "$CE5_OUT" "budget=50"
+CE5_WARN=$(
+  _source_lib
+  PATH="$CE5/bin:$PATH"
+  export AWS_COST_AUDIT_CE_BUDGET="-5"
+  ce_budget 2>&1 >/dev/null
+)
+assert_contains "ce_budget: says out loud that it ignored a bad budget" \
+  "$CE5_WARN" "not a non-negative whole number"
+rm -rf "$CE5"
+
+# 29c. ce_report still runs when a script exits early, via the EXIT trap.
+CE6="$(mktemp -d)"
+make_ce_stub "$CE6/bin" "$CE6/calls.log" 0
+cat > "$CE6/early-exit.sh" <<EOS
+set -euo pipefail
+. "$LIB"
+trap 'ce_report' EXIT
+ce_call ce get-cost-and-usage >/dev/null 2>&1
+exit 3
+EOS
+CE6_RC=0
+CE6_OUT=$(
+  PATH="$CE6/bin:$PATH" "$BASH_BIN" "$CE6/early-exit.sh" 2>&1
+) || CE6_RC=$?
+assert_eq "ce_report trap: the early exit code survives" "$CE6_RC" "3"
+assert_contains "ce_report trap: the spend is reported even on an early exit" \
+  "$CE6_OUT" "Cost Explorer requests this run: 1"
+rm -rf "$CE6"
+
+# 29d. 00-baseline.sh end to end against a stubbed aws: every pull is counted
+# and the run reports its Cost Explorer spend.
+BL="$(mktemp -d)"
+mkdir -p "$BL/bin"
+cat > "$BL/bin/aws" <<'STUB'
+#!/usr/bin/env bash
+printf '%s\n' "$*" >> "$BL_CALLS"
+if printf '%s' "$*" | grep -q 'sts get-caller-identity'; then
+  printf 'acct-stub\n'
+  exit 0
+fi
+printf '{"ResultsByTime":[{"Total":{"UnblendedCost":{"Amount":"12.50","Unit":"USD"}}}]}\n'
+exit 0
+STUB
+chmod +x "$BL/bin/aws"
+BL_RC=0
+BL_OUT=$(
+  BL_CALLS="$BL/calls.log" PATH="$BL/bin:$PATH" \
+  "$BASH_BIN" "$HERE/../skills/aws-cost-audit/scripts/00-baseline.sh" --output "$BL/out" 2>&1
+) || BL_RC=$?
+assert_eq "00-baseline.sh: runs to completion against a stubbed aws" "$BL_RC" "0"
+assert_contains "00-baseline.sh: reports its Cost Explorer spend" \
+  "$BL_OUT" "Cost Explorer requests this run: 6"
+assert_contains "00-baseline.sh: every Cost Explorer call carries --no-paginate" \
+  "$(grep -c -- '--no-paginate' "$BL/calls.log" | tr -d ' ')" "6"
+rm -rf "$BL"
+
 # ---- findings-validate.sh ---------------------------------------------------
 # Offline. Runs the validator over a good fixture and a deliberately broken one.
 VALIDATE="$HERE/../skills/aws-cost-audit/scripts/findings-validate.sh"

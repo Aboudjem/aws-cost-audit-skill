@@ -98,7 +98,23 @@ CE_CALL_COUNT=0
 _LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 CE_PRICE_DOC="${CE_PRICE_DOC:-$_LIB_DIR/../references/pricing-verification.md}"
 
-ce_budget() { printf '%s' "${AWS_COST_AUDIT_CE_BUDGET:-50}"; }
+CE_BUDGET_DEFAULT=50
+_CE_BUDGET_WARNED=0
+# A ceiling that a typo can switch off is not a ceiling. Anything that is not a
+# non-negative decimal integer falls back to the default, loudly, once.
+ce_budget() {
+  local v="${AWS_COST_AUDIT_CE_BUDGET:-$CE_BUDGET_DEFAULT}"
+  case "$v" in
+    ''|*[!0-9]*)
+      if [ "$_CE_BUDGET_WARNED" = "0" ]; then
+        warn "AWS_COST_AUDIT_CE_BUDGET is not a non-negative whole number ('${AWS_COST_AUDIT_CE_BUDGET:-}'); using $CE_BUDGET_DEFAULT."
+        _CE_BUDGET_WARNED=1
+      fi
+      printf '%s' "$CE_BUDGET_DEFAULT"
+      ;;
+    *) printf '%s' "$v" ;;
+  esac
+}
 
 # One Cost Explorer request. Args are passed to `aws` verbatim.
 # Returns 2 without sending anything when the budget is already spent.

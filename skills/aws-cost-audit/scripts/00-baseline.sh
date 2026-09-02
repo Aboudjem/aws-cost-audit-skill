@@ -64,6 +64,10 @@ ensure_dir "$OUT_DIR"
 # Cost Explorer endpoint is global; pin to us-east-1 as the API requires.
 CE_REGION=us-east-1
 
+# Report the Cost Explorer spend even if the script exits early. A count you
+# only see on the happy path is the one you needed on the unhappy path.
+trap 'ce_report' EXIT
+
 # Portable UTC date math (works on both BSD/macOS and GNU/Linux date).
 _date_days_ago() {
   local n="$1"
@@ -161,8 +165,6 @@ if command -v jq >/dev/null 2>&1 && [ -f "$OUT_DIR/baseline-total.json" ]; then
 else
   warn "Install jq to print a summed WINDOW TOTAL; otherwise sum ResultsByTime[].Total.UnblendedCost yourself ($GRAN granularity splits on calendar months)."
 fi
-
-ce_report
 
 info "Done. JSON snapshots in: $OUT_DIR"
 info "Tip: pretty-print with 'jq . $OUT_DIR/baseline-by-service.json'"
