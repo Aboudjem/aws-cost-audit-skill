@@ -142,17 +142,17 @@ elif [ "$HAVE_AWS" = "0" ]; then
   skipped "Cost Explorer probe (no aws CLI)"
 else
   # Cost Explorer is a global service reached through the us-east-1 endpoint.
-  # --no-paginate keeps this to exactly one billed request.
+  # ce_call adds --no-paginate and counts the request, so this is exactly one.
   CE_END="$(date -u +%Y-%m-%d)"
   if date -u -v-1d +%Y-%m-%d >/dev/null 2>&1; then
     CE_START="$(date -u -v-1d +%Y-%m-%d)"
   else
     CE_START="$(date -u -d '-1 day' +%Y-%m-%d)"
   fi
-  if aws ce get-cost-and-usage \
+  if ce_call ce get-cost-and-usage \
        --time-period Start="$CE_START",End="$CE_END" \
        --granularity DAILY --metrics UnblendedCost \
-       --region us-east-1 --no-paginate >/dev/null 2>&1; then
+       --region us-east-1 >/dev/null 2>&1; then
     pass "Cost Explorer answered (1 billed request made)"
   else
     hard "Cost Explorer did not answer" \

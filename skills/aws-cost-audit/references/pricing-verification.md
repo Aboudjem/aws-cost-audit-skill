@@ -131,6 +131,39 @@ The same recipe generalizes, change service code + filters:
 A live unit price alone is not a saving. You need the **usage delta** that the action removes or
 re-rates. Get it from Cost Explorer; never assume a quantity.
 
+### 2.0 Cost Explorer requests are billed, so they are counted and capped
+
+Cost Explorer is the one part of this audit that costs money to run. AWS charges per Cost Explorer
+API request, and **every page of a paginated result is its own request**. On a custom billing view
+the charge is per source, so a multi-source view multiplies it. The console UI is free; the API is
+not.
+
+The AWS CLI auto-paginates by default, which means one CLI command can quietly issue several billed
+requests. Its own help says so:
+
+> `--no-paginate` (boolean) Disable automatic pagination. If automatic pagination is disabled, the
+> AWS CLI will only make one call, for the first page of results.
+
+So `scripts/_lib.sh` wraps every Cost Explorer call:
+
+- `ce_call` passes `--no-paginate` and counts exactly one request per call.
+- `ce_paged_call` walks the pages itself with `--next-page-token`, so every billed page goes
+  through the same counter, then merges the pages back into one file when `jq` is available.
+- The ceiling is `AWS_COST_AUDIT_CE_BUDGET`, default 50 requests. Hitting it stops the next request
+  before it is sent. Raise it only if you accept the extra cost.
+- `ce_report` prints the count and the estimated spend at the end of a run.
+
+The per-request figure is recorded here and nowhere else, never inside a script, so it stays a
+documented, sourced, checkable number rather than a constant baked into code:
+
+<!-- ce-request-price: usd=0.01 source=https://aws.amazon.com/aws-cost-management/aws-cost-explorer/pricing/ -->
+
+**Verify it live before quoting it.** Like every price in this skill, that figure is a starting
+point from AWS's published pricing page, not a promise. Check the source URL above.
+
+One limit worth stating: the counter covers requests the scripts make. An `aws ce ...` command you
+or an agent runs directly is billed the same way but is invisible to it.
+
 ### 2.1 Service- and usage-type-level cost (always available)
 
 ```bash

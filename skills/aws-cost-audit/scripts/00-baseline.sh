@@ -37,6 +37,8 @@ Notes:
   * Cost Explorer is a global service queried via the us-east-1 endpoint.
   * This script makes NO mutations and has no --apply flag.
   * Requires Cost Explorer to be enabled and ce:Get* IAM permissions.
+  * AWS bills every Cost Explorer request, pages included. This run counts them
+    and stops at AWS_COST_AUDIT_CE_BUDGET (default 50), then prints the total.
   * MONTHLY granularity splits the window on calendar-month boundaries, so the
     headline figure is the WINDOW TOTAL summed across buckets (printed at the
     end), not any single row.
@@ -90,12 +92,19 @@ info "Trend window: $START .. $TODAY ($DAYS days, $GRAN)"
 
 run_ce() {
   # $1 = label/filename ; remaining args = ce subcommand + flags
+  # Every request goes through ce_paged_call, so each billed page is counted
+  # against AWS_COST_AUDIT_CE_BUDGET (see _lib.sh and
+  # references/pricing-verification.md section 2.0).
   local label="$1"; shift
   local out="$OUT_DIR/baseline-${label}.json"
+  local rc=0
   info "-> $label"
-  if aws "$@" --region "$CE_REGION" > "$out" 2>"$out.err"; then
+  ce_paged_call "$out" "$@" --region "$CE_REGION" 2>"$out.err" || rc=$?
+  if [ "$rc" -eq 0 ]; then
     rm -f "$out.err"
     log "   saved: $out"
+  elif [ "$rc" -eq 2 ]; then
+    warn "   SKIPPED ($label): Cost Explorer request budget spent. Raise AWS_COST_AUDIT_CE_BUDGET to continue."
   else
     warn "   FAILED ($label), see $out.err (Cost Explorer may not be enabled / missing ce:Get* perms)"
   fi
@@ -152,6 +161,8 @@ if command -v jq >/dev/null 2>&1 && [ -f "$OUT_DIR/baseline-total.json" ]; then
 else
   warn "Install jq to print a summed WINDOW TOTAL; otherwise sum ResultsByTime[].Total.UnblendedCost yourself ($GRAN granularity splits on calendar months)."
 fi
+
+ce_report
 
 info "Done. JSON snapshots in: $OUT_DIR"
 info "Tip: pretty-print with 'jq . $OUT_DIR/baseline-by-service.json'"

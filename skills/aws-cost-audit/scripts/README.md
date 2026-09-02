@@ -37,6 +37,17 @@ the AWS Price List Query API (see `verify-price.sh`), never assumed.
 
 Shared helpers live in `_lib.sh` (sourced, not run directly).
 
+### Cost Explorer requests are counted and capped
+
+AWS bills every Cost Explorer API request, and every page of a paginated result is its own
+request. `_lib.sh` wraps them: `ce_call` passes `--no-paginate` and counts one request per call,
+`ce_paged_call` walks the pages itself so every billed page is counted, and the run stops asking
+once it reaches `AWS_COST_AUDIT_CE_BUDGET` (default 50). `ce_report` prints the count and the
+estimated spend at the end of `00-baseline.sh`. The per-request price is not written into any
+script: it is read from `../references/pricing-verification.md`, which carries the figure with its
+AWS source URL. The counter covers what these scripts issue; an `aws ce` command you run yourself
+is billed the same way but is invisible to it.
+
 ## Suggested workflow
 
 1. `./doctor.sh`, confirm the environment can run an audit at all. Add

@@ -41,7 +41,8 @@ assert_eq() {
 
 assert_contains() {
   local desc="$1" haystack="$2" needle="$3"
-  if printf '%s' "$haystack" | grep -qF "$needle"; then
+  # -e so a needle that starts with "-" is not read as a grep option.
+  if printf '%s' "$haystack" | grep -qF -e "$needle"; then
     ok "$desc"
   else
     fail "$desc" "(did not contain '$needle')" "$needle"
@@ -239,6 +240,91 @@ D17_OUT=$(
 assert_eq "doctor.sh: configured region resolves, exit 0" "$D17_RC" "0"
 assert_contains "doctor.sh: uses aws configure get region" "$D17_OUT" "region resolves to ap-south-1"
 rm -rf "$D17"
+
+# ---- ce_call: Cost Explorer request budget ----------------------------------
+# Offline. A fake `aws` records every invocation to a log file and prints a
+# Cost Explorer shaped response, so the tests can prove both the counting and
+# the refusal without ever reaching AWS.
+
+# make_ce_stub <dir> <calls-log> [paging]
+# With paging=1 the first response carries a NextPageToken so ce_paged_call has
+# a second page to fetch.
+make_ce_stub() {
+  local dir="$1" calls="$2" paging="${3:-0}"
+  mkdir -p "$dir"
+  cat > "$dir/aws" <<STUB
+#!/usr/bin/env bash
+printf '%s\n' "\$*" >> "$calls"
+if [ "$paging" = "1" ] && ! printf '%s' "\$*" | grep -q -- '--next-page-token'; then
+  printf '{"ResultsByTime":[{"page":1}],"NextPageToken":"tok-2"}\n'
+else
+  printf '{"ResultsByTime":[{"page":2}]}\n'
+fi
+exit 0
+STUB
+  chmod +x "$dir/aws"
+}
+
+# 18-21. ce_call counts, passes --no-paginate, and stops at the budget.
+CE1="$(mktemp -d)"
+CE1_CALLS="$CE1/calls.log"
+make_ce_stub "$CE1/bin" "$CE1_CALLS" 0
+CE1_OUT=$(
+  _source_lib
+  PATH="$CE1/bin:$PATH"
+  export AWS_COST_AUDIT_CE_BUDGET=2
+  rc1=0; ce_call ce get-cost-and-usage >/dev/null 2>&1 || rc1=$?
+  rc2=0; ce_call ce get-cost-and-usage >/dev/null 2>&1 || rc2=$?
+  rc3=0; ce_call ce get-cost-and-usage >/dev/null 2>&1 || rc3=$?
+  printf 'count=%s rc1=%s rc2=%s rc3=%s' "$CE_CALL_COUNT" "$rc1" "$rc2" "$rc3"
+)
+assert_eq "ce_call: counts each request and refuses the one over budget" \
+  "$CE1_OUT" "count=2 rc1=0 rc2=0 rc3=2"
+assert_eq "ce_call: the over-budget request never reaches aws" \
+  "$(wc -l < "$CE1_CALLS" | tr -d ' ')" "2"
+assert_contains "ce_call: passes --no-paginate so one call is one billed request" \
+  "$(cat "$CE1_CALLS")" "--no-paginate"
+rm -rf "$CE1"
+
+# 22-24. ce_report prints the count and the price read from the reference doc.
+CE2="$(mktemp -d)"
+make_ce_stub "$CE2/bin" "$CE2/calls.log" 0
+CE2_OUT=$(
+  _source_lib
+  PATH="$CE2/bin:$PATH"
+  export AWS_COST_AUDIT_CE_BUDGET=50
+  ce_call ce get-cost-and-usage >/dev/null 2>&1
+  ce_call ce get-cost-and-usage >/dev/null 2>&1
+  ce_report 2>&1
+)
+assert_contains "ce_report: prints the request count and the budget" \
+  "$CE2_OUT" "Cost Explorer requests this run: 2 (budget 50)"
+assert_contains "ce_report: prices the run from the reference doc, not from the script" \
+  "$CE2_OUT" "2 requests x"
+assert_contains "ce_report: names the price source" "$CE2_OUT" "Price source: https://"
+rm -rf "$CE2"
+
+# 25-26. The price figure lives in the reference doc, never in a script.
+CE3_MARKER="$(grep -c 'ce-request-price:' "$HERE/../skills/aws-cost-audit/references/pricing-verification.md" || true)"
+assert_eq "ce price marker present in references/pricing-verification.md" "$CE3_MARKER" "1"
+CE3_HITS="$( { grep -rlE '(usd|USD)[= ]*[0-9]+\.[0-9]+' "$HERE/../skills/aws-cost-audit/scripts/" 2>/dev/null || true; } | wc -l | tr -d ' ')"
+assert_eq "no per-request price literal in any script" "$CE3_HITS" "0"
+
+# 27-28. ce_paged_call walks pages explicitly and counts every page.
+CE4="$(mktemp -d)"
+CE4_CALLS="$CE4/calls.log"
+make_ce_stub "$CE4/bin" "$CE4_CALLS" 1
+CE4_OUT=$(
+  _source_lib
+  PATH="$CE4/bin:$PATH"
+  export AWS_COST_AUDIT_CE_BUDGET=50
+  ce_paged_call "$CE4/out.json" ce get-cost-and-usage >/dev/null 2>&1
+  printf '%s' "$CE_CALL_COUNT"
+)
+assert_eq "ce_paged_call: a two-page result counts as two billed requests" "$CE4_OUT" "2"
+assert_contains "ce_paged_call: fetches page two with --next-page-token" \
+  "$(cat "$CE4_CALLS")" "--next-page-token tok-2"
+rm -rf "$CE4"
 
 # ---- summary -----------------------------------------------------------------
 echo ""
