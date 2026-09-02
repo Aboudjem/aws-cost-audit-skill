@@ -1,98 +1,122 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" role="img" aria-labelledby="t d" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
-  <title id="t">How AWS Cost Audit works</title>
-  <desc id="d">A three-step flow that reveals in sequence: re-baseline live spend from Cost Explorer, inventory every region and hunt waste, then ship an evidence-backed savings plan. A flowing connector and a safety badge reading gated, reversible, verified live tie the steps together.</desc>
-
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" fill="none" role="img" aria-label="How aws-cost-audit works: 1 re-baseline live spend from Cost Explorer, 2 hunt waste across every region, 3 ship an evidence-backed savings plan. Every action is gated, reversible, and you confirm.">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#0D1117"/>
-      <stop offset="1" stop-color="#0B0E14"/>
+    <linearGradient id="a-ground" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0%" stop-color="#0A0F1C"/>
+      <stop offset="60%" stop-color="#080C16"/>
+      <stop offset="100%" stop-color="#07070C"/>
     </linearGradient>
-    <linearGradient id="flow" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#3FB6B2"/>
-      <stop offset="0.5" stop-color="#58A6FF"/>
-      <stop offset="1" stop-color="#FF9900"/>
-    </linearGradient>
-    <style>
-      .num   { fill:#0B0E14; font-size:20px; font-weight:700; }
-      .head  { fill:#E6EDF3; font-size:21px; font-weight:600; letter-spacing:-0.2px; }
-      .body  { fill:#8B98A8; font-size:14px; font-weight:400; }
-      .eyebr { fill:#6E7B8A; font-size:12px; font-weight:600; letter-spacing:1.2px; }
-      .badge { fill:#C9D5E1; font-size:13px; font-weight:600; letter-spacing:0.4px; }
 
-      .step { opacity:0; }
-      @keyframes reveal {
-        0%   { opacity:0; transform: translateX(-10px); }
-        8%   { opacity:1; transform: translateX(0); }
-        86%  { opacity:1; transform: translateX(0); }
-        100% { opacity:0; transform: translateX(0); }
-      }
-      #s1 { animation: reveal 12s ease-in-out infinite;        }
-      #s2 { animation: reveal 12s ease-in-out infinite -8.7s;  }
-      #s3 { animation: reveal 12s ease-in-out infinite -7.4s;  }
-      @keyframes breathe { 0%,100%{opacity:0.55} 50%{opacity:1} }
-      .badgepulse { animation: breathe 6s ease-in-out infinite; }
-      @media (prefers-reduced-motion: reduce) {
-        * { animation: none !important; }
-        .step { opacity: 1 !important; transform: none !important; }
-        .badgepulse { opacity: 1 !important; }
-      }
-    </style>
+    <linearGradient id="a-flow" gradientUnits="userSpaceOnUse" x1="216" y1="100" x2="984" y2="100">
+      <stop offset="0%" stop-color="#FFB341"/>
+      <stop offset="50%" stop-color="#FF4D8D"/>
+      <stop offset="100%" stop-color="#C77DFF"/>
+    </linearGradient>
+
+    <filter id="a-glow-sm" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
 
-  <rect width="1200" height="300" fill="url(#bg)"/>
-  <rect width="1200" height="300" fill="none" stroke="#1B2230" stroke-width="1"/>
+  <style>
+    .disp { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+    .mono { font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; }
+    .num   { fill: #07070C; font-size: 17px; font-weight: 700; }
+    .head  { fill: #F2F6FF; font-size: 19px; font-weight: 700; letter-spacing: -0.2px; }
+    .body  { fill: #B6C2DA; font-size: 13.5px; font-weight: 500; }
+    .eyebr { font-size: 11.5px; font-weight: 600; letter-spacing: 1.6px; }
+    .kicker { font-size: 13px; font-weight: 600; letter-spacing: 4.5px; fill: #8494B0; }
+    .badge { fill: #B6C2DA; font-size: 12.5px; font-weight: 600; letter-spacing: 0.8px; }
+    .tag   { font-size: 11.5px; letter-spacing: 1.6px; fill: #8494B0; }
 
-  <!-- eyebrow -->
-  <rect x="64" y="40" width="28" height="3" rx="1.5" fill="#FF9900"/>
-  <text x="102" y="46" class="eyebr">HOW IT WORKS</text>
+    @keyframes a-flowdash { to { stroke-dashoffset: -240; } }
+    .flowline { animation: a-flowdash 14s linear infinite; }
 
-  <!-- flowing connector behind the steps -->
-  <line x1="150" y1="150" x2="1050" y2="150" stroke="#1B2230" stroke-width="2"/>
-  <line x1="150" y1="150" x2="1050" y2="150" stroke="url(#flow)" stroke-width="2" stroke-linecap="round" stroke-dasharray="14 900">
-    <animate attributeName="stroke-dashoffset" values="900;-14" dur="12s" repeatCount="indefinite" calcMode="linear"/>
-  </line>
-  <!-- travelling pulse dot along the connector -->
-  <circle cx="150" cy="150" r="4" fill="#58A6FF">
-    <animate attributeName="cx" values="150;1050;1050" keyTimes="0;0.9;1" dur="12s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0 0 1 1"/>
-    <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.05;0.86;0.92;1" dur="12s" repeatCount="indefinite"/>
-  </circle>
+    @keyframes a-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .row-1 { animation: a-rise 0.6s ease-out 0.4s both; }
+    .row-2 { animation: a-rise 0.6s ease-out 0.9s both; }
+    .row-3 { animation: a-rise 0.6s ease-out 1.4s both; }
 
-  <!-- STEP 1 -->
-  <g id="s1" class="step">
-    <circle cx="150" cy="150" r="20" fill="#3FB6B2"/>
-    <text x="150" y="157" text-anchor="middle" class="num">1</text>
-    <text x="64" y="208" class="eyebr">RE-BASELINE</text>
-    <text x="64" y="234" class="head">Re-baseline live</text>
-    <text x="64" y="258" class="body">Pull real numbers from Cost Explorer, read-only.</text>
-  </g>
+    @keyframes a-pip { 0%,100% { opacity: 0.45; } 50% { opacity: 1; } }
+    .d1 { animation: a-pip 5s ease-in-out infinite 0s; }
+    .d2 { animation: a-pip 5s ease-in-out infinite 0.35s; }
+    .d3 { animation: a-pip 5s ease-in-out infinite 0.7s; }
 
-  <!-- STEP 2 -->
-  <g id="s2" class="step">
-    <circle cx="600" cy="150" r="20" fill="#58A6FF"/>
-    <text x="600" y="157" text-anchor="middle" class="num">2</text>
-    <text x="514" y="208" class="eyebr">INVENTORY</text>
-    <text x="514" y="234" class="head">Hunt waste, every region</text>
-    <text x="514" y="258" class="body">Inventory resources, attribute every dollar.</text>
-  </g>
+    @keyframes a-breathe { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+    .badgepulse { animation: a-breathe 8s ease-in-out infinite; }
 
-  <!-- STEP 3 -->
-  <g id="s3" class="step">
-    <circle cx="1050" cy="150" r="20" fill="#FF9900"/>
-    <text x="1050" y="157" text-anchor="middle" class="num">3</text>
-    <text x="900" y="208" class="eyebr">SAVINGS PLAN</text>
-    <text x="900" y="234" class="head">Evidence-backed plan</text>
-    <text x="900" y="258" class="body">Ranked, sourced, ready to ship.</text>
-  </g>
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; }
+    }
+  </style>
+
+  <rect width="1200" height="300" fill="url(#a-ground)"/>
+  <rect x="0.5" y="0.5" width="1199" height="299" fill="none" stroke="#1E2A42" stroke-width="1"/>
+
+  <!-- kicker -->
+  <rect x="40" y="36" width="28" height="3" rx="1.5" fill="#FFB341"/>
+  <text class="mono kicker" x="78" y="42">HOW IT WORKS</text>
 
   <!-- safety badge -->
-  <g transform="translate(454,38)" class="badgepulse">
-    <rect x="0" y="0" width="292" height="34" rx="17" fill="#11161F" stroke="#243042"/>
-    <!-- shield/lock glyph -->
-    <g transform="translate(16,7)" stroke="#3FB6B2" stroke-width="1.6" fill="none">
+  <g class="badgepulse">
+    <rect x="434" y="24" width="332" height="34" rx="17" fill="#0E1524" stroke="#1E2A42"/>
+    <g transform="translate(450,31)" stroke="#3DFFAB" stroke-width="1.6" fill="none">
       <path d="M10 0 L19 3 V11 C19 16 15 19 10 21 C5 19 1 16 1 11 V3 Z"/>
-      <rect x="6.5" y="9" width="7" height="6" rx="1.2" fill="#3FB6B2" stroke="none"/>
-      <path d="M7.6 9 V7 a2.4 2.4 0 0 1 4.8 0 V9" stroke="#3FB6B2"/>
+      <rect x="6.5" y="9" width="7" height="6" rx="1.2" fill="#3DFFAB" stroke="none"/>
+      <path d="M7.6 9 V7 a2.4 2.4 0 0 1 4.8 0 V9"/>
     </g>
-    <text x="46" y="22" class="badge">gated · reversible · verified live</text>
+    <text class="mono badge" x="482" y="46">gated · reversible · you confirm</text>
+  </g>
+
+  <!-- connector spine -->
+  <line x1="216" y1="100" x2="984" y2="100" stroke="#1E2A42" stroke-width="1.5"/>
+  <line class="flowline" x1="216" y1="100" x2="984" y2="100" stroke="url(#a-flow)"
+        stroke-width="1.75" stroke-dasharray="4 10" opacity="0.9"/>
+
+  <!-- step 1 -->
+  <g transform="translate(0,0)">
+    <g class="row-1">
+      <circle cx="216" cy="100" r="17" fill="#FFB341" filter="url(#a-glow-sm)"/>
+      <text class="disp num" x="216" y="106" text-anchor="middle">1</text>
+      <rect x="40" y="134" width="352" height="112" rx="14" fill="#0E1524" stroke="#1E2A42"/>
+      <text class="mono eyebr" x="64" y="164" fill="#FFB341">RE-BASELINE</text>
+      <text class="disp head" x="64" y="192">Re-baseline live</text>
+      <text class="disp body" x="64" y="214">Pull real numbers from Cost</text>
+      <text class="disp body" x="64" y="232">Explorer, read-only.</text>
+    </g>
+  </g>
+
+  <!-- step 2 -->
+  <g transform="translate(0,0)">
+    <g class="row-2">
+      <circle cx="600" cy="100" r="17" fill="#FF4D8D" filter="url(#a-glow-sm)"/>
+      <text class="disp num" x="600" y="106" text-anchor="middle">2</text>
+      <rect x="424" y="134" width="352" height="112" rx="14" fill="#0E1524" stroke="#1E2A42"/>
+      <text class="mono eyebr" x="448" y="164" fill="#FF4D8D">INVENTORY</text>
+      <text class="disp head" x="448" y="192">Hunt waste, every region</text>
+      <text class="disp body" x="448" y="214">Inventory resources, attribute</text>
+      <text class="disp body" x="448" y="232">every dollar.</text>
+    </g>
+  </g>
+
+  <!-- step 3 -->
+  <g transform="translate(0,0)">
+    <g class="row-3">
+      <circle cx="984" cy="100" r="17" fill="#C77DFF" filter="url(#a-glow-sm)"/>
+      <text class="disp num" x="984" y="106" text-anchor="middle">3</text>
+      <rect x="808" y="134" width="352" height="112" rx="14" fill="#0E1524" stroke="#1E2A42"/>
+      <text class="mono eyebr" x="832" y="164" fill="#C77DFF">SAVINGS PLAN</text>
+      <text class="disp head" x="832" y="192">Evidence-backed plan</text>
+      <text class="disp body" x="832" y="214">Ranked, sourced,</text>
+      <text class="disp body" x="832" y="232">ready to ship.</text>
+    </g>
+  </g>
+
+  <!-- pips -->
+  <g transform="translate(40,276)">
+    <g class="d1"><circle cx="0" cy="0" r="4.5" fill="#FFB341" filter="url(#a-glow-sm)"/></g>
+    <g class="d2"><circle cx="22" cy="0" r="4.5" fill="#FF4D8D" filter="url(#a-glow-sm)"/></g>
+    <g class="d3"><circle cx="44" cy="0" r="4.5" fill="#C77DFF" filter="url(#a-glow-sm)"/></g>
+    <text class="mono tag" x="70" y="4">EVIDENCE FIRST</text>
   </g>
 </svg>

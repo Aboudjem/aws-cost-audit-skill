@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" fill="none" role="img" aria-label="aws-cost-audit: a savings plan you can check. Every number checked against live AWS pricing. Nothing deleted without your say-so. github.com/Aboudjem/aws-cost-audit-skill">
+  <defs>
+    <linearGradient id="a-ground" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0%" stop-color="#0A0F1C"/>
+      <stop offset="60%" stop-color="#080C16"/>
+      <stop offset="100%" stop-color="#07070C"/>
+    </linearGradient>
+
+    <radialGradient id="a-bloom" cx="0.5" cy="1" r="0.75">
+      <stop offset="0%" stop-color="#FF2D78" stop-opacity="0.30"/>
+      <stop offset="38%" stop-color="#7C3AED" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#7C3AED" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="a-brand" x1="0" y1="0" x2="1" y2="0.25" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#FFB341"/>
+      <stop offset="100%" stop-color="#FF4D8D"/>
+    </linearGradient>
+
+    <linearGradient id="a-horizon" gradientUnits="userSpaceOnUse" x1="80" y1="540" x2="1200" y2="540">
+      <stop offset="0%" stop-color="#FFB341" stop-opacity="0"/>
+      <stop offset="22%" stop-color="#FFB341" stop-opacity="0.5"/>
+      <stop offset="55%" stop-color="#C77DFF" stop-opacity="0.8"/>
+      <stop offset="82%" stop-color="#FF2D78" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#FF2D78" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+    .disp { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+    .mono { font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; }
+    .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 4.5px; fill: #FFB341; }
+    .head { font-size: 30px; font-weight: 700; fill: #F2F6FF; letter-spacing: -0.5px; }
+    .sub  { font-size: 20px; font-weight: 500; fill: #B6C2DA; }
+    .tag  { font-size: 14px; letter-spacing: 1.4px; fill: #8494B0; }
+  </style>
+
+  <rect width="1280" height="640" fill="url(#a-ground)"/>
+  <ellipse cx="640" cy="648" rx="780" ry="280" fill="url(#a-bloom)" opacity="0.85"/>
+
+  <line x1="80" y1="540" x2="1200" y2="540" stroke="url(#a-horizon)" stroke-width="1.4" opacity="0.95"/>
+
+  <text class="mono eyebrow" x="96" y="238">AWS BILL AUDIT SKILL</text>
+  <text class="disp" x="96" y="330" font-size="76" font-weight="800" letter-spacing="-2.2" fill="url(#a-brand)">aws-cost-audit</text>
+  <text class="disp head" x="96" y="386">A savings plan you can check</text>
+  <text class="disp sub" x="96" y="428">Every number checked against live AWS pricing.</text>
+  <text class="disp sub" x="96" y="458">Nothing deleted without your say-so.</text>
+
+  <g transform="translate(96,500)">
+    <circle cx="0" cy="0" r="5" fill="#FFB341"/>
+    <circle cx="24" cy="0" r="5" fill="#FF4D8D"/>
+    <circle cx="48" cy="0" r="5" fill="#FF2D78"/>
+    <circle cx="72" cy="0" r="5" fill="#C77DFF"/>
+    <circle cx="96" cy="0" r="5" fill="#8E7BFF"/>
+  </g>
+
+  <text class="mono tag" x="96" y="592">github.com/Aboudjem/aws-cost-audit-skill</text>
+</svg>

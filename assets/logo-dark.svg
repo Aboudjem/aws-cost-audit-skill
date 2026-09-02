@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 200" width="720" height="200" fill="none" role="img" aria-label="aws-cost-audit, read-only by default, live pricing">
+  <defs>
+    <linearGradient id="a-ground" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0%" stop-color="#0A0F1C"/>
+      <stop offset="60%" stop-color="#080C16"/>
+      <stop offset="100%" stop-color="#07070C"/>
+    </linearGradient>
+
+    <radialGradient id="a-bloom" cx="0.5" cy="1" r="0.75">
+      <stop offset="0%" stop-color="#FF2D78" stop-opacity="0.30"/>
+      <stop offset="38%" stop-color="#7C3AED" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#7C3AED" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="a-sun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFB341"/>
+      <stop offset="34%" stop-color="#FF4D8D"/>
+      <stop offset="70%" stop-color="#FF2D78"/>
+      <stop offset="100%" stop-color="#C77DFF"/>
+    </linearGradient>
+
+    <linearGradient id="a-brand" x1="0" y1="0" x2="1" y2="0.25" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#FFB341"/>
+      <stop offset="100%" stop-color="#FF4D8D"/>
+      <animateTransform attributeName="gradientTransform" type="translate"
+        values="-0.12 0; 0.12 0; -0.12 0" dur="18s" repeatCount="indefinite"/>
+    </linearGradient>
+
+    <linearGradient id="a-mark" gradientUnits="userSpaceOnUse" x1="-60" y1="-42" x2="58" y2="50">
+      <stop offset="8%" stop-color="#FFB341"/>
+      <stop offset="92%" stop-color="#FF4D8D"/>
+    </linearGradient>
+
+    <linearGradient id="a-horizon" gradientUnits="userSpaceOnUse" x1="36" y1="164" x2="684" y2="164">
+      <stop offset="0%" stop-color="#FFB341" stop-opacity="0"/>
+      <stop offset="22%" stop-color="#FFB341" stop-opacity="0.45"/>
+      <stop offset="55%" stop-color="#C77DFF" stop-opacity="0.7"/>
+      <stop offset="82%" stop-color="#FF2D78" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#FF2D78" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="a-gridfade" gradientUnits="userSpaceOnUse" x1="0" y1="164" x2="0" y2="200">
+      <stop offset="0%" stop-color="#FFB341" stop-opacity="0.55"/>
+      <stop offset="55%" stop-color="#C77DFF" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#FF2D78" stop-opacity="0.05"/>
+    </linearGradient>
+
+    <filter id="a-glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="10" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <filter id="a-glow-atmo" x="-70%" y="-70%" width="240%" height="240%">
+      <feGaussianBlur stdDeviation="22" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <clipPath id="a-sunclip">
+      <circle cx="656" cy="130" r="34"/>
+    </clipPath>
+
+    <clipPath id="a-gridclip">
+      <rect x="0" y="164" width="720" height="36"/>
+    </clipPath>
+
+    <linearGradient id="a-sheen" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+
+    <clipPath id="a-wordclip">
+      <text x="180" y="104" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+            font-size="58" font-weight="800" letter-spacing="-1.5">aws-cost-audit</text>
+    </clipPath>
+  </defs>
+
+  <style>
+    .disp { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+    .mono { font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; }
+    .tag { font-size: 12.5px; letter-spacing: 1.6px; fill: #8494B0; }
+
+    @keyframes a-breathe { 0%,100% { opacity: 0.55; } 50% { opacity: 0.95; } }
+    .bloom { animation: a-breathe 9s ease-in-out infinite; }
+
+    @keyframes a-sunpulse { 0%,100% { opacity: 0.42; } 50% { opacity: 0.62; } }
+    .sun { animation: a-sunpulse 10s ease-in-out infinite; }
+
+    @keyframes a-flowdash { to { stroke-dashoffset: -240; } }
+    .flowline { animation: a-flowdash 14s linear infinite; }
+
+    @keyframes a-sheen {
+      0%   { transform: translateX(0); }
+      34%  { transform: translateX(580px); }
+      100% { transform: translateX(580px); }
+    }
+    .sheen { animation: a-sheen 7.5s linear infinite; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; }
+    }
+  </style>
+
+  <rect width="720" height="200" fill="url(#a-ground)"/>
+  <ellipse class="bloom" cx="360" cy="204" rx="430" ry="110" fill="url(#a-bloom)"/>
+
+  <!-- small sun disc at the right edge, sitting on the horizon -->
+  <g class="sun">
+    <g filter="url(#a-glow-atmo)">
+      <circle cx="656" cy="130" r="34" fill="url(#a-sun)"/>
+    </g>
+    <g clip-path="url(#a-sunclip)" fill="#080C16">
+      <rect x="618" y="136" width="76" height="1.8"/>
+      <rect x="618" y="143" width="76" height="2.4"/>
+      <rect x="618" y="151" width="76" height="3.2"/>
+      <rect x="618" y="160" width="76" height="4.4"/>
+    </g>
+  </g>
+
+  <!-- perspective grid below the horizon, off by default -->
+  <g id="grid" clip-path="url(#a-gridclip)" opacity="0">
+    <g stroke="url(#a-gridfade)" stroke-width="1" fill="none">
+      <path d="M360 164 L-540 200"/><path d="M360 164 L-160 200"/><path d="M360 164 L60 200"/>
+      <path d="M360 164 L190 200"/><path d="M360 164 L280 200"/><path d="M360 164 L360 200"/>
+      <path d="M360 164 L440 200"/><path d="M360 164 L530 200"/><path d="M360 164 L660 200"/>
+      <path d="M360 164 L880 200"/><path d="M360 164 L1260 200"/>
+    </g>
+    <g stroke="url(#a-gridfade)" stroke-width="1" fill="none">
+      <line x1="0" y1="167" x2="720" y2="167"/>
+      <line x1="0" y1="171" x2="720" y2="171"/>
+      <line x1="0" y1="177" x2="720" y2="177"/>
+      <line x1="0" y1="186" x2="720" y2="186"/>
+      <line x1="0" y1="198" x2="720" y2="198"/>
+    </g>
+  </g>
+
+  <line x1="36" y1="164" x2="684" y2="164" stroke="url(#a-horizon)" stroke-width="1.1" opacity="0.9"/>
+  <line class="flowline" x1="36" y1="164" x2="684" y2="164" stroke="url(#a-horizon)" stroke-width="1.1" stroke-dasharray="3 9" opacity="0.8"/>
+
+  <!-- mark: a curve bending downward over a coin edge -->
+  <g filter="url(#a-glow)">
+    <g transform="translate(96,100)">
+      <path d="M 41.2 35.7 A 30 30 0 0 1 -13.2 35.7" stroke="url(#a-mark)" stroke-width="2.6"
+            fill="none" stroke-linecap="round" opacity="0.5"/>
+      <circle cx="14" cy="18" r="30" fill="url(#a-mark)" opacity="0.12"/>
+      <circle cx="14" cy="18" r="30" stroke="url(#a-mark)" stroke-width="3.2" fill="none"/>
+      <circle cx="14" cy="18" r="21" stroke="url(#a-mark)" stroke-width="1.5" fill="none" opacity="0.45"/>
+      <path d="M -60 -42 C -30 -42, -16 -20, -2 6 C 10 28, 30 42, 56 48"
+            stroke="url(#a-mark)" stroke-width="4.4" fill="none" stroke-linecap="round"/>
+      <circle cx="56" cy="48" r="4.4" fill="url(#a-mark)"/>
+    </g>
+  </g>
+
+  <text class="disp" x="180" y="104" font-size="58" font-weight="800" letter-spacing="-1.5" fill="url(#a-brand)">aws-cost-audit</text>
+  <text class="mono tag" x="182" y="140">read-only by default  ·  live pricing</text>
+
+  <g clip-path="url(#a-wordclip)">
+    <g transform="skewX(-18)">
+      <rect class="sheen" x="70" y="48" width="95" height="110" fill="url(#a-sheen)" opacity="0.7"/>
+    </g>
+  </g>
+</svg>

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360" fill="none" role="img" aria-label="aws-cost-audit: a savings plan you can check. Every number checked against live AWS pricing. Nothing deleted without your say-so.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" fill="none" role="img" aria-label="aws-cost-audit: a savings plan you can check. Every number checked against live AWS pricing. Nothing deleted without your say-so.">
   <defs>
     <linearGradient id="a-ground" x1="0" y1="0" x2="0.35" y2="1">
       <stop offset="0%" stop-color="#0A0F1C"/>
@@ -26,13 +26,13 @@
         values="-0.12 0; 0.12 0; -0.12 0" dur="18s" repeatCount="indefinite"/>
     </linearGradient>
 
-    <linearGradient id="a-rule" gradientUnits="userSpaceOnUse" x1="568" y1="90" x2="568" y2="270">
+    <linearGradient id="a-rule" gradientUnits="userSpaceOnUse" x1="568" y1="112" x2="568" y2="292">
       <stop offset="0%" stop-color="#FFB341" stop-opacity="0"/>
       <stop offset="45%" stop-color="#FFB341" stop-opacity="0.75"/>
       <stop offset="100%" stop-color="#FF4D8D" stop-opacity="0"/>
     </linearGradient>
 
-    <linearGradient id="a-horizon" gradientUnits="userSpaceOnUse" x1="60" y1="300" x2="1140" y2="300">
+    <linearGradient id="a-horizon" gradientUnits="userSpaceOnUse" x1="60" y1="332" x2="1140" y2="332">
       <stop offset="0%" stop-color="#FFB341" stop-opacity="0"/>
       <stop offset="22%" stop-color="#FFB341" stop-opacity="0.5"/>
       <stop offset="55%" stop-color="#C77DFF" stop-opacity="0.8"/>
@@ -40,7 +40,7 @@
       <stop offset="100%" stop-color="#FF2D78" stop-opacity="0"/>
     </linearGradient>
 
-    <linearGradient id="a-gridfade" gradientUnits="userSpaceOnUse" x1="0" y1="300" x2="0" y2="360">
+    <linearGradient id="a-gridfade" gradientUnits="userSpaceOnUse" x1="0" y1="332" x2="0" y2="400">
       <stop offset="0%" stop-color="#FFB341" stop-opacity="0.55"/>
       <stop offset="55%" stop-color="#C77DFF" stop-opacity="0.28"/>
       <stop offset="100%" stop-color="#FF2D78" stop-opacity="0.05"/>
@@ -68,15 +68,15 @@
     </filter>
 
     <clipPath id="a-sunclip">
-      <circle cx="1096" cy="238" r="60"/>
+      <circle cx="1096" cy="268" r="64"/>
     </clipPath>
 
     <clipPath id="a-gridclip">
-      <rect x="0" y="300" width="1200" height="60"/>
+      <rect x="0" y="332" width="1200" height="68"/>
     </clipPath>
 
     <clipPath id="a-wordclip">
-      <text x="64" y="202" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+      <text x="64" y="230" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
             font-size="68" font-weight="800" letter-spacing="-2">aws-cost-audit</text>
     </clipPath>
   </defs>
@@ -117,70 +117,70 @@
     }
   </style>
 
-  <rect width="1200" height="360" fill="url(#a-ground)"/>
-  <ellipse class="bloom" cx="600" cy="364" rx="720" ry="175" fill="url(#a-bloom)"/>
+  <rect width="1200" height="400" fill="url(#a-ground)"/>
+  <ellipse class="bloom" cx="600" cy="404" rx="720" ry="190" fill="url(#a-bloom)"/>
 
   <!-- sun disc, sitting on the horizon at the right, behind everything -->
   <g class="sun">
     <g filter="url(#a-glow-atmo)">
-      <circle cx="1096" cy="238" r="60" fill="url(#a-sun)"/>
+      <circle cx="1096" cy="268" r="64" fill="url(#a-sun)"/>
     </g>
     <g clip-path="url(#a-sunclip)" fill="#080C16">
-      <rect x="1026" y="247.5" width="140" height="3"/>
-      <rect x="1026" y="257" width="140" height="3.8"/>
-      <rect x="1026" y="267.5" width="140" height="5.2"/>
-      <rect x="1026" y="280" width="140" height="7"/>
-      <rect x="1026" y="295" width="140" height="9.4"/>
+      <rect x="1024" y="278" width="144" height="3"/>
+      <rect x="1024" y="288" width="144" height="4"/>
+      <rect x="1024" y="299.5" width="144" height="5.5"/>
+      <rect x="1024" y="313" width="144" height="7.5"/>
+      <rect x="1024" y="329" width="144" height="10"/>
     </g>
   </g>
 
   <!-- perspective grid below the horizon, off by default -->
   <g id="grid" clip-path="url(#a-gridclip)" opacity="0">
     <g stroke="url(#a-gridfade)" stroke-width="1" fill="none">
-      <path d="M600 300 L-1180 360"/><path d="M600 300 L-560 360"/><path d="M600 300 L-190 360"/>
-      <path d="M600 300 L40 360"/>   <path d="M600 300 L200 360"/>  <path d="M600 300 L320 360"/>
-      <path d="M600 300 L415 360"/>  <path d="M600 300 L490 360"/>  <path d="M600 300 L548 360"/>
-      <path d="M600 300 L600 360"/>
-      <path d="M600 300 L652 360"/>  <path d="M600 300 L710 360"/>  <path d="M600 300 L785 360"/>
-      <path d="M600 300 L880 360"/>  <path d="M600 300 L1000 360"/> <path d="M600 300 L1160 360"/>
-      <path d="M600 300 L1390 360"/> <path d="M600 300 L1760 360"/> <path d="M600 300 L2380 360"/>
+      <path d="M600 332 L-1180 400"/><path d="M600 332 L-560 400"/><path d="M600 332 L-190 400"/>
+      <path d="M600 332 L40 400"/>   <path d="M600 332 L200 400"/>  <path d="M600 332 L320 400"/>
+      <path d="M600 332 L415 400"/>  <path d="M600 332 L490 400"/>  <path d="M600 332 L548 400"/>
+      <path d="M600 332 L600 400"/>
+      <path d="M600 332 L652 400"/>  <path d="M600 332 L710 400"/>  <path d="M600 332 L785 400"/>
+      <path d="M600 332 L880 400"/>  <path d="M600 332 L1000 400"/> <path d="M600 332 L1160 400"/>
+      <path d="M600 332 L1390 400"/> <path d="M600 332 L1760 400"/> <path d="M600 332 L2380 400"/>
     </g>
     <g stroke="url(#a-gridfade)" stroke-width="1" fill="none">
-      <line x1="0" y1="303" x2="1200" y2="303"/>
-      <line x1="0" y1="307" x2="1200" y2="307"/>
-      <line x1="0" y1="312.5" x2="1200" y2="312.5"/>
-      <line x1="0" y1="320" x2="1200" y2="320"/>
-      <line x1="0" y1="330" x2="1200" y2="330"/>
-      <line x1="0" y1="343" x2="1200" y2="343"/>
-      <line x1="0" y1="358" x2="1200" y2="358"/>
+      <line x1="0" y1="335" x2="1200" y2="335"/>
+      <line x1="0" y1="339.5" x2="1200" y2="339.5"/>
+      <line x1="0" y1="345.5" x2="1200" y2="345.5"/>
+      <line x1="0" y1="353.5" x2="1200" y2="353.5"/>
+      <line x1="0" y1="364" x2="1200" y2="364"/>
+      <line x1="0" y1="378" x2="1200" y2="378"/>
+      <line x1="0" y1="396" x2="1200" y2="396"/>
     </g>
   </g>
 
   <g opacity="0.95">
-    <line x1="60" y1="300" x2="1140" y2="300" stroke="url(#a-horizon)" stroke-width="1.25"/>
-    <line class="flowline" x1="60" y1="300" x2="1140" y2="300" stroke="url(#a-horizon)"
+    <line x1="60" y1="332" x2="1140" y2="332" stroke="url(#a-horizon)" stroke-width="1.25"/>
+    <line class="flowline" x1="60" y1="332" x2="1140" y2="332" stroke="url(#a-horizon)"
           stroke-width="1.25" stroke-dasharray="3 9" opacity="0.85"/>
   </g>
 
   <g filter="url(#a-glow)">
-    <text class="disp" x="64" y="202" font-size="68" font-weight="800" letter-spacing="-2" fill="url(#a-brand)">aws-cost-audit</text>
+    <text class="disp" x="64" y="230" font-size="68" font-weight="800" letter-spacing="-2" fill="url(#a-brand)">aws-cost-audit</text>
   </g>
 
   <g clip-path="url(#a-wordclip)">
     <g transform="skewX(-18)">
-      <rect class="sheen" x="-200" y="112" width="110" height="130" fill="url(#a-sheen)" opacity="0.7"/>
+      <rect class="sheen" x="-200" y="140" width="110" height="130" fill="url(#a-sheen)" opacity="0.7"/>
     </g>
   </g>
 
-  <line x1="568" y1="90" x2="568" y2="270" stroke="url(#a-rule)" stroke-width="1.5"/>
+  <line x1="568" y1="112" x2="568" y2="292" stroke="url(#a-rule)" stroke-width="1.5"/>
 
   <g transform="translate(608,0)">
-    <text class="mono eyebrow" x="0" y="118">AWS BILL AUDIT SKILL</text>
-    <text class="disp head" x="0" y="168">A savings plan you can check</text>
-    <text class="disp sub" x="0" y="202">Every number checked against live AWS pricing.</text>
-    <text class="disp sub" x="0" y="226">Nothing deleted without your say-so.</text>
+    <text class="mono eyebrow" x="0" y="140">AWS BILL AUDIT SKILL</text>
+    <text class="disp head" x="0" y="192">A savings plan you can check</text>
+    <text class="disp sub" x="0" y="226">Every number checked against live AWS pricing.</text>
+    <text class="disp sub" x="0" y="250">Nothing deleted without your say-so.</text>
 
-    <g transform="translate(0,262)">
+    <g transform="translate(0,288)">
       <g class="d1"><circle cx="0" cy="0" r="4.5" fill="#FFB341" filter="url(#a-glow-sm)"/></g>
       <g class="d2"><circle cx="22" cy="0" r="4.5" fill="#FF4D8D" filter="url(#a-glow-sm)"/></g>
       <g class="d3"><circle cx="44" cy="0" r="4.5" fill="#FF2D78" filter="url(#a-glow-sm)"/></g>
@@ -190,5 +190,5 @@
     </g>
   </g>
 
-  <text class="mono tag" x="64" y="286" opacity="0.85">read-only by default  ·  live pricing  ·  no deletes without confirm</text>
+  <text class="mono tag" x="64" y="318" opacity="0.85">read-only by default  ·  live pricing  ·  no deletes without confirm</text>
 </svg>
