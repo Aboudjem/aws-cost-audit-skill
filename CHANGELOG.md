@@ -4,12 +4,70 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2026-09-02
+
+Three helpers that make a run checkable before, during, and after it happens, plus a new visual
+identity and a README rebuilt around it. No change to the Iron Laws: the skill is still read-only
+by default and still refuses to quote a price from memory.
 
 ### Added
 
+- `skills/aws-cost-audit/scripts/doctor.sh`: a preflight check that names what is missing before
+  an audit starts. It probes the AWS CLI, caller identity, `jq`, region resolution, and a writable
+  output directory, then lists any blocker and exits 1. `--offline` skips everything needing
+  credentials; the Cost Explorer probe is behind `--check-cost-explorer` because that request is
+  billed. It has no apply flag and removes the probe file it wrote. Covered by
+  `tests/smoke.sh`.
+- A Cost Explorer request budget in `scripts/_lib.sh`. `ce_call` counts each request and refuses
+  the one past `AWS_COST_AUDIT_CE_BUDGET` (default 50) before sending it; `ce_paged_call` walks
+  pages explicitly so every billed page is counted; `ce_report` prints the count and the estimated
+  spend. `00-baseline.sh` routes its pulls through the wrapper. Covered by `tests/smoke.sh` with a
+  stubbed `aws` on `PATH`.
+- A machine-readable `findings.json` contract, pinned in `references/output-and-reporting.md`:
+  nine required keys per finding, eight optional ones, unknown keys rejected.
+  `scripts/findings-validate.sh` checks a file with jq and exits 0 valid, 1 with one line per
+  problem, 2 when it could not check at all. Fixtures and cases in `tests/`.
+- `docs/editors.md`: one install line per agent for Claude Code, Cursor, Codex, GitHub Copilot,
+  Gemini CLI, OpenCode, Windsurf, Zed and Kimi Code CLI, the platform-id map, Windows, the manual
+  copy path, and a plain statement that this plugin ships no MCP server.
+- `docs/faq.md` and `docs/comparison.md`, holding the FAQ, the five Iron Laws in short form, and
+  the comparison table that used to sit in the README.
+- A Neon Noir visual identity: `assets/logo-dark.svg`, `logo-light.svg`, `hero-dark.svg`,
+  `hero-light.svg`, `social-preview.svg`, the raster mark `logo-mark.png` and `logo-mark-512.png`,
+  and a regenerated 1280x640 `social-preview.png`.
 - Release workflow: pushing a `vX.Y.Z` tag now creates the GitHub release and tells the 10x
   marketplace to re-sync (`.github/workflows/release.yml`).
+
+### Changed
+
+- `install.sh` now delegates to the Vercel skills CLI by default, running
+  `npx --yes skills@1.5.23 add Aboudjem/aws-cost-audit-skill -a <agent>` for the platform you name.
+  All thirteen platform ids map to a supported agent code. `--legacy` keeps the original symlink
+  logic reachable and is the automatic fallback when `npx` is missing. `--update` and `--uninstall`
+  work on both paths.
+- README rewritten to 161 lines from 254: a light and dark hero, jump links, the install command
+  above the first heading, one install table instead of seven code blocks, and one line per
+  improvement. The seven-step walkthrough moved into `docs/quickstart.md`, the FAQ into
+  `docs/faq.md`, the comparison into `docs/comparison.md`. Star History removed.
+- The four localized READMEs in `READMEs/` rewritten from the new English text.
+- `assets/hero.svg` and `assets/how-it-works.svg` restyled in place on the new palette. Every SVG
+  keeps its `prefers-reduced-motion` guard and carries no `<script>` and no external reference.
+- `install.ps1` now states in its own output that PowerShell is the legacy symlink path.
+- Version moved to 0.3.0 in `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`, and
+  `.copilot-plugin/plugin.json`.
+
+### Fixed
+
+- A malformed `AWS_COST_AUDIT_CE_BUDGET` used to switch the ceiling off, because the integer test
+  errored on a non-numeric operand and the caller read that as "under budget". The value is now
+  validated, and `ce_report` runs on an early exit as well as at the end of a run, which is when
+  the number matters most.
+- `doctor.sh` advised passing `--region` when the region could not be resolved, but had no such
+  option. It now accepts `--region REGION`. It also used to leave behind an output directory it
+  had created, and now removes one it had to create.
+- The `findings.json` test fixtures carried monthly cost figures, which `CONTRIBUTING.md` forbids
+  in any script, reference, or example. Every cost field in a committed fixture is now `null`, and
+  the case that exercises the numeric branch builds its file at run time.
 
 ## [0.2.0] - 2026-05-30
 
@@ -69,5 +127,6 @@ Initial release.
   preview card, and a CI workflow that validates frontmatter, JSON, links, and scans for hardcoded
   prices, account IDs, and secrets.
 
+[0.3.0]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Aboudjem/aws-cost-audit-skill/releases/tag/v0.1.0
