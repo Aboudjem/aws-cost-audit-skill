@@ -1,258 +1,161 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Aboudjem/aws-cost-audit-skill/main/assets/hero.svg" alt="AWS Cost Audit: an executable, evidence-first AWS cost auditor for Claude Code" width="100%">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="../assets/hero-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="../assets/hero-light.svg">
+    <img src="../assets/hero-dark.svg" alt="aws-cost-audit: 検証できる削減プラン。すべての金額を AWS の実価格と突き合わせます" width="100%">
+  </picture>
 </p>
 
-<h1 align="center">AWS Cost Audit Skill</h1>
+<h1 align="center">aws-cost-audit</h1>
 
 <p align="center">
-  <strong>Claude に AWS の請求を監査してもらいましょう。すべての数字が AWS のライブ料金に照らして検証され、あなたの承認なしには何も削除されない、明快なコスト削減プランが得られます。</strong>
-</p>
-
-<p align="center">
-  <a href="../LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT license"></a>
-  <img src="https://img.shields.io/badge/Claude%20Code-skill-d97757" alt="Claude Code skill">
-  <img src="https://img.shields.io/badge/AWS-cost%20optimization-ff9900" alt="AWS cost optimization">
-  <a href="../CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs welcome"></a>
-  <a href="https://github.com/Aboudjem/10x"><img src="https://img.shields.io/badge/part%20of-10x%20marketplace-f59e0b" alt="Part of the 10x marketplace"></a>
-</p>
-
-<p align="center">
-  品質を届ける Claude Code ツールの厳選セット、<a href="https://github.com/Aboudjem/10x"><b>10x</b> マーケットプレイス</a>の一部です。
+  <a href="../LICENSE"><img src="https://img.shields.io/github/license/Aboudjem/aws-cost-audit-skill" alt="MIT license"></a>
+  <a href="https://github.com/Aboudjem/aws-cost-audit-skill/actions/workflows/validate.yml"><img src="https://img.shields.io/github/actions/workflow/status/Aboudjem/aws-cost-audit-skill/validate.yml?branch=main&label=validate" alt="validate workflow status"></a>
+  <a href="https://github.com/Aboudjem/aws-cost-audit-skill/stargazers"><img src="https://img.shields.io/github/stars/Aboudjem/aws-cost-audit-skill" alt="GitHub stars"></a>
+  <a href="https://github.com/Aboudjem/10x"><img src="https://img.shields.io/badge/part%20of-10x-FFB341" alt="Part of the 10x marketplace"></a>
 </p>
 
 <p align="center">
   <a href="../README.md">English</a> · <a href="zh-CN.md">简体中文</a> · <b>日本語</b> · <a href="es.md">Español</a> · <a href="fr.md">Français</a>
 </p>
 
----
+<p align="center">
+  <strong>AWS の請求書の監査を Claude に頼んでください。すべての金額は AWS の実価格で検証されます。</strong>
+</p>
 
-![aws-cost-audit demo](https://raw.githubusercontent.com/Aboudjem/aws-cost-audit-skill/main/assets/demo.gif)
+<p align="center">
+  <a href="#できること">できること</a> · <a href="#インストール">インストール</a> · <a href="#使ってみる">使ってみる</a> · <a href="#得られるもの">得られるもの</a> · <a href="#お使いのエディタで動きます">お使いのエディタで動きます</a> · <a href="#知っておきたいこと">知っておきたいこと</a>
+</p>
 
-<p align="center"><sub>Claude に請求を監査してもらい、エビデンス重視のコスト削減プランを得ましょう。表示されるすべての数字は<b>例示用</b>です(合成データ、実アカウントなし)。</sub></p>
+![aws-cost-audit demo](../assets/demo.gif)
 
----
+<p align="center"><sub>録画中の数値はすべて<b>説明用</b>です。合成データであり、実アカウントは使っていません。</sub></p>
 
-## これは何ですか?
+```bash
+claude plugin marketplace add Aboudjem/10x
+claude plugin install aws-cost-audit@10x
+```
 
-これは、あなたの AWS アカウントを代わりに監査する [Claude Code](https://www.claude.com/product/claude-code) スキルです。
+## できること
 
-Claude に *"audit my AWS bill"* のように頼みます。スキルはあなたのライブアカウントを読み取り、各項目のコストとその理由を割り出し、無駄を見つけ、平易な言葉のレポートを渡します:今いくら払っているか、安全に削れるものは何か、そして各項目についてどれだけ確信があるか。既定では読み取り専用です。価格を推測することはなく、自分の判断で何かを削除することもありません。
+[Claude Code](https://www.claude.com/product/claude-code) のスキルです。中身は 1 つの Markdown 指示ファイル、必要になったときだけ読み込まれる 6 つの参考文書、そして 10 個の bash ヘルパースクリプトです。AWS の支出について尋ねると Claude がこれを拾い上げます。
 
-作業の過程を示す慎重な FinOps エンジニアだと考えてください。
+「AWS の請求書を監査して」と言うだけです。すでに手元にある AWS CLI を通じてアカウントを読み取り、各リソースがいくら、なぜかかっているのかを割り出し、プランを返します。既定では読み取りのみです。記憶から価格を答えることはなく、勝手に何かを削除することもありません。
 
-**AWS コスト監査とは?** AWS アカウントを構造的にレビューし、何に対して支払っているか、どのリソースが無駄または過大であるか、何を安全に取り除けるかを見つけることです。このスキルはその監査を代わりに実行し、[AWS Well-Architected Framework のコスト最適化の柱](https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html)と [FinOps Foundation](https://www.finops.org/framework/) のフレームワークに従うため、その手法は適当に作られたものではありません。
+- **支出の内訳。** サービス別・リージョン別の現在の支払額を、Cost Explorer から実データで取得します。
+- **リソース単位のビュー。** それぞれの費用、何をしているのかの平易な説明、誰が作ったのか、最後に使われたのはいつか。裏付けの取れない事実は、推測せずに「確認できない」と明記します。
+- **2 つに分けた削減プラン。**「今すぐ安全に削減できる分」(元に戻せる、確度が高い) を「理論上の最大削減額」と分けて示します。後者にはあなたの承認が必要です。
+
+手法は [AWS Well-Architected のコスト最適化の柱](https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html)と [FinOps Foundation](https://www.finops.org/framework/) のフレームワークに従っています。スキルが独自に考え出したものではありません。
 
 ## インストール
 
-好きなものを選んでください。3 つとも同じスキルをインストールします。
+Claude Code 内で、[10x マーケットプレイス](https://github.com/Aboudjem/10x)から:
 
-**[10x マーケットプレイス](https://github.com/Aboudjem/10x)から**(推奨。他の Claude Code ツールと並べて厳選されています):
-
-```text
-/plugin marketplace add Aboudjem/10x
-/plugin install aws-cost-audit@10x
+```bash
+claude plugin marketplace add Aboudjem/10x
+claude plugin install aws-cost-audit@10x
 ```
 
-**このリポジトリから直接:**
+その他のエージェントでは、[Vercel skills CLI](https://github.com/vercel-labs/skills) 経由で:
 
-```text
-/plugin marketplace add Aboudjem/aws-cost-audit-skill
-/plugin install aws-cost-audit@aws-cost-audit-skill
+```bash
+npx skills add Aboudjem/aws-cost-audit-skill
 ```
 
-**ドロップイン型スキルとして**(プラグインシステムなし):
+あわせて、監査したいアカウントへの読み取り権限を持つ [AWS CLI](https://aws.amazon.com/cli/) の設定が必要です。監査そのものには、AWS マネージドの `ReadOnlyAccess` ポリシーと請求情報の読み取り権限があれば十分です。
+
+<details>
+<summary>代わりにスキルを手動でコピーする</summary>
+
+プラグインの仕組みは使わなくても構いません。このスキルは Markdown とシェルスクリプトが入ったディレクトリにすぎないので、エージェントが読むディレクトリにコピーするだけで足ります:
 
 ```bash
 git clone https://github.com/Aboudjem/aws-cost-audit-skill
+mkdir -p ~/.claude/skills
 cp -r aws-cost-audit-skill/skills/aws-cost-audit ~/.claude/skills/aws-cost-audit
 ```
 
-監査したいアカウントへの読み取りアクセスを持つ [AWS CLI](https://aws.amazon.com/cli/) も必要です。監査自体には `ReadOnlyAccess` で十分です。
+このリポジトリは独自のマーケットプレイスマニフェストを持たないため、`claude plugin marketplace add Aboudjem/aws-cost-audit-skill` は解決しません。プラグイン経路は上の 10x マーケットプレイスです。Windows とエディタごとのパスは [docs/editors.md](../docs/editors.md) にあります。
+</details>
 
-### 他の AI CLI(1 行で)
+## 使ってみる
 
-これはスキルのみのプラグインです(MCP サーバーなし)。インストーラーは `aws-cost-audit` スキルを別の CLI のスキルディレクトリにシンボリックリンクします:
+**1. 実行環境を確認する。** `doctor.sh` は監査を始める前に不足しているものを挙げます。変更を伴う AWS 呼び出しは一切行わず、apply フラグもなく、自分で書いたプローブファイルは削除します:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Aboudjem/aws-cost-audit-skill/main/install.sh | bash -s <platform>
+bash skills/aws-cost-audit/scripts/doctor.sh --offline
 ```
 
-| プラットフォーム | スキルディレクトリ | リンク方式 |
-|:--|:--|:--|
-| gemini, codex, opencode, pi | `~/.agents/skills` | スキルごと |
-| vscode, copilot | `~/.copilot/skills` | スキルごと |
-| trae | `~/.trae/skills` | スキルごと |
-| vibe | `~/.vibe/skills` | スキルごと |
-| openclaw | `~/.openclaw/skills` | フォルダ |
-| antigravity | `~/.gemini/antigravity/skills` | フォルダ |
-| hermes, cline, kimi | `~/.<cli>/skills` | フォルダ |
+```text
+aws-cost-audit doctor
 
-上記すべてのプラットフォームにリンクするには `all` を渡します。最新版を再リンクするには `--update`、リンクを削除するには `--uninstall` を使います。
+[OK]   aws CLI found: aws-cli/2.33.9 Python/3.13.12 Darwin/25.3.0 source/arm64
+[SKIP] caller identity (--offline)
+[OK]   jq found: jq-1.7.1-apple
+[OK]   region resolves to ap-southeast-1
+[OK]   output directory writable: ./cost-audit-out
+[SKIP] Cost Explorer probe (opt in with --check-cost-explorer; the request is billed)
 
-<details>
-<summary>Codex, Gemini, OpenCode, pi</summary>
+No blockers. This environment can run an audit.
+```
+
+**2. Claude に頼む。** `audit my AWS bill` または `find my unused AWS resources` と伝えてください。スキルはこの言い回しで起動するように書かれています。アカウントが複数あるなら、どのプロファイルとどのリージョンを見るかを伝えましょう。
+
+**3. プランを読む。** レポートと、必要なら HTML ダッシュボードが得られます。あなたが頼まない限りアカウントには何の変更も入りません。頼んだ場合でも、ドライランとあなたの確認を経てからです。
+
+<p align="center">
+  <img src="../assets/how-it-works.svg" alt="How it works: 1 re-baseline live, 2 hunt waste across every region, 3 evidence-backed savings plan" width="100%">
+</p>
+
+認証情報の準備からダッシュボードまでの通しの手順は[クイックスタート](../docs/quickstart.md)にあります。
+
+## 得られるもの
+
+- **レポート。** 各指摘は `current $/mo -> after $/mo -> $ saved` の形式で、根拠、確度、元に戻す手順が付きます。[`examples/sample-report.md`](../examples/sample-report.md) を参照してください。
+- **任意のダッシュボード。** 技術者でない人でも開ける HTML ファイル 1 つ。フォントとチャートライブラリを CDN から読み込むので、ネットワークのあるマシンで正しく表示されます。[`examples/sample-dashboard.html`](../examples/sample-dashboard.html) を参照してください。
+- **求めれば機械可読な `findings.json`。** 固定された構造契約に対して `findings-validate.sh` が検証します。だからこそ 2 回の監査を読み直さずに比べられます。
+- **すべての金額に実価格。** 単価、計算式、出典を、お使いのリージョンについて調べます。まず Price List Query API を当たり、確認できない数値は unknown のままにします。
+- **ガードレール。** 予算とコスト異常検出のアラートが設定されているかを報告し、設定を手伝います。
+
+## お使いのエディタで動きます
+
+| エージェント | 1 行のインストールコマンド |
+|:--|:--|
+| Claude Code | `claude plugin install aws-cost-audit@10x` |
+| その他 70 以上のエージェント | `npx skills add Aboudjem/aws-cost-audit-skill` |
+| Codex、Gemini CLI、OpenCode、Pi | `./install.sh codex` (または `gemini`、`opencode`、`pi`) |
+| Copilot 入りの VS Code | `./install.sh copilot` |
+| それ以外すべて | [docs/editors.md](../docs/editors.md) を参照 |
+
+Claude Code、Cursor、Codex、Copilot、Gemini CLI で動作し、`npx skills add` を通じてさらに 70 以上のエージェントに対応します。`install.sh` はこのリポジトリが以前から対応している 13 のエディタ id 向けのラッパーで、現在は同じ CLI に処理を委ねます:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Aboudjem/aws-cost-audit-skill/main/install.sh | bash -s codex
 ```
-</details>
 
-<details>
-<summary>VS Code (Copilot)</summary>
+このプラグインは意図的に MCP サーバーを提供しません。すでに手元にある AWS CLI を呼び出すだけなので、余分なプロセスも、`.mcp.json` に書き足すものもありません。
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/Aboudjem/aws-cost-audit-skill/main/install.sh | bash -s copilot
-```
-</details>
+## 知っておきたいこと
 
-<details>
-<summary>Windows (PowerShell)</summary>
+> [!IMPORTANT]
+> 既定では読み取りのみです。自らの判断で削除、停止、変更を行うことはありません。あらゆる操作にはゲートがあります。対象が未使用であると証明され、変更が元に戻せて、ドライランを通り、そのうえであなたが確認する必要があります。元に戻せない操作は常に提案のままにとどまります。
 
-```powershell
-git clone https://github.com/Aboudjem/aws-cost-audit-skill
-./aws-cost-audit-skill/install.ps1 copilot
-```
-</details>
+- **記憶から価格を答えません。** すべての金額は、あなたのリージョンの実価格に実使用量を掛けたものです。スクリプトにも個々の指摘にもリソース価格は書き込まれておらず、書き込まれれば CI がビルドを失敗させます。このリポジトリが記録している唯一の価格は Cost Explorer 自体のリクエスト単価、つまり監査を実行する費用であって、監査が報告する対象の価格ではありません。AWS の出典とともに参考ドキュメントに置かれています。
+- **Cost Explorer のリクエストは数えられ、上限が掛かります。** スクリプトのリクエストは 1 つのラッパーを通り、ページごとに数えたうえで `AWS_COST_AUDIT_CE_BUDGET` を超える 1 回を拒否します。あなたが自分で打つ `aws ce` はこの計数の外です。
+- **通信相手は AWS だけです。** 手元にある既存の AWS CLI 認証情報をローカルで使い、キーを要求せず、監査結果をどの第三者にも送りません。スクリプトに必要なのは bash と AWS CLI で、`findings-validate.sh` にはさらに `jq` が要ります。
 
-<details>
-<summary>その他のエディタ(手動)</summary>
+## さらに詳しく
 
-このスキルはプレーンな Markdown とシェルスクリプトです。`skills/aws-cost-audit/SKILL.md` と `references/` フォルダを、エディタが読み込むコンテキストディレクトリにコピーし、`skills/aws-cost-audit/scripts/` 内のヘルパースクリプトを直接実行します。これらは AWS CLI のみに依存します。
-</details>
-
-## 3 ステップで使う
-
-1. **インストールする**(上記)。
-2. **Claude に頼む**:*"audit my AWS bill"* または *"find my unused AWS resources"*。スキルは自動的に有効になります。
-3. **プランを読む。** レポートと、任意の HTML ダッシュボードが得られ、各削減項目についてコスト、原因、確信度が示されます。
-
-それだけです。あなたが頼まない限りアカウントには何も変更されず、頼んだ場合でも安全チェックとあなたの確認の後に限られます。
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Aboudjem/aws-cost-audit-skill/main/assets/how-it-works.svg" alt="How it works: 1 re-baseline live, 2 hunt waste across every region, 3 evidence-backed savings plan" width="100%">
-</p>
-
-## 得られるもの
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Aboudjem/aws-cost-audit-skill/main/assets/dashboard-preview.png" alt="Sample AWS cost audit dashboard: monthly run-rate, save-now-safely vs maximum-theoretical-save, with synthetic data" width="100%">
-  <br><sub>任意のダッシュボード(サンプル表示、合成データ)。<a href="../examples/sample-dashboard.html"><code>examples/sample-dashboard.html</code></a> を開いて実際に確認できます。</sub>
-</p>
-
-- **支出の内訳。** 今支払っている額を、サービス別・リージョン別に、Cost Explorer からライブで取得します。
-- **リソース単位のビュー。** 各リソースについて:コスト、平易な言葉での用途、誰がいつ作ったか、最後に使われたのはいつか。事実が検証できない場合は、推測せずにその旨を述べます。
-- **2 部構成のコスト削減プラン。** 「今すぐ安全に削減」(高い確信度、可逆、低リスク)を「理論上の最大削減」(あなたの承認が必要な大きめの削減)と分けて保ちます。
-- **任意のダッシュボード。** 非技術者でも読める、単一の自己完結型 HTML ページ。[`examples/sample-dashboard.html`](../examples/sample-dashboard.html) と[サンプルレポート](../examples/sample-report.md)を参照。
-- **ガードレール。** 予算とコスト異常アラートがあるかを確認し、設定を手助けします。
-
-## 実行の様子
-
-上のレコーディング(`assets/demo.gif`)は例示用です:AWS の呼び出しにはライブの認証情報が必要なため、実アカウントではなく合成データを使っています([CONTRIBUTING.md](../CONTRIBUTING.md) の先送り項目の注記を参照)。以下が段階ごとに起こることで、[サンプルレポート](../examples/sample-report.md)と[サンプルダッシュボード](../examples/sample-dashboard.html)に反映されています(どちらも合成データを使い、明示的にラベル付けされています):
-
-1. **アイデンティティ確認。** `aws sts get-caller-identity` が、他の何かが実行される前にアカウントとリージョンを確認します。
-2. **支出のベースライン。** Cost Explorer(`aws ce get-cost-and-usage`)が直近 30 日と 90 日の支出を取得し、サービス別・リージョン別に分解します。表が表示されます:サービス → $/月 → 全体に占める割合。
-3. **リソースインベントリ。** スキルは有効な各リージョンに展開し、EC2 インスタンス、EBS ボリューム、RDS インスタンス、NAT Gateway、ロードバランサー、S3 バケット、Lambda 関数、CloudWatch ロググループ、スナップショット、AMI、Elastic IP などを列挙します。何も変更されません。
-4. **無駄の検出。** 各リソースをハントリスト(`skills/aws-cost-audit/references/hunt-list.md`)と照合します:アイドル CPU、未アタッチのボリューム、古いスナップショット、gp2 ボリューム、過剰に保持されたログ、Savings Plan カバレッジの欠如など。
-5. **ライブ価格検証。** 削減候補ごとに、スキルは AWS Price List Query API からリージョン別のライブ単価を取得し、記憶した料金は使いません。すべてのドル数値について `unit price → math → source` を表示します。
-6. **エビデンス付きレポート。** 発見事項は `current $/mo → after $/mo → $ saved · confidence · evidence · reversibility` の形で書かれ、「今すぐ安全に削減」(高い確信度、可逆、テスト済み)と「理論上の最大削減」に分けられます。正確な形は [`examples/sample-report.md`](../examples/sample-report.md) を参照。
-7. **任意のダッシュボード。** 発見事項から HTML ファイルが生成されます。任意のブラウザで開いてください。[`examples/sample-dashboard.html`](../examples/sample-dashboard.html) を参照。
-
-中規模の AWS アカウントでの実際の実行では、最初の Cost Explorer 呼び出しから数分以内に発見事項が浮上するのが通常です。読み取り専用フェーズは、いかなる是正提案を行う前に完了します。
-
-## 数字を信頼できる理由
-
-「AWS の請求を削減する」助言のほとんどは一般論か、価格を記憶から引用するツールです。このスキルは、決して破らない 5 つのルールを軸に作られています:
-
-1. **でっち上げの価格はない。** すべてのドルは、*あなたの*リージョンの AWS ライブ価格に*実際の*使用量を掛けたものに由来します。単価、計算、出典を示します。どこにも価格をハードコードしません。
-2. **すべてのドルを帰属させるか、「不明」と言う。** 所有者、日付、「最終使用」を決して捏造しません。
-3. **証拠なしに破壊的なことはしない。** 変更は、リソースが未使用と証明され、操作が可逆で、ドライランを通過し、結果が確実な場合にのみ実行されます。それ以外は推奨にとどまります。
-4. **1 つのサンプルが艦隊全体になることはない。** 別の懐疑的パスが、公表前に主要な数字を出典から再導出します。
-5. **すべての発見事項は証拠を示す。** 現在のコスト、変更後のコスト、削減額、確信度、証拠、そして元に戻す方法。
-
-これらのルールは、スキル*なし*のエージェントがそれらを破るのを目撃したから存在します。記録されたベースラインは [`docs/research/RED-baseline-findings.md`](../docs/research/RED-baseline-findings.md) にあります:同じ削減額を尋ねられた 2 つのモデルが、記憶から自信たっぷりに 2 つの異なる誤った数字を返しました。スキルはそれを修正します。
-
-## 比較
-
-| | このスキル | 手動監査 | コスト SaaS ダッシュボード |
-|---|---|---|---|
-| ライブアカウントに対して実行 | はい | はい | はい |
-| 今すぐ無料で実行できる | はい | はい | 通常は有料 / シート課金 |
-| 各価格をライブ検証(記憶料金なし) | はい | 人による | 自前の数字を表示 |
-| リソース単位でコスト・所有者・最終使用を帰属 | はい | 手作業で遅い | 部分的 |
-| 発見事項に安全に対処できる(ゲート付き + 可逆) | はい | 手動 | 読み取り専用 |
-| 共有可能なレポート + ダッシュボードを生成 | はい | 手動 | はい |
-| データを第三者に送信 | いいえ | いいえ | しばしば |
-| ロックイン | なし(MIT、あなたのアカウント) | なし | ベンダー |
-
-## FAQ
-
-**Claude で AWS の請求を監査するには?**
-このスキルをインストールし、Claude Code に「audit my AWS bill」と頼みます。AWS CLI であなたのアカウントを読み取り、エビデンスに基づくコストレポートと削減プランを生成します。
-
-**安全ですか? 何か削除されますか?**
-既定では読み取り専用です。自分の判断で削除・停止・変更を行うことはありません。あらゆる操作はゲート付きです:リソースが未使用と証明され、変更が可逆で、ドライランを通過し、あなたが確認する必要があります。不可逆な操作は常に推奨として残されます。
-
-**AWS のキーが必要ですか?**
-いいえ。あなた自身のマシン上にある既存の AWS CLI 認証情報を使います。どこにもアップロードされません。監査には `ReadOnlyAccess` で十分です。
-
-**自分のアカウントで動きますか?**
-はい。汎用です。あなたの CLI が指すアカウントを全リージョンにわたって読み取り、アカウント ID、ARN、価格を一切埋め込まずに出荷されます。
-
-**AWS の価格をハードコードしますか?**
-いいえ、意図的にしません。価格は変動しリージョンによって異なるため、常にあなたのリージョンのライブ価格を取得し、実際の使用量と組み合わせます。
-
-**何をカバーしますか?**
-アイドル・未アタッチのリソース、gp2→gp3、古いスナップショットと AMI、NAT とデータ転送のコスト、アイドルのロードバランサー、ライトサイジング、Savings Plans と Reserved Instance のカバレッジ、S3 ライフサイクル、CloudWatch ログ保持、リージョン間の取り残し、欠落した予算 / アラート。完全な一覧は[ハントリスト](../skills/aws-cost-audit/references/hunt-list.md)にあります。
-
-**プラグインシステムなしで使えますか?**
-はい。`skills/aws-cost-audit/` を `~/.claude/skills/aws-cost-audit/` にコピーすれば、同じように動きます。
-
-## 内部の仕組み
-
-スキルは [`skills/aws-cost-audit/SKILL.md`](../skills/aws-cost-audit/SKILL.md) にあります。重い詳細は必要なときにだけ `references/` から読み込まれます:
-
-- [`hunt-list.md`](../skills/aws-cost-audit/references/hunt-list.md):各高 ROI チェックと、それを検出する読み取り専用コマンド。
-- [`pricing-verification.md`](../skills/aws-cost-audit/references/pricing-verification.md):リージョンに正しいライブ価格をどう取得し、再確認するか。
-- [`safety-and-gating.md`](../skills/aws-cost-audit/references/safety-and-gating.md):executor → verifier → rollback のゲートと、決して単独で実行してはならないもの。
-- [`output-and-reporting.md`](../skills/aws-cost-audit/references/output-and-reporting.md):レポートの形と、発見事項ごとの契約。
-
-[`scripts/`](../skills/aws-cost-audit/scripts) 内のヘルパースクリプトは既定でドライランです。最初のガイド付き実行については[クイックスタート](../docs/quickstart.md)を参照してください。
-
-## エディタのサポート
-
-このスキルは **Claude Code** 向けに設計されています。`SKILL.md` を Claude Code のコンテキストに読み込み、AWS CLI を呼び出すことで動作するため、ランタイムとして Claude Code を必要とします。
-
-他の AI エディタ(Cursor、Copilot 付き VS Code、Windsurf、Codex、Gemini CLI)は、Claude Code のプラグインやスキル形式をネイティブには使いません。これらのエディタを使っている場合、最も実用的な方法は次のとおりです:
-
-1. AWS CLI をインストールし、通常どおり認証情報を設定します。
-2. `skills/aws-cost-audit/SKILL.md` と `references/` フォルダを、プロジェクト(またはエディタが読む個人のコンテキストディレクトリ)にコピーします。
-3. SKILL.md の内容をシステムプロンプトまたはカスタム指示としてエディタに指定します。
-4. `skills/aws-cost-audit/scripts/` 内のヘルパースクリプトを直接実行します。これらは AWS CLI のみに依存し、Claude Code には依存しないプレーンなシェルスクリプトです。
-
-スキルのロジック(Iron Laws、ワークフロー、安全ゲート)は完全に移植可能です。*インストールの仕組み*(プラグインシステム、`/skill` 自動検出)だけが Claude Code 固有です。
-
-## コントリビュート
-
-Issue と PR を歓迎します。1 つだけ固い決まり:このスキルはテストファーストで作られているため、振る舞いを追加する変更には、それが修正する失敗ベースラインが必要です。[CONTRIBUTING.md](../CONTRIBUTING.md) と[行動規範](../CODE_OF_CONDUCT.md)を参照してください。
-
-## Star History
-
-<a href="https://star-history.com/#Aboudjem/aws-cost-audit-skill&Date">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Aboudjem/aws-cost-audit-skill&type=Date&theme=dark">
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Aboudjem/aws-cost-audit-skill&type=Date">
-    <img alt="Star history of Aboudjem/aws-cost-audit-skill" src="https://api.star-history.com/svg?repos=Aboudjem/aws-cost-audit-skill&type=Date">
-  </picture>
-</a>
-
-## ライセンス
-
-[MIT](../LICENSE)。使って、フォークして、出荷してください。
+- [クイックスタート](../docs/quickstart.md): 前提条件、インストール、そして 1 回の実行が何を順に行うか。
+- [エディタとエージェントの対応](../docs/editors.md): エージェントごとに 1 行、手動コピーの手順も。
+- [FAQ](../docs/faq.md): 何を対象にするか、実行にいくらかかるか、何に触れないか。
+- [他との比較](../docs/comparison.md): 手作業の監査、コストダッシュボードとの比較。
+- [スキル本体](../skills/aws-cost-audit/SKILL.md): 5 つの鉄則、ワークフロー、必要に応じて読み込む参考文書。
+- [CHANGELOG](../CHANGELOG.md) · [CONTRIBUTING](../CONTRIBUTING.md) · [MIT ライセンス](../LICENSE)
 
 ---
 
-<sub><a href="https://github.com/Aboudjem">Adam Boudjemaa</a> が作成・保守しています。コマンドは 2026 年に AWS CLI v2 と AWS ドキュメントに照らして検証済みです。古いコマンドや抜けを見つけましたか? <a href="https://github.com/Aboudjem/aws-cost-audit-skill/issues">issue を開いてください</a>。</sub>
+<sub><a href="https://github.com/Aboudjem">Adam Boudjemaa</a> が開発・保守しています。コマンドは AWS CLI v2 向けに書かれています。古いコマンドや抜けを見つけたら <a href="https://github.com/Aboudjem/aws-cost-audit-skill/issues">issue を立ててください</a>。</sub>
 
----
-
-<sub>機械支援による翻訳です。ネイティブスピーカーによる修正を歓迎します:<a href="https://github.com/Aboudjem/aws-cost-audit-skill/issues">issue</a> または PR を開いてください。</sub>
+<sub>この文書は機械翻訳を用いて作成されています。英語版との相違がある場合は英語版が優先されます。</sub>
