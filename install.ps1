@@ -9,6 +9,13 @@
   shells out to the AWS CLI (read-only by default) and runs inside whichever
   CLI loads it.
 
+  This is the legacy symlink path only. install.sh on macOS and Linux now
+  delegates to the Vercel skills CLI by default (npx skills add) and keeps the
+  symlink logic behind --legacy; PowerShell users get the symlink logic, or can
+  run the skills CLI directly:
+    npx --yes skills@1.5.23 add Aboudjem/aws-cost-audit-skill -a github-copilot -g -y
+  See docs/editors.md for the agent code for each editor.
+
   Creating symlinks on Windows needs Developer Mode enabled or an elevated
   shell. If symlink creation fails, copy skills/aws-cost-audit into your CLI's
   skills directory by hand.
