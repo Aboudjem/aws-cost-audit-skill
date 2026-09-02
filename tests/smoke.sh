@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# tests/smoke.sh — offline smoke test for _lib.sh helpers.
+# tests/smoke.sh: offline smoke test for the aws-cost-audit scripts.
 #
 # Tests the pure-bash helper functions in skills/aws-cost-audit/scripts/_lib.sh
 # WITHOUT making any AWS API calls. No credentials are required.
@@ -149,6 +149,96 @@ if [ "$T10_RC" -ne 0 ]; then
 else
   fail "die: should return non-zero" "$T10_RC" "non-zero"
 fi
+
+# ---- doctor.sh --------------------------------------------------------------
+# doctor.sh is exercised for real, but only offline: --offline skips every call
+# that needs credentials, and the Cost Explorer probe is opt-in, so nothing here
+# reaches AWS. PATH is replaced with a stub directory holding a fake `aws` plus
+# symlinks to the handful of real binaries the script needs, which makes "jq is
+# absent" deterministic instead of depending on the machine.
+DOCTOR="$HERE/../skills/aws-cost-audit/scripts/doctor.sh"
+BASH_BIN="$(command -v bash)"
+
+# make_stub_path <dir> <region-for-aws-configure>
+# Builds a stub PATH in <dir> and echoes it. The fake `aws` answers --version
+# and `configure get region`; everything else returns empty with status 1.
+make_stub_path() {
+  local dir="$1" region="${2:-}" real b
+  mkdir -p "$dir"
+  for b in bash env dirname date head mkdir rm; do
+    real="$(command -v "$b" 2>/dev/null || true)"
+    [ -n "$real" ] && ln -sf "$real" "$dir/$b"
+  done
+  cat > "$dir/aws" <<STUB
+#!/usr/bin/env bash
+if [ "\$1" = "--version" ]; then
+  echo "aws-cli/0.0.0-stub"
+  exit 0
+fi
+if [ "\$1" = "configure" ] && [ "\$2" = "get" ] && [ "\$3" = "region" ]; then
+  [ -n "$region" ] && echo "$region"
+  exit 0
+fi
+exit 1
+STUB
+  chmod +x "$dir/aws"
+  printf '%s' "$dir"
+}
+
+# 12. doctor.sh: healthy offline environment exits 0
+D12="$(mktemp -d)"
+D12_RC=0
+D12_OUT=$(
+  PATH="$(make_stub_path "$D12/bin" "")" \
+  AWS_REGION="eu-west-1" AWS_DEFAULT_REGION="" OUT_DIR="$D12/out" \
+  "$BASH_BIN" "$DOCTOR" --offline 2>&1
+) || D12_RC=$?
+if [ "$D12_RC" -eq 0 ]; then
+  ok "doctor.sh: healthy offline environment exits 0"
+else
+  fail "doctor.sh: healthy offline environment should exit 0" "$D12_RC" "0"
+fi
+assert_contains "doctor.sh: reports the resolved region" "$D12_OUT" "region resolves to eu-west-1"
+assert_contains "doctor.sh: reports no blockers when healthy" "$D12_OUT" "No blockers"
+
+# 13. doctor.sh: jq absent is a WARN, not a blocker
+assert_contains "doctor.sh: missing jq warns" "$D12_OUT" "[WARN] jq not found"
+
+# 14. doctor.sh: the billed Cost Explorer probe is off by default
+assert_contains "doctor.sh: Cost Explorer probe is opt-in" "$D12_OUT" "[SKIP] Cost Explorer probe"
+
+# 15. doctor.sh: the credentials check is genuinely skipped offline
+assert_contains "doctor.sh: --offline skips the identity call" "$D12_OUT" "[SKIP] caller identity"
+rm -rf "$D12"
+
+# 16. doctor.sh: no resolvable region is a blocker and exits 1
+D16="$(mktemp -d)"
+D16_RC=0
+D16_OUT=$(
+  PATH="$(make_stub_path "$D16/bin" "")" \
+  AWS_REGION="" AWS_DEFAULT_REGION="" OUT_DIR="$D16/out" \
+  "$BASH_BIN" "$DOCTOR" --offline 2>&1
+) || D16_RC=$?
+if [ "$D16_RC" -eq 1 ]; then
+  ok "doctor.sh: unresolvable region exits 1"
+else
+  fail "doctor.sh: unresolvable region should exit 1" "$D16_RC" "1"
+fi
+assert_contains "doctor.sh: names the region blocker" "$D16_OUT" "[FAIL] no region could be resolved"
+assert_contains "doctor.sh: prints a Blockers list" "$D16_OUT" "Blockers:"
+rm -rf "$D16"
+
+# 17. doctor.sh: a region from `aws configure get region` is picked up
+D17="$(mktemp -d)"
+D17_RC=0
+D17_OUT=$(
+  PATH="$(make_stub_path "$D17/bin" "ap-south-1")" \
+  AWS_REGION="" AWS_DEFAULT_REGION="" OUT_DIR="$D17/out" \
+  "$BASH_BIN" "$DOCTOR" --offline 2>&1
+) || D17_RC=$?
+assert_eq "doctor.sh: configured region resolves, exit 0" "$D17_RC" "0"
+assert_contains "doctor.sh: uses aws configure get region" "$D17_OUT" "region resolves to ap-south-1"
+rm -rf "$D17"
 
 # ---- summary -----------------------------------------------------------------
 echo ""

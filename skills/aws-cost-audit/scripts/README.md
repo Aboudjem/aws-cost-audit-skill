@@ -26,6 +26,7 @@ the AWS Price List Query API (see `verify-price.sh`), never assumed.
 
 | Script | What it does | Mutates? | Savings lever | Risk | Rollback |
 |---|---|---|---|---|---|
+| `doctor.sh` | Preflight check: aws CLI, credentials, `jq`, region resolution, writable output dir, and (opt-in) whether Cost Explorer answers | No (read-only) | Stops you burning a run on a broken environment | None | N/A (read-only) |
 | `00-baseline.sh` | Cost Explorer total, by-service, by-region, by-usage-type, 90d daily trend, 30d forecast → JSON | No (read-only) | Establishes the spend picture so you target the biggest line items | None | N/A (read-only) |
 | `inventory-regions.sh` | Loops `describe-regions` and runs read-only inventory per region (EC2, EBS, snapshots, EIPs, ELB, TGs, NAT, RDS, ElastiCache, log groups) | No (read-only) | Finds resources you forgot in other regions | None | N/A (read-only) |
 | `find-idle.sh` | Candidate table: unassociated EIPs, unattached EBS, idle ALBs/empty TGs, never-expire log groups, gp2 volumes | No (read-only) | Pinpoints concrete waste to act on | None | N/A (read-only) |
@@ -38,11 +39,14 @@ Shared helpers live in `_lib.sh` (sourced, not run directly).
 
 ## Suggested workflow
 
-1. `./00-baseline.sh --output ./out`, snapshot current spend.
-2. `./inventory-regions.sh --output ./out`, sweep every region.
-3. `./find-idle.sh --region <region> --output ./out`, list candidates per region.
-4. `./verify-price.sh --service-code AmazonEC2 --region-code <region> ...`,    confirm the live price before you size any savings claim.
-5. Act with the gated scripts in **dry-run first**, review the printed plan and
+1. `./doctor.sh`, confirm the environment can run an audit at all. Add
+   `--check-cost-explorer` to also probe Cost Explorer, which makes one billed
+   request.
+2. `./00-baseline.sh --output ./out`, snapshot current spend.
+3. `./inventory-regions.sh --output ./out`, sweep every region.
+4. `./find-idle.sh --region <region> --output ./out`, list candidates per region.
+5. `./verify-price.sh --service-code AmazonEC2 --region-code <region> ...`,    confirm the live price before you size any savings claim.
+6. Act with the gated scripts in **dry-run first**, review the printed plan and
    the rollback artifact path, then re-run with `--apply`.
 
 ## Sacred constraints (read before `--apply`)
