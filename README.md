@@ -117,7 +117,7 @@ git clone https://github.com/Aboudjem/aws-cost-audit-skill
 <details>
 <summary>Other editors (manual)</summary>
 
-The skill is plain Markdown plus shell scripts. Copy `skills/aws-cost-audit/SKILL.md` and the `references/` folder into a context directory your editor reads, then run the helper scripts in `skills/aws-cost-audit/scripts/` directly. They depend only on the AWS CLI.
+The skill is plain Markdown plus shell scripts. Copy `skills/aws-cost-audit/SKILL.md` and the `references/` folder into a context directory your editor reads, then run the helper scripts in `skills/aws-cost-audit/scripts/` directly. The audit scripts depend only on the AWS CLI; `findings-validate.sh` also needs `jq`.
 </details>
 
 ## Use it in 3 steps
@@ -227,7 +227,7 @@ Other AI editors (Cursor, VS Code with Copilot, Windsurf, Codex, Gemini CLI) do 
 1. Install the AWS CLI and configure your credentials as normal.
 2. Copy `skills/aws-cost-audit/SKILL.md` and the `references/` folder into your project (or a personal context directory your editor reads).
 3. Point your editor at the SKILL.md content as a system prompt or custom instruction.
-4. Run the helper scripts in `skills/aws-cost-audit/scripts/` directly. They are plain shell scripts that depend only on the AWS CLI, not on Claude Code.
+4. Run the helper scripts in `skills/aws-cost-audit/scripts/` directly. They are plain shell scripts. The audit scripts depend only on the AWS CLI, not on Claude Code; `findings-validate.sh` also needs `jq`.
 
 The skill's logic (Iron Laws, workflow, safety gates) is fully portable. Only the *installation mechanism* (plugin system, `/skill` auto-discovery) is Claude Code-specific.
 

@@ -8,7 +8,7 @@ This repo is an executable Claude Code skill, `aws-cost-audit`, that audits a li
 
 The skill targets Claude Code and shells out to the AWS CLI. The skill definition is `skills/aws-cost-audit/SKILL.md`; supporting material is in `skills/aws-cost-audit/references/`.
 
-**Editor support:** the plugin/skill installation mechanism is Claude Code-specific. For other AI editors (Cursor, VS Code with Copilot, Windsurf, Codex, Gemini CLI), copy `skills/aws-cost-audit/SKILL.md` and the `references/` folder as custom context/instructions, and run the helper scripts in `skills/aws-cost-audit/scripts/` directly; they depend only on the AWS CLI. The AWS CLI is the only runtime dependency for the scripts themselves.
+**Editor support:** the plugin/skill installation mechanism is Claude Code-specific. For other AI editors (Cursor, VS Code with Copilot, Windsurf, Codex, Gemini CLI), copy `skills/aws-cost-audit/SKILL.md` and the `references/` folder as custom context/instructions, and run the helper scripts in `skills/aws-cost-audit/scripts/` directly; the audit scripts depend only on the AWS CLI, with `jq` optional for nicer output. The one exception is `findings-validate.sh`, which needs `jq` to do its job and exits 2 saying so rather than reporting a file as valid unchecked; it is a validation helper, not part of the audit path.
 
 ## How an agent should invoke the skill
 

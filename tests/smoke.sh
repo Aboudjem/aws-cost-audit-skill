@@ -493,6 +493,50 @@ if command -v jq >/dev/null 2>&1; then
     "$FV2_OUT" "estimated_savings_percent is not a key in the contract"
   assert_contains "findings-validate: catches the wrong type for a cost" \
     "$FV2_OUT" "monthly_cost_estimate must be a number or null"
+  assert_contains "findings-validate: catches the wrong type for reversible" \
+    "$FV2_OUT" "reversible must be true or false"
+
+  # 32. An unknown top-level key is caught, and top-level problems are not
+  # reported one at a time.
+  FV3="$(mktemp -d)"
+  printf '{"schema_version":1,"findings":[],"extra":true}' > "$FV3/tl.json"
+  FV3_RC=0
+  FV3_OUT=$(bash "$VALIDATE" "$FV3/tl.json" 2>&1) || FV3_RC=$?
+  assert_eq "findings-validate: a bad top level exits 1" "$FV3_RC" "1"
+  assert_contains "findings-validate: catches an unknown top-level key" \
+    "$FV3_OUT" "top-level key extra is not in the contract"
+  assert_contains "findings-validate: reports every top-level problem, not just the first" \
+    "$FV3_OUT" "schema_version must be a string"
+  rm -rf "$FV3"
+
+  # 33. A numeric cost is accepted. The number is computed at run time and the
+  # file is temporary, because CONTRIBUTING.md forbids writing a monthly cost
+  # figure into any committed script, reference, example or fixture.
+  FV4="$(mktemp -d)"
+  FV4_N=$(( (RANDOM % 900) + 100 ))
+  cat > "$FV4/numeric.json" <<JSON
+{
+  "schema_version": "1.0",
+  "findings": [
+    {
+      "id": "numeric-type-case",
+      "resource": "vol-EXAMPLE",
+      "region": "<region>",
+      "service": "Amazon EC2",
+      "monthly_cost_estimate": $FV4_N,
+      "evidence": "aws ec2 describe-volumes --region <region>",
+      "action": "OPTIMIZE",
+      "reversible": true,
+      "confidence": "Low"
+    }
+  ]
+}
+JSON
+  FV4_RC=0
+  FV4_OUT=$(bash "$VALIDATE" "$FV4/numeric.json" 2>&1) || FV4_RC=$?
+  assert_eq "findings-validate: accepts a numeric cost as well as null" "$FV4_RC" "0"
+  assert_contains "findings-validate: counts the numeric-case finding" "$FV4_OUT" "1 finding(s)"
+  rm -rf "$FV4"
 else
   printf '[SKIP] findings-validate cases: jq is not installed on this machine\n'
 fi

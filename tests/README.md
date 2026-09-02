@@ -10,7 +10,7 @@ network call is made. The suite exercises the pure-bash helpers in
 bash tests/smoke.sh
 ```
 
-Expected output: `Results: 56 passed, 0 failed` and exit code `0`.
+Expected output: `Results: 62 passed, 0 failed` and exit code `0`.
 
 ## What is tested
 
@@ -37,10 +37,14 @@ Expected output: `Results: 56 passed, 0 failed` and exit code `0`.
 
 - `findings-validate.sh`: the good fixture passes, the deliberately broken one fails with every
   planted problem named (missing required key, value outside an enum, wrong type, unknown key,
-  duplicate id), and a machine without `jq` gets exit 2 rather than a false pass
+  duplicate id, wrong boolean type, unknown top-level key), a machine without `jq` gets exit 2
+  rather than a false pass, and a numeric cost is accepted as well as `null`
 
 Fixtures live in `tests/fixtures/`. They use placeholders such as `vol-EXAMPLE` and `<region>`, so
-no real account id, ARN, or resource id is committed.
+no real account id, ARN, or resource id is committed, and every cost field is `null`, because
+`CONTRIBUTING.md` forbids writing a monthly cost figure into any script, reference, example or
+fixture. The case that exercises the numeric branch builds its file at run time from a computed
+value, so no number is committed either.
 
 `doctor.sh` is run with a replaced `PATH` pointing at a temporary directory that holds a fake `aws`
 plus symlinks to the few real binaries the script needs. That makes "jq is absent" deterministic

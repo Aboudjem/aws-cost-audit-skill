@@ -6,7 +6,7 @@
       "resource": "vol-EXAMPLE",
       "region": "<region>",
       "service": "Amazon EC2",
-      "monthly_cost_estimate": 8.0,
+      "monthly_cost_estimate": null,
       "action": "SAFE-TO-DELETE",
       "reversible": true,
       "confidence": "High"
@@ -16,7 +16,7 @@
       "resource": "vol-EXAMPLE-2",
       "region": "<region>",
       "service": "Amazon EC2",
-      "monthly_cost_estimate": "eight dollars",
+      "monthly_cost_estimate": "not a number",
       "evidence": "aws ec2 describe-volumes --region <region>",
       "action": "SAFE-TO-DELETE",
       "reversible": "yes",

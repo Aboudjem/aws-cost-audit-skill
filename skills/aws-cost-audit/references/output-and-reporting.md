@@ -90,15 +90,16 @@ so a run may also emit `findings.json`. Treat it as the **machine-checkable core
 above, not a replacement for it. The prose contract still governs the `current -> after -> saved`
 math trail and the price source; the JSON pins the fields a tool can check.
 
-JSON, never YAML. This skill is bash plus `jq`, with no YAML parser anywhere, and adding one would
-break the promise that it shells out to a CLI you already have.
+JSON, never YAML. The runtime here is bash plus `jq`, with no YAML parser in it, and adding one
+would break the promise that the skill shells out to a CLI you already have. (CI runs Python, but
+CI is not the runtime.)
 
 Shape: an object with `schema_version` (string) and `findings` (array). Every finding carries these
 nine keys.
 
 | key | type | meaning |
 |---|---|---|
-| `id` | string | stable slug, unique within the file, so two runs can be diffed |
+| `id` | string | unique within the file. Keep it stable across runs so two audits can be diffed; the validator can only check uniqueness, not stability. |
 | `resource` | string | the resource identifier, or a placeholder such as `vol-EXAMPLE` |
 | `region` | string | the region the resource lives in |
 | `service` | string | the AWS service it belongs to |
@@ -119,9 +120,15 @@ Check a file before you publish it:
 skills/aws-cost-audit/scripts/findings-validate.sh cost-audit-out/findings.json
 ```
 
-Exit `0` means the file satisfies the contract, `1` prints one line per problem, and `2` means the
-file could not be checked at all (unreadable, or `jq` is not installed). A file is never reported
-valid unchecked.
+Exit `0` means the file satisfies the contract and prints the finding count. Exit `1` prints one
+`[FAIL]` line per problem, including every top-level problem rather than only the first. Exit `2`
+prints `[ERROR]` and means the file could not be checked at all: no file, not readable as JSON, or
+`jq` is not installed. A file is never reported valid unchecked.
+
+Nothing in this repository, fixtures included, carries a monthly cost figure. `CONTRIBUTING.md`
+forbids writing a unit price, a monthly cost, or a saved amount into the skill, a script, a
+reference or an example, so the committed fixtures use `null` and the test that exercises the
+numeric branch builds its file at run time from a computed value.
 
 ## Artifact 2: the report skeleton
 

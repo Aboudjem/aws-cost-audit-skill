@@ -13,9 +13,11 @@
 # type-checked when present.
 #
 # Exit codes:
-#   0  the file satisfies the contract
-#   1  the file does not; every problem is printed
-#   2  the file could not be checked (unreadable, or jq is not installed)
+#   0  the file satisfies the contract; prints one [OK] line with the count
+#   1  it does not; prints one [FAIL] line per problem, including every
+#      top-level problem, not only the first
+#   2  it could not be checked at all (no file, not JSON-readable, or jq is not
+#      installed); prints [ERROR]. Never a pass.
 #
 # Read-only. Changes nothing, has no --apply flag.
 set -euo pipefail
@@ -107,13 +109,16 @@ PROBLEMS="$(jq -r '
     end;
 
   if type != "object" then ["top level must be a JSON object, got \(type)"]
-  elif (.schema_version | type) != "string" then ["schema_version must be a string"]
-  elif (.findings | type) != "array" then ["findings must be an array"]
   else
-    ([.findings | to_entries[]
-      | check_finding("findings[\(.key)]"; .value)] | add // [])
-    + ([.findings[]? | select(type == "object") | .id | select(type == "string")]
-       | group_by(.) | map(select(length > 1)) | map("duplicate id: \(.[0])"))
+    (if (.schema_version | type) != "string" then ["schema_version must be a string"] else [] end)
+    + ((keys - ["schema_version","findings"]) | map("top-level key \(.) is not in the contract"))
+    + (if (.findings | type) != "array" then ["findings must be an array"]
+       else
+         ([.findings | to_entries[]
+           | check_finding("findings[\(.key)]"; .value)] | add // [])
+         + ([.findings[]? | select(type == "object") | .id | select(type == "string")]
+            | group_by(.) | map(select(length > 1)) | map("duplicate id: \(.[0])"))
+       end)
   end
   | .[]
 ' "$FILE")"
