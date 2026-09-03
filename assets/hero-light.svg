@@ -1,110 +1,128 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" fill="none" role="img" aria-label="aws-cost-audit: a savings plan you can check. Every number checked against live AWS pricing. Nothing deleted without your say-so.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" fill="none" role="img"
+     aria-label="aws-cost-audit, an AWS bill audit skill: a savings plan you can check">
+  <title>aws-cost-audit</title>
   <defs>
-    <linearGradient id="a-brand" x1="0" y1="0" x2="1" y2="0.25" gradientUnits="objectBoundingBox">
-      <stop offset="0%" stop-color="#AB6600"/>
-      <stop offset="100%" stop-color="#EB0054"/>
-      <animateTransform attributeName="gradientTransform" type="translate"
-        values="-0.12 0; 0.12 0; -0.12 0" dur="18s" repeatCount="indefinite"/>
+    <linearGradient id="aw-ground" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="55%" stop-color="#F7F8FB"/>
+      <stop offset="100%" stop-color="#EEF1F7"/>
     </linearGradient>
-
-    <linearGradient id="a-rule" gradientUnits="userSpaceOnUse" x1="568" y1="112" x2="568" y2="292">
-      <stop offset="0%" stop-color="#AB6600" stop-opacity="0"/>
-      <stop offset="45%" stop-color="#AB6600" stop-opacity="0.7"/>
-      <stop offset="100%" stop-color="#EB0054" stop-opacity="0"/>
+    <radialGradient id="aw-bloomA" cx="0.15" cy="0.13" r="0.44">
+      <stop offset="0%" stop-color="#8C5400" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#8C5400" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="aw-bloomB" cx="0.88" cy="0.85" r="0.50">
+      <stop offset="0%" stop-color="#C10045" stop-opacity="0.09"/>
+      <stop offset="100%" stop-color="#C10045" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="aw-bloomC" cx="0.52" cy="0.04" r="0.36">
+      <stop offset="0%" stop-color="#8A2CD1" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#8A2CD1" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="aw-wash" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%"   stop-color="#8C5400" stop-opacity="0.07"/>
+      <stop offset="42%"  stop-color="#C10045" stop-opacity="0.043"/>
+      <stop offset="76%"  stop-color="#8A2CD1" stop-opacity="0.016"/>
+      <stop offset="100%" stop-color="#8A2CD1" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="aw-frame"><rect width="1200" height="400"/></clipPath>
+    <linearGradient id="aw-rule" gradientUnits="userSpaceOnUse" x1="500" y1="100" x2="500" y2="300">
+      <stop offset="0%"   stop-color="#8C5400" stop-opacity="0"/>
+      <stop offset="45%"  stop-color="#8C5400" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#C10045" stop-opacity="0"/>
     </linearGradient>
-
-    <linearGradient id="a-horizon" gradientUnits="userSpaceOnUse" x1="64" y1="332" x2="1136" y2="332">
-      <stop offset="0%" stop-color="#AB6600" stop-opacity="0"/>
-      <stop offset="22%" stop-color="#AB6600" stop-opacity="0.5"/>
-      <stop offset="55%" stop-color="#A836FF" stop-opacity="0.6"/>
-      <stop offset="82%" stop-color="#EB0054" stop-opacity="0.5"/>
-      <stop offset="100%" stop-color="#EB0054" stop-opacity="0"/>
+    <linearGradient id="aw-ink" gradientUnits="userSpaceOnUse" x1="40" y1="76" x2="216" y2="196">
+      <stop class="awk1" offset="0%"   stop-color="#8C5400"/>
+      <stop class="awk2" offset="52%"  stop-color="#8C5400"/>
+      <stop class="awk3" offset="100%" stop-color="#C10045"/>
     </linearGradient>
-
-    <linearGradient id="a-gridfade" gradientUnits="userSpaceOnUse" x1="0" y1="332" x2="0" y2="376">
-      <stop offset="0%" stop-color="#AB6600" stop-opacity="0.5"/>
-      <stop offset="55%" stop-color="#A836FF" stop-opacity="0.25"/>
-      <stop offset="100%" stop-color="#EB0054" stop-opacity="0.05"/>
+    <clipPath id="aw-b1"><rect class="awb1" x="44" y="196" width="66" height="14"/></clipPath>
+    <clipPath id="aw-b2"><rect class="awb2" x="44" y="216" width="48" height="14"/></clipPath>
+    <linearGradient id="aw-word" x1="0" y1="0" x2="1" y2="0.25">
+      <stop class="awk1" offset="0%"   stop-color="#8C5400"/>
+      <stop class="awk2" offset="46%"  stop-color="#8C5400"/>
+      <stop class="awk3" offset="100%" stop-color="#C10045"/>
     </linearGradient>
-
-    <clipPath id="a-gridclip">
-      <rect x="24" y="332" width="1152" height="44"/>
-    </clipPath>
-
   </defs>
 
   <style>
     .disp { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
     .mono { font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; }
-    .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 4.5px; fill: #AB6600; }
-    .head    { font-size: 34px; font-weight: 700; fill: #07070C; letter-spacing: -0.5px; }
-    .sub     { font-size: 16px; font-weight: 500; fill: #1A2233; }
+    .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 4.5px; fill: #8C5400; }
+    .head    { font-size: 34px; font-weight: 700; fill: #1A2233; letter-spacing: -0.5px; }
+    .sub     { font-size: 16.5px; font-weight: 500; fill: #48546B; }
     .tag     { font-size: 11.5px; letter-spacing: 1.6px; fill: #48546B; }
-
-    @keyframes a-flow { to { stroke-dashoffset: -240; } }
-    .flowline { animation: a-flow 14s linear infinite; }
-
-    @keyframes a-pip { 0%,100% { opacity: 0.45; } 50% { opacity: 1; } }
-    .d1 { animation: a-pip 5s ease-in-out infinite 0s; }
-    .d2 { animation: a-pip 5s ease-in-out infinite 0.35s; }
-    .d3 { animation: a-pip 5s ease-in-out infinite 0.7s; }
-    .d4 { animation: a-pip 5s ease-in-out infinite 1.05s; }
-    .d5 { animation: a-pip 5s ease-in-out infinite 1.4s; }
-
-    @media (prefers-reduced-motion: reduce) {
-      * { animation: none !important; }
-    }
+    .chip    { font-size: 11.5px; letter-spacing: 1.2px; fill: #48546B; }
+    @keyframes aw-breathe { 0%,100% { opacity:0.72; } 50% { opacity:1; } }
+    .awbloom { animation: aw-breathe 11s ease-in-out infinite; }
+    @keyframes aw-sweep { 0% { transform: translateX(-360px); } 100% { transform: translateX(1560px); } }
+    .awwash { animation: aw-sweep 17s cubic-bezier(.5,0,.5,1) infinite; }
+    @keyframes aw-pip { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+    .awp1 { animation: aw-pip 5s ease-in-out infinite 0.0s; }
+    .awp2 { animation: aw-pip 5s ease-in-out infinite 0.35s; }
+    .awp3 { animation: aw-pip 5s ease-in-out infinite 0.7s; }
+    .awp4 { animation: aw-pip 5s ease-in-out infinite 1.05s; }
+    .awp5 { animation: aw-pip 5s ease-in-out infinite 1.4s; }
+    .awp6 { animation: aw-pip 5s ease-in-out infinite 1.75s; }
+    @keyframes aw-draw { 0% { stroke-dashoffset: 1000; } 40%,88% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 1000; } }
+    .awcurve { stroke-dasharray: 1000; animation: aw-draw 7s linear infinite; }
+    @keyframes aw-b1 { 0%,40% { width: 66px; } 88%,100% { width: 22px; } }
+    @keyframes aw-b2 { 0%,46% { width: 48px; } 88%,100% { width: 14px; } }
+    .awb1 { animation: aw-b1 7s steps(6, end) infinite; }
+    .awb2 { animation: aw-b2 7s steps(6, end) infinite; }
+    @keyframes aw-coin { 0%,100% { opacity: 0.55; } 50% { opacity: 1; } }
+    .awcoin { animation: aw-coin 7s ease-in-out infinite; }
+    @keyframes aw-k1 { 0%,100% { stop-color:#8C5400; } 50% { stop-color:#8C5400; } }
+    @keyframes aw-k2 { 0%,100% { stop-color:#8C5400; } 50% { stop-color:#C10045; } }
+    @keyframes aw-k3 { 0%,100% { stop-color:#C10045; } 50% { stop-color:#8A2CD1; } }
+    .awk1 { animation: aw-k1 15s ease-in-out infinite; }
+    .awk2 { animation: aw-k2 15s ease-in-out infinite; }
+    .awk3 { animation: aw-k3 15s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
   </style>
 
-  <rect width="1200" height="400" fill="#F7F8FB"/>
-  <rect x="24" y="24" width="1152" height="352" rx="20" fill="#FFFFFF" stroke="#D8DEE9" stroke-width="1"/>
-
-  <!-- perspective grid below the horizon, off by default -->
-  <g id="grid" clip-path="url(#a-gridclip)" opacity="0">
-    <g stroke="url(#a-gridfade)" stroke-width="1" fill="none">
-      <path d="M600 332 L-1180 376"/><path d="M600 332 L-560 376"/><path d="M600 332 L-190 376"/>
-      <path d="M600 332 L40 376"/>   <path d="M600 332 L200 376"/>  <path d="M600 332 L320 376"/>
-      <path d="M600 332 L415 376"/>  <path d="M600 332 L490 376"/>  <path d="M600 332 L548 376"/>
-      <path d="M600 332 L600 376"/>
-      <path d="M600 332 L652 376"/>  <path d="M600 332 L710 376"/>  <path d="M600 332 L785 376"/>
-      <path d="M600 332 L880 376"/>  <path d="M600 332 L1000 376"/> <path d="M600 332 L1160 376"/>
-      <path d="M600 332 L1390 376"/> <path d="M600 332 L1760 376"/> <path d="M600 332 L2380 376"/>
-    </g>
-    <g stroke="url(#a-gridfade)" stroke-width="1" fill="none">
-      <line x1="24" y1="335" x2="1176" y2="335"/>
-      <line x1="24" y1="339" x2="1176" y2="339"/>
-      <line x1="24" y1="344" x2="1176" y2="344"/>
-      <line x1="24" y1="351" x2="1176" y2="351"/>
-      <line x1="24" y1="360" x2="1176" y2="360"/>
-      <line x1="24" y1="372" x2="1176" y2="372"/>
+  <rect width="1200" height="400" fill="url(#aw-ground)"/>
+  <g class="awbloom">
+    <rect width="1200" height="400" fill="url(#aw-bloomA)"/>
+    <rect width="1200" height="400" fill="url(#aw-bloomB)"/>
+    <rect width="1200" height="400" fill="url(#aw-bloomC)"/>
+  </g>
+  <g clip-path="url(#aw-frame)">
+    <g transform="translate(0,196)">
+      <ellipse class="awwash" cx="0" cy="0" rx="430" ry="300" fill="url(#aw-wash)"/>
     </g>
   </g>
-
-  <g opacity="0.95">
-    <line x1="64" y1="332" x2="1136" y2="332" stroke="url(#a-horizon)" stroke-width="1.25"/>
-    <line class="flowline" x1="64" y1="332" x2="1136" y2="332" stroke="url(#a-horizon)"
-          stroke-width="1.25" stroke-dasharray="3 9" opacity="0.85"/>
+  <g transform="translate(66,56) scale(0.5781)">
+  <g opacity="0.26">
+    <circle cx="176" cy="172" r="36" fill="none" stroke="url(#aw-ink)" stroke-width="11"/>
+    <path d="M44 84 C92 90, 104 138, 140 158 C168 174, 190 180, 210 184" fill="none" stroke="url(#aw-ink)" stroke-width="11" stroke-linecap="round"/>
   </g>
-
-  <text class="disp" x="64" y="230" font-size="68" font-weight="800" letter-spacing="-2" fill="url(#a-brand)">aws-cost-audit</text>
-
-  <line x1="568" y1="112" x2="568" y2="292" stroke="url(#a-rule)" stroke-width="1.5"/>
-
-  <g transform="translate(608,0)">
-    <text class="mono eyebrow" x="0" y="140">AWS BILL AUDIT SKILL</text>
-    <text class="disp head" x="0" y="192">A savings plan you can check</text>
-    <text class="disp sub" x="0" y="226">Every number checked against live AWS pricing.</text>
-    <text class="disp sub" x="0" y="250">Nothing deleted without your say-so.</text>
-
-    <g transform="translate(0,288)">
-      <g class="d1"><circle cx="0" cy="0" r="4.5" fill="#AB6600"/></g>
-      <g class="d2"><circle cx="22" cy="0" r="4.5" fill="#EB0054"/></g>
-      <g class="d3"><circle cx="44" cy="0" r="4.5" fill="#A836FF"/></g>
-      <g class="d4"><circle cx="66" cy="0" r="4.5" fill="#725BFF"/></g>
-      <g class="d5"><circle cx="88" cy="0" r="4.5" fill="#0B6DFF"/></g>
-      <text class="mono tag" x="114" y="4">EVIDENCE FIRST</text>
-    </g>
+  <g class="awcoin">
+    <circle cx="176" cy="172" r="36" fill="none" stroke="url(#aw-ink)" stroke-width="11"/>
+    <path d="M176 150 V194 M164 160 H188" stroke="url(#aw-ink)" stroke-width="8"
+          stroke-linecap="round" fill="none"/>
   </g>
-
-  <text class="mono tag" x="64" y="318">read-only by default  ·  live pricing  ·  no deletes without confirm</text>
+  <g>
+    <path class="awcurve" d="M44 84 C92 90, 104 138, 140 158 C168 174, 190 180, 210 184" pathLength="1000" fill="none"
+          stroke="url(#aw-ink)" stroke-width="11" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(210,184)"><g><circle r="6" fill="#8C5400"/><circle r="6" fill="none" stroke="#FFFFFF" stroke-width="2.4"/></g></g>
+  <g fill="url(#aw-ink)" opacity="0.95">
+    <g clip-path="url(#aw-b1)"><rect x="44" y="196" width="66" height="14" rx="7"/></g>
+    <g clip-path="url(#aw-b2)"><rect x="44" y="216" width="48" height="14" rx="7"/></g>
+  </g>
+  </g>
+  <g>
+    <text class="disp" x="76" y="286" font-size="55" font-weight="800"
+          letter-spacing="-1.9" fill="url(#aw-word)">aws-cost-audit</text>
+  </g>
+  <line x1="500" y1="100" x2="500" y2="300" stroke="url(#aw-rule)" stroke-width="1.5"/>
+  <g transform="translate(544,0)">
+    <text class="mono eyebrow" x="0" y="134">AWS BILL AUDIT SKILL</text>
+    <text class="disp head" x="0" y="186">A savings plan you can check</text>
+    <text class="disp sub" x="0" y="222">Every number checked against live AWS pricing.</text>
+    <text class="disp sub" x="0" y="249">Nothing deleted without your say-so.</text>
+    <g transform="translate(0,292)"><g class="awp1"><circle cx="0" cy="0" r="4.5" fill="#8C5400"/></g><g class="awp2"><circle cx="22" cy="0" r="4.5" fill="#8C5400"/></g><g class="awp3"><circle cx="44" cy="0" r="4.5" fill="#8C5400"/></g><g class="awp4"><circle cx="66" cy="0" r="4.5" fill="#8C5400"/></g><g class="awp5"><circle cx="88" cy="0" r="4.5" fill="#8C5400"/></g><g class="awp6"><circle cx="110" cy="0" r="4.5" fill="#8C5400"/></g><text class="mono tag" x="146" y="4">EVIDENCE FIRST</text></g>
+  </g>
+  <text class="mono tag" x="76" y="352">read-only by default  &#183;  live pricing  &#183;  no deletes without confirm</text>
 </svg>

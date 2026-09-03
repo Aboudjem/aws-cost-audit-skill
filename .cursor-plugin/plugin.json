@@ -1,6 +1,6 @@
 {
   "name": "aws-cost-audit",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Audit a live AWS account end-to-end: attribute every dollar, find idle/orphaned resources, rightsize, check Savings Plans/RI coverage, and produce an evidence-backed savings plan with confidence levels and reversible, gated actions. Verifies prices live; hardcodes none.",
   "author": {
     "name": "Adam Boudjemaa",

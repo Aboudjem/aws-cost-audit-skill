@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none" role="img"
+     aria-label="aws-cost-audit: a cost curve bends down over a coin while the figures beneath it count down">
+  <title>aws-cost-audit</title>
+  <desc>Animated dark-mode logo mark. The whole mark is drawn as a muted track; one bright
+  element travels over it, so no frame is an incomplete logo and the reduced-motion resting frame
+  is the finished mark.</desc>
+  <defs>
+    <linearGradient id="aw-plate" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#1C1410"/>
+      <stop offset="58%" stop-color="#0A0F1C"/>
+      <stop offset="100%" stop-color="#080C18"/>
+    </linearGradient>
+    <radialGradient id="aw-bloomA" cx="0.24" cy="0.24" r="0.68">
+      <stop offset="0%" stop-color="#FFB341" stop-opacity="0.42"/>
+      <stop offset="100%" stop-color="#FFB341" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="aw-bloomB" cx="0.80" cy="0.82" r="0.64">
+      <stop offset="0%" stop-color="#FF4D8D" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#FF4D8D" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="aw-ink" gradientUnits="userSpaceOnUse" x1="40" y1="76" x2="216" y2="196">
+      <stop class="awk1" offset="0%"   stop-color="#FFD08A"/>
+      <stop class="awk2" offset="52%"  stop-color="#FFB341"/>
+      <stop class="awk3" offset="100%" stop-color="#FF4D8D"/>
+    </linearGradient>
+    <filter id="aw-glow" x="-45%" y="-45%" width="190%" height="190%">
+      <feGaussianBlur stdDeviation="6.0" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="aw-glow-sm" x="-150%" y="-150%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="3.6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="aw-b1"><rect class="awb1" x="44" y="196" width="66" height="14"/></clipPath>
+    <clipPath id="aw-b2"><rect class="awb2" x="44" y="216" width="48" height="14"/></clipPath>
+  </defs>
+
+  <style>
+    @keyframes aw-breathe { 0%,100% { opacity:0.62; } 50% { opacity:1; } }
+    .awbloom { animation: aw-breathe 9s ease-in-out infinite; }
+    @keyframes aw-draw { 0% { stroke-dashoffset: 1000; } 40%,88% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 1000; } }
+    .awcurve { stroke-dasharray: 1000; animation: aw-draw 7s linear infinite; }
+    @keyframes aw-b1 { 0%,40% { width: 66px; } 88%,100% { width: 22px; } }
+    @keyframes aw-b2 { 0%,46% { width: 48px; } 88%,100% { width: 14px; } }
+    .awb1 { animation: aw-b1 7s steps(6, end) infinite; }
+    .awb2 { animation: aw-b2 7s steps(6, end) infinite; }
+    @keyframes aw-coin { 0%,100% { opacity: 0.55; } 50% { opacity: 1; } }
+    .awcoin { animation: aw-coin 7s ease-in-out infinite; }
+    @keyframes aw-k1 { 0%,100% { stop-color:#FFD08A; } 50% { stop-color:#FFB341; } }
+    @keyframes aw-k2 { 0%,100% { stop-color:#FFB341; } 50% { stop-color:#FF9A4D; } }
+    @keyframes aw-k3 { 0%,100% { stop-color:#FF4D8D; } 50% { stop-color:#FF7A3D; } }
+    .awk1 { animation: aw-k1 15s ease-in-out infinite; }
+    .awk2 { animation: aw-k2 15s ease-in-out infinite; }
+    .awk3 { animation: aw-k3 15s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  </style>
+
+  <rect width="256" height="256" rx="56" fill="url(#aw-plate)"/>
+  <g class="awbloom">
+    <rect width="256" height="256" rx="56" fill="url(#aw-bloomA)"/>
+    <rect width="256" height="256" rx="56" fill="url(#aw-bloomB)"/>
+  </g>
+  <rect x="0.9" y="0.9" width="254.2" height="254.2" rx="55.2" fill="none"
+        stroke="#22314D" stroke-width="1.8"/>
+
+  <g opacity="0.32">
+    <circle cx="176" cy="172" r="36" fill="none" stroke="url(#aw-ink)" stroke-width="11"/>
+    <path d="M44 84 C92 90, 104 138, 140 158 C168 174, 190 180, 210 184" fill="none" stroke="url(#aw-ink)" stroke-width="11" stroke-linecap="round"/>
+  </g>
+  <g class="awcoin" filter="url(#aw-glow)">
+    <circle cx="176" cy="172" r="36" fill="none" stroke="url(#aw-ink)" stroke-width="11"/>
+    <path d="M176 150 V194 M164 160 H188" stroke="url(#aw-ink)" stroke-width="8"
+          stroke-linecap="round" fill="none"/>
+  </g>
+  <g filter="url(#aw-glow)">
+    <path class="awcurve" d="M44 84 C92 90, 104 138, 140 158 C168 174, 190 180, 210 184" pathLength="1000" fill="none"
+          stroke="url(#aw-ink)" stroke-width="11" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(210,184)"><g filter="url(#aw-glow-sm)"><circle r="6" fill="#FFFFFF"/></g></g>
+  <g fill="url(#aw-ink)" opacity="0.95">
+    <g clip-path="url(#aw-b1)"><rect x="44" y="196" width="66" height="14" rx="7"/></g>
+    <g clip-path="url(#aw-b2)"><rect x="44" y="216" width="48" height="14" rx="7"/></g>
+  </g>
+</svg>

@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" fill="none" role="img" aria-label="How aws-cost-audit works: 1 re-baseline live spend from Cost Explorer, 2 hunt waste across every region, 3 ship an evidence-backed savings plan. Every action is gated, reversible, and you confirm.">
   <defs>
     <linearGradient id="a-ground" x1="0" y1="0" x2="0.35" y2="1">
-      <stop offset="0%" stop-color="#0A0F1C"/>
-      <stop offset="60%" stop-color="#080C16"/>
-      <stop offset="100%" stop-color="#07070C"/>
+      <stop offset="0%" stop-color="#1C1410"/>
+      <stop offset="60%" stop-color="#0A0F1C"/>
+      <stop offset="100%" stop-color="#080C18"/>
     </linearGradient>
 
     <linearGradient id="a-flow" gradientUnits="userSpaceOnUse" x1="216" y1="100" x2="984" y2="100">
@@ -16,6 +16,14 @@
       <feGaussianBlur stdDeviation="3.2" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
+      <radialGradient id="v2-bloomA" cx="0.18" cy="0.22" r="0.72">
+      <stop offset="0%" stop-color="#FFB341" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#FFB341" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="v2-bloomB" cx="0.84" cy="0.86" r="0.68">
+      <stop offset="0%" stop-color="#FF4D8D" stop-opacity="0.11"/>
+      <stop offset="100%" stop-color="#FF4D8D" stop-opacity="0"/>
+    </radialGradient>
   </defs>
 
   <style>
@@ -23,11 +31,11 @@
     .mono { font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; }
     .num   { fill: #07070C; font-size: 17px; font-weight: 700; }
     .head  { fill: #F2F6FF; font-size: 19px; font-weight: 700; letter-spacing: -0.2px; }
-    .body  { fill: #B6C2DA; font-size: 13.5px; font-weight: 500; }
+    .body  { fill: #C2CDE4; font-size: 13.5px; font-weight: 500; }
     .eyebr { font-size: 11.5px; font-weight: 600; letter-spacing: 1.6px; }
-    .kicker { font-size: 13px; font-weight: 600; letter-spacing: 4.5px; fill: #8494B0; }
-    .badge { fill: #B6C2DA; font-size: 12.5px; font-weight: 600; letter-spacing: 0.8px; }
-    .tag   { font-size: 11.5px; letter-spacing: 1.6px; fill: #8494B0; }
+    .kicker { font-size: 13px; font-weight: 600; letter-spacing: 4.5px; fill: #93A2BE; }
+    .badge { fill: #C2CDE4; font-size: 12.5px; font-weight: 600; letter-spacing: 0.8px; }
+    .tag   { font-size: 11.5px; letter-spacing: 1.6px; fill: #93A2BE; }
 
     @keyframes a-flowdash { to { stroke-dashoffset: -240; } }
     .flowline { animation: a-flowdash 14s linear infinite; }
@@ -48,9 +56,12 @@
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; }
     }
+      @keyframes v2-breathe { 0%,100% { opacity:0.66; } 50% { opacity:1; } }
+    .v2bloom { animation: v2-breathe 11s ease-in-out infinite; }
   </style>
 
   <rect width="1200" height="300" fill="url(#a-ground)"/>
+  <g class="v2bloom"><rect width="1200" height="300" fill="url(#v2-bloomA)"/><rect width="1200" height="300" fill="url(#v2-bloomB)"/></g>
   <rect x="0.5" y="0.5" width="1199" height="299" fill="none" stroke="#1E2A42" stroke-width="1"/>
 
   <!-- kicker -->

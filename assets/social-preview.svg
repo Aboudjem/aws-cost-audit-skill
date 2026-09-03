@@ -1,58 +1,140 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" fill="none" role="img" aria-label="aws-cost-audit: a savings plan you can check. Every number checked against live AWS pricing. Nothing deleted without your say-so. github.com/Aboudjem/aws-cost-audit-skill">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" fill="none" role="img"
+     aria-label="aws-cost-audit: A savings plan you can check">
+  <title>aws-cost-audit</title>
   <defs>
-    <linearGradient id="a-ground" x1="0" y1="0" x2="0.35" y2="1">
-      <stop offset="0%" stop-color="#0A0F1C"/>
-      <stop offset="60%" stop-color="#080C16"/>
-      <stop offset="100%" stop-color="#07070C"/>
+    <linearGradient id="aw-ground" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#1C1410"/>
+      <stop offset="55%" stop-color="#0A0F1C"/>
+      <stop offset="100%" stop-color="#080C18"/>
     </linearGradient>
-
-    <radialGradient id="a-bloom" cx="0.5" cy="1" r="0.75">
-      <stop offset="0%" stop-color="#FF2D78" stop-opacity="0.30"/>
-      <stop offset="38%" stop-color="#7C3AED" stop-opacity="0.14"/>
-      <stop offset="100%" stop-color="#7C3AED" stop-opacity="0"/>
+    <radialGradient id="aw-bloomA" cx="0.15" cy="0.13" r="0.44">
+      <stop offset="0%" stop-color="#FFB341" stop-opacity="0.26"/>
+      <stop offset="100%" stop-color="#FFB341" stop-opacity="0"/>
     </radialGradient>
-
-    <linearGradient id="a-brand" x1="0" y1="0" x2="1" y2="0.25" gradientUnits="objectBoundingBox">
-      <stop offset="0%" stop-color="#FFB341"/>
-      <stop offset="100%" stop-color="#FF4D8D"/>
+    <radialGradient id="aw-bloomB" cx="0.88" cy="0.85" r="0.50">
+      <stop offset="0%" stop-color="#FF4D8D" stop-opacity="0.26"/>
+      <stop offset="100%" stop-color="#FF4D8D" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="aw-bloomC" cx="0.52" cy="0.04" r="0.36">
+      <stop offset="0%" stop-color="#C77DFF" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#C77DFF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="aw-wash" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%"   stop-color="#FFD08A" stop-opacity="0.20"/>
+      <stop offset="42%"  stop-color="#FF4D8D" stop-opacity="0.124"/>
+      <stop offset="76%"  stop-color="#C77DFF" stop-opacity="0.046"/>
+      <stop offset="100%" stop-color="#C77DFF" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="aw-frame"><rect width="1280" height="640"/></clipPath>
+    <linearGradient id="aw-ink" gradientUnits="userSpaceOnUse" x1="40" y1="76" x2="216" y2="196">
+      <stop class="awk1" offset="0%"   stop-color="#FFD08A"/>
+      <stop class="awk2" offset="52%"  stop-color="#FFB341"/>
+      <stop class="awk3" offset="100%" stop-color="#FF4D8D"/>
     </linearGradient>
-
-    <linearGradient id="a-horizon" gradientUnits="userSpaceOnUse" x1="80" y1="540" x2="1200" y2="540">
-      <stop offset="0%" stop-color="#FFB341" stop-opacity="0"/>
-      <stop offset="22%" stop-color="#FFB341" stop-opacity="0.5"/>
-      <stop offset="55%" stop-color="#C77DFF" stop-opacity="0.8"/>
-      <stop offset="82%" stop-color="#FF2D78" stop-opacity="0.6"/>
-      <stop offset="100%" stop-color="#FF2D78" stop-opacity="0"/>
+    <filter id="aw-glow" x="-45%" y="-45%" width="190%" height="190%">
+      <feGaussianBlur stdDeviation="6.0" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="aw-glow-sm" x="-150%" y="-150%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="3.6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="aw-b1"><rect class="awb1" x="44" y="196" width="66" height="14"/></clipPath>
+    <clipPath id="aw-b2"><rect class="awb2" x="44" y="216" width="48" height="14"/></clipPath>
+    <linearGradient id="aw-word" x1="0" y1="0" x2="1" y2="0.25">
+      <stop class="awk1" offset="0%"   stop-color="#FFD08A"/>
+      <stop class="awk2" offset="46%"  stop-color="#FFB341"/>
+      <stop class="awk3" offset="100%" stop-color="#FF4D8D"/>
     </linearGradient>
+    <linearGradient id="aw-sheen" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.62"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="aw-wordclip">
+      <text x="96" y="358" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+            font-size="93" font-weight="800" letter-spacing="-3.3">aws-cost-audit</text>
+    </clipPath>
   </defs>
 
   <style>
     .disp { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
     .mono { font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; }
-    .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 4.5px; fill: #FFB341; }
-    .head { font-size: 30px; font-weight: 700; fill: #F2F6FF; letter-spacing: -0.5px; }
-    .sub  { font-size: 20px; font-weight: 500; fill: #B6C2DA; }
-    .tag  { font-size: 14px; letter-spacing: 1.4px; fill: #8494B0; }
+    .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 4.5px; fill: #FFD08A; }
+    .head    { font-size: 38px; font-weight: 700; fill: #F2F6FF; letter-spacing: -0.5px; }
+    .sub     { font-size: 20px; font-weight: 500; fill: #C2CDE4; }
+    .tag     { font-size: 15px; letter-spacing: 1.6px; fill: #93A2BE; }
+    .chip    { font-size: 11.5px; letter-spacing: 1.2px; fill: #C2CDE4; }
+    .chipbig { font-size: 17px; letter-spacing: 1px; fill: #C2CDE4; }
+    .tagsm { font-size: 12.5px; letter-spacing: 1.6px; fill: #93A2BE; }
+    .eyebrow { font-size: 17px; letter-spacing: 5px; }
+    @keyframes aw-breathe { 0%,100% { opacity:0.62; } 50% { opacity:1; } }
+    .awbloom { animation: aw-breathe 11s ease-in-out infinite; }
+    @keyframes aw-sweep { 0% { transform: translateX(-360px); } 100% { transform: translateX(1640px); } }
+    .awwash { animation: aw-sweep 19s cubic-bezier(.5,0,.5,1) infinite; }
+    @keyframes aw-sheen { 0% { transform: translateX(0); } 15%,100% { transform: translateX(427px); } }
+    .awsheen { animation: aw-sheen 8.5s cubic-bezier(.4,0,.3,1) infinite; }
+    @keyframes aw-draw { 0% { stroke-dashoffset: 1000; } 40%,88% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 1000; } }
+    .awcurve { stroke-dasharray: 1000; animation: aw-draw 7s linear infinite; }
+    @keyframes aw-b1 { 0%,40% { width: 66px; } 88%,100% { width: 22px; } }
+    @keyframes aw-b2 { 0%,46% { width: 48px; } 88%,100% { width: 14px; } }
+    .awb1 { animation: aw-b1 7s steps(6, end) infinite; }
+    .awb2 { animation: aw-b2 7s steps(6, end) infinite; }
+    @keyframes aw-coin { 0%,100% { opacity: 0.55; } 50% { opacity: 1; } }
+    .awcoin { animation: aw-coin 7s ease-in-out infinite; }
+    @keyframes aw-k1 { 0%,100% { stop-color:#FFD08A; } 50% { stop-color:#FFB341; } }
+    @keyframes aw-k2 { 0%,100% { stop-color:#FFB341; } 50% { stop-color:#FF9A4D; } }
+    @keyframes aw-k3 { 0%,100% { stop-color:#FF4D8D; } 50% { stop-color:#FF7A3D; } }
+    .awk1 { animation: aw-k1 15s ease-in-out infinite; }
+    .awk2 { animation: aw-k2 15s ease-in-out infinite; }
+    .awk3 { animation: aw-k3 15s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
   </style>
 
-  <rect width="1280" height="640" fill="url(#a-ground)"/>
-  <ellipse cx="640" cy="648" rx="780" ry="280" fill="url(#a-bloom)" opacity="0.85"/>
-
-  <line x1="80" y1="540" x2="1200" y2="540" stroke="url(#a-horizon)" stroke-width="1.4" opacity="0.95"/>
-
-  <text class="mono eyebrow" x="96" y="238">AWS BILL AUDIT SKILL</text>
-  <text class="disp" x="96" y="330" font-size="76" font-weight="800" letter-spacing="-2.2" fill="url(#a-brand)">aws-cost-audit</text>
-  <text class="disp head" x="96" y="386">A savings plan you can check</text>
-  <text class="disp sub" x="96" y="428">Every number checked against live AWS pricing.</text>
-  <text class="disp sub" x="96" y="458">Nothing deleted without your say-so.</text>
-
-  <g transform="translate(96,500)">
-    <circle cx="0" cy="0" r="5" fill="#FFB341"/>
-    <circle cx="24" cy="0" r="5" fill="#FF4D8D"/>
-    <circle cx="48" cy="0" r="5" fill="#FF2D78"/>
-    <circle cx="72" cy="0" r="5" fill="#C77DFF"/>
-    <circle cx="96" cy="0" r="5" fill="#8E7BFF"/>
+  <rect width="1280" height="640" fill="url(#aw-ground)"/>
+  <g class="awbloom">
+    <rect width="1280" height="640" fill="url(#aw-bloomA)"/>
+    <rect width="1280" height="640" fill="url(#aw-bloomB)"/>
+    <rect width="1280" height="640" fill="url(#aw-bloomC)"/>
   </g>
-
-  <text class="mono tag" x="96" y="592">github.com/Aboudjem/aws-cost-audit-skill</text>
+  <g clip-path="url(#aw-frame)">
+    <g transform="translate(0,320)">
+      <ellipse class="awwash" cx="0" cy="0" rx="520" ry="380" fill="url(#aw-wash)"/>
+    </g>
+  </g>
+  <g transform="translate(872,126) scale(1.2188)">
+  <g opacity="0.32">
+    <circle cx="176" cy="172" r="36" fill="none" stroke="url(#aw-ink)" stroke-width="11"/>
+    <path d="M44 84 C92 90, 104 138, 140 158 C168 174, 190 180, 210 184" fill="none" stroke="url(#aw-ink)" stroke-width="11" stroke-linecap="round"/>
+  </g>
+  <g class="awcoin" filter="url(#aw-glow)">
+    <circle cx="176" cy="172" r="36" fill="none" stroke="url(#aw-ink)" stroke-width="11"/>
+    <path d="M176 150 V194 M164 160 H188" stroke="url(#aw-ink)" stroke-width="8"
+          stroke-linecap="round" fill="none"/>
+  </g>
+  <g filter="url(#aw-glow)">
+    <path class="awcurve" d="M44 84 C92 90, 104 138, 140 158 C168 174, 190 180, 210 184" pathLength="1000" fill="none"
+          stroke="url(#aw-ink)" stroke-width="11" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(210,184)"><g filter="url(#aw-glow-sm)"><circle r="6" fill="#FFFFFF"/></g></g>
+  <g fill="url(#aw-ink)" opacity="0.95">
+    <g clip-path="url(#aw-b1)"><rect x="44" y="196" width="66" height="14" rx="7"/></g>
+    <g clip-path="url(#aw-b2)"><rect x="44" y="216" width="48" height="14" rx="7"/></g>
+  </g>
+  </g>
+  <g filter="url(#aw-glow)">
+    <text class="disp" x="96" y="358" font-size="93" font-weight="800"
+          letter-spacing="-3.3" fill="url(#aw-word)">aws-cost-audit</text>
+  </g>
+  <g clip-path="url(#aw-wordclip)">
+    <g transform="skewX(-18)">
+      <rect class="awsheen" x="-6" y="265" width="43"
+            height="126" fill="url(#aw-sheen)" opacity="0.45"/>
+    </g>
+  </g>
+  <text class="mono eyebrow" x="96" y="258">AWS BILL AUDIT SKILL</text>
+  <text class="disp head" x="96" y="416">A savings plan you can check</text>
+  <text class="disp sub" x="96" y="458">Every number checked against live AWS pricing.</text>
+  <text class="disp sub" x="96" y="490">Nothing deleted without your say-so.</text>
+  <text class="mono tag" x="96" y="604">github.com/Aboudjem/aws-cost-audit-skill</text>
 </svg>
