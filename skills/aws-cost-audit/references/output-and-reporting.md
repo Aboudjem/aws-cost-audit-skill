@@ -70,7 +70,7 @@ not recognize.
 - Last used:       <date / metric, or "unknown, could not verify">
 - Why this verdict: <one line, the signal(s) that justify KEEP/OPTIMIZE/SAFE-TO-DELETE>
 - Evidence:        <the exact read-only command(s) / metric that proves the above>
-- Price source:    <Price List API filter used + the usage figure from Cost Explorer / CUR>
+- Price source:    <the price_lookups record(s): Price List service code, filters, SKU, unit price, fetch time; or the Cost Explorer command read> + the usage figure from Cost Explorer / CUR
 - Reversibility:   <exact rollback, or "irreversible, requires explicit owner sign-off">
 ```
 
@@ -88,7 +88,7 @@ Rules for filling it in:
 Everything above is written for a person. A second audit cannot diff against the first from prose,
 so a run may also emit `findings.json`. Treat it as the **machine-checkable core** of the contract
 above, not a replacement for it. The prose contract still governs the `current -> after -> saved`
-math trail and the price source; the JSON pins the fields a tool can check.
+math trail; the JSON pins the fields a tool can check, including where each price came from.
 
 JSON, never YAML. The runtime here is bash plus `jq`, with no YAML parser in it, and adding one
 would break the promise that the skill shells out to a CLI you already have. (CI runs Python, but
@@ -109,10 +109,67 @@ nine keys.
 | `reversible` | boolean | `false` means the action needs explicit owner sign-off |
 | `confidence` | string | `High`, `Medium`, or `Low`, per the rubric above |
 
-Eight further keys are optional. They carry the rest of the Artifact 1 block when a run chooses to
+Nine further keys are optional. They carry the rest of the Artifact 1 block when a run chooses to
 emit it, and they are type-checked when present: `after_monthly_cost` and `monthly_saving` (number
 or `null`), `purpose`, `owner`, `created_by`, `created_when`, `last_used`, and `price_source`
-(strings). Any other key is rejected, so the file cannot drift into a private dialect.
+(strings), and `price_lookups` (an array of records, below). Any other key is rejected, so the file
+cannot drift into a private dialect. The current `schema_version` is `"1.1"`.
+
+### The price rule: every dollar figure records its lookup
+
+A finding with a dollar figure must carry `price_lookups`. A dollar figure is
+`monthly_cost_estimate`, `after_monthly_cost` or `monthly_saving` set to a number. Without the
+array, `findings-validate.sh` rejects the file with:
+
+```
+[FAIL] findings[3] has a dollar figure but no price_lookups. Run verify-price.sh --record and add its output, or add a cost-explorer record. See references/output-and-reporting.md
+```
+
+`price_lookups` is a non-empty array, one record per price the figure uses. A gp2 to gp3 move has
+two: the gp2 price and the gp3 price. Each record has one of two methods.
+
+**`price-list`**: a unit price from the AWS Price List. `verify-price.sh --record` prints this record
+as it is, and refuses unless exactly one price matched:
+
+```bash
+skills/aws-cost-audit/scripts/verify-price.sh --service-code AmazonEC2 --region-code "$REGION" \
+  --filter productFamily=Storage --filter volumeApiName=gp3 --record
+```
+
+| key | type | meaning |
+|---|---|---|
+| `method` | string | `price-list` |
+| `service_code` | string | the Price List service code, for example `AmazonEC2` |
+| `region_code` | string | the region priced. When the finding's `region` is a region code, the two must match. |
+| `filters` | array of strings | the `FIELD=VALUE` filters used, without the `regionCode` one |
+| `sku` | string | the one SKU the lookup matched |
+| `unit` | string | the unit AWS returned, for example `GB-Mo` or `Hrs` |
+| `price_per_unit_usd` | number | the On-Demand USD price per unit AWS returned |
+| `fetched_at` | string | the UTC time of the lookup, `YYYY-MM-DDTHH:MM:SSZ` |
+
+**`cost-explorer`**: the labelled escape for a figure with no single unit price. Use it only then:
+
+- a tiered price, such as S3 Standard storage or data transfer, where one SKU has several rates;
+- a Savings Plan or Reserved Instance, sized from the AWS recommendation;
+- a resource deleted outright, whose saving is its whole billed cost, read per resource.
+
+| key | type | meaning |
+|---|---|---|
+| `method` | string | `cost-explorer` |
+| `command` | string | the `aws ce ...` command whose answer the figure came from |
+| `reason` | string | why no single unit price applies |
+| `fetched_at` | string | the UTC time of the read, `YYYY-MM-DDTHH:MM:SSZ` |
+
+Any other method, or any other key in a record, is rejected. `price_source` stays as a free-text
+note. It no longer counts as a price record.
+
+What the rule proves, and what it does not:
+
+- The validator checks each record's shape. It cannot know that AWS returned those numbers.
+- `verify-price.sh --recheck findings.json` re-runs every `price-list` record against the live
+  Price List and reports `[OK]` or `[CHANGED]` for each. It exits `1` if any price moved.
+- `cost-explorer` records are listed as `[SKIP]` by `--recheck`. Re-running them would be a billed
+  Cost Explorer request, so the skeptic pass re-runs the recorded command when it needs to.
 
 Check a file before you publish it:
 
@@ -125,11 +182,12 @@ Exit `0` means the file satisfies the contract and prints the finding count. Exi
 prints `[ERROR]` and means the file could not be checked at all: no file, not readable as JSON, or
 `jq` is not installed. A file is never reported valid unchecked.
 
-No skill file, script, reference or test fixture carries a monthly cost figure. The committed
-fixtures use `null`, and the tests that exercise the numeric branch build their file at run time
-from a computed value. The one exception is `examples/`: the sample report and
+No skill file, script, reference or test fixture carries a monthly cost figure or a unit price. The
+committed fixtures use `null`, and the tests that exercise the numeric branch build their file, and
+its lookup records, at run time from computed values. The one exception is `examples/`: the sample report and
 `examples/sample-findings.json` show invented figures for a fictional account, marked SAMPLE, so a
-reader can see a full report. None of them is an AWS price.
+reader can see a full report. Its lookup records are invented too, with `SKUEXAMPLE` SKUs. None of
+them is an AWS price.
 
 ## Artifact 2: the report skeleton
 

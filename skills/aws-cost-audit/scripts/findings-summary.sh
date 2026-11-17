@@ -37,7 +37,8 @@ Usage: findings-summary.sh [--verbose] <findings.json>
 Prints the top of the report from one findings file:
   line 1    the verdict: what you can save now, and the ceiling with sign-offs
   then      the three things to do first, largest verified saving first
-  then      the counts behind the verdict
+  then      the counts behind the verdict, and how many price records back
+            them (Price List lookups and Cost Explorer reads)
 
 The file is checked with findings-validate.sh first. A file that breaks the
 contract gets the validator's [FAIL] lines on stderr and no summary.
@@ -75,7 +76,7 @@ if [ "$VALIDATE_RC" -ne 0 ]; then
   exit "$VALIDATE_RC"
 fi
 
-jq -r '
+jq -r --arg file "$FILE" '
   def commas: if length > 3 then (.[:-3] | commas) + "," + .[-3:] else . end;
   def money:
     if . < 0 then "-" + (-. | money)
@@ -105,7 +106,10 @@ jq -r '
     + (if ($all | length) > 0 and ($known | length) == 0 then "saving unknown, could not verify"
        else "\($sum | money)/mo" end);
 
-  [.findings[] | . + {saving: saving}] as $all
+  [.findings[] | (.price_lookups // [])[] | .method] as $methods
+  | ($methods | map(select(. == "price-list")) | length) as $n_pl
+  | ($methods | map(select(. == "cost-explorer")) | length) as $n_ce
+  | [.findings[] | . + {saving: saving}] as $all
   | ($all | map(select(.action != "KEEP"))) as $act
   | ($all | map(select(.action == "KEEP"))) as $keep
   | ($act | map(select(.confidence == "High" and .reversible == true))) as $safe
@@ -151,6 +155,8 @@ jq -r '
     "- Needs sign-off: \(bucket($gated; $gated_known; $z - $y))",
     "- No verified cost: \(plural($unknown | length; "finding"; "findings")), in no total",
     "- Keep: \(plural($keep | length; "finding"; "findings"))",
+    "- Price sources: \(plural($n_pl; "Price List lookup"; "Price List lookups")), \(plural($n_ce; "Cost Explorer read"; "Cost Explorer reads"))",
+    (if $n_pl > 0 then "Re-check the Price List prices live: verify-price.sh --recheck \($file)" else empty end),
     "Every figure above comes from the findings file. Nothing in your account was changed."
 ' "$FILE"
 

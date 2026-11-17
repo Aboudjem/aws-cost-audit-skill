@@ -111,13 +111,28 @@ The same recipe generalizes, change service code + filters:
 - **NAT/endpoint/data-transfer:** `--service-code AmazonVPC` (or `AmazonEC2` for some transfer
   types); discover attributes with `describe-services`/`get-attribute-values` first.
 
+### 1.5 Record the lookup in the finding
+
+`scripts/verify-price.sh` wraps the call above. With `--record` it prints the lookup as one JSON
+record for the finding's `price_lookups` array (the contract is in `output-and-reporting.md`):
+
+```bash
+scripts/verify-price.sh --service-code AmazonEC2 --region-code "$REGION" \
+  --filter productFamily=Storage --filter volumeApiName=gp3 --record
+```
+
+The record holds the service code, the region, the filters, the one SKU, the unit, the USD price per
+unit and the UTC fetch time. `--record` refuses when the filters match more than one price, and lists
+what matched so you can add a filter. `findings-validate.sh` rejects a dollar figure without a record.
+
 > **The service code and product family are not always obvious.** Some line items do not map to a
 > tidy SKU: CloudWatch **Logs** storage, for example, is not under an `AmazonCloudWatch` `Storage`
 > family. When a filter returns 0 rows, run `describe-services` then `get-attribute-values` to find
 > the real attribute names/values for that service. If the Price List still does not yield a clean
 > per-unit rate, fall back to the **Cost Explorer usage-type cost** for that line item (the
 > `UnblendedCost / UsageQuantity` for its `USAGE_TYPE`) as the effective rate, and say which method
-> you used. Never substitute a remembered rate.
+> you used: record it as a `cost-explorer` record with the `aws ce` command and the reason. Never
+> substitute a remembered rate.
 
 > The On-Demand path above is for usage-priced resources. Commitment products (Savings Plans/RIs)
 > have a separate Price List structure and are better sized from
@@ -158,7 +173,7 @@ documented, sourced, checkable number rather than a constant baked into code:
 
 <!-- ce-request-price: usd=0.01 source=https://aws.amazon.com/aws-cost-management/aws-cost-explorer/pricing/ -->
 
-That figure is the cost of *running the audit*, not the price of anything the audit reports on. It never enters a finding. Law 1 governs resource prices, and those are always pulled live for the user's exact Region.
+That figure is the cost of *running the audit*, not the price of anything the audit reports on. It never enters a finding. It is the one price this skill stores rather than fetches. Law 1 governs resource prices, and those are always pulled live for the user's exact Region.
 
 **Verify it live before quoting it.** Like every price in this skill, that figure is a starting
 point from AWS's published pricing page, not a promise. Check the source URL above.
@@ -283,6 +298,7 @@ Re-run the commands.
 
 1. Re-run the `aws pricing get-products …` call for the stated service/attributes/`regionCode`.
    Parse the unit rate yourself. Compare to the rate in the finding.
+   `scripts/verify-price.sh --recheck findings.json` does this for every `price-list` record at once.
 2. Re-run the `aws ce …` (or re-query the CUR line) for the stated usage quantity and unit.
    Compare to the quantity in the finding.
 3. Recompute `unit_price × usage_delta` independently. Confirm units cancel.

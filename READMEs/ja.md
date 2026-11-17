@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../assets/hero-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="../assets/hero-light.svg">
-    <img src="../assets/hero-dark.svg" alt="aws-cost-audit：AWS の請求のムダを削る。すべての価格を AWS でライブ確認" width="100%">
+    <img src="../assets/hero-dark.svg" alt="aws-cost-audit：AWS の請求のムダを削る。各価格は実行時に AWS で照会" width="100%">
   </picture>
 </p>
 
@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  エージェントに AWS の請求の監査を頼むと、結論、最初にやる 3 つの削減、それぞれの裏づけとなる最新価格が手に入ります。
+  エージェントに AWS の請求の監査を頼むと、結論、最初にやる 3 つの削減、各価格の出どころが手に入ります。
 </p>
 
 <p align="center">
@@ -62,6 +62,8 @@ Detail:
 - Needs sign-off: 7 findings, $1,535/mo
 - No verified cost: 0 findings, in no total
 - Keep: 1 finding
+- Price sources: 9 Price List lookups, 4 Cost Explorer reads
+Re-check the Price List prices live: verify-price.sh --recheck examples/sample-findings.json
 Every figure above comes from the findings file. Nothing in your account was changed.
 ```
 
@@ -80,10 +82,12 @@ Cost Explorer を有効にする必要があり、AWS がデータを表示す�
 
 - **どこから始めるかがわかる。** ドル建ての結論と、最初にやる 3 つの削減。
   証拠：上のサンプルは上のコマンドで再出力でき、`make test` が 1 行ずつ比較します。
-- **数字を信頼できる。** 価格は実行時に AWS から取得し、記憶やブログの表からは取りません。
-  証拠：スクリプトに価格が直書きされると、`make test` と CI のスキャンが失敗します。
+- **数字を信頼できる。** リソースの価格は実行時に AWS Price List から取得し、記憶からは取りません。
+  価格付きの検出結果は、その照会の記録がなければ却下されます。保存されている数字は、監査自身の Cost Explorer リクエスト費用だけです。
+  証拠：照会記録のない価格付き検出結果を `make test` が却下し、スクリプトに価格が直書きされると失敗します。
 - **予期せぬ変更はない。** デフォルトは dry-run で、変更スクリプトは何をするかを表示するだけです。
   `--apply` を付けると、ロールバックファイルを保存してから yes の入力を求めます。`--yes` で質問を省略します。
+  ドライランはローカルにロールバックファイルを保存し、アカウントには何も変更を加えません。
   質問できる端末がなく `--yes` もなければ、拒否します。`make test` が EBS スクリプトでこの順序を確認します。
 
 ## インストール
@@ -158,7 +162,8 @@ cp -r aws-cost-audit-skill/skills/aws-cost-audit ~/.claude/skills/aws-cost-audit
 1. **事前チェック。** `doctor.sh` が AWS CLI、認証情報、`jq`、リージョン、出力フォルダを確認します。何も変更しません。
 2. **ベースライン。** Cost Explorer から、サービス、リージョン、使用タイプごとの支出を取ります。スクリプトはリクエストを数え、上限で止まります。
 3. **探索。** 有効なすべてのリージョンを調べ、使われていない、大きすぎる、忘れられたリソースを探します。チェック項目は[探索リスト](../skills/aws-cost-audit/references/hunt-list.md)にあります。
-4. **価格付け。** すべての金額は、あなたのリージョンの最新の単価に、実際の使用量を掛けたものです。記憶から出てくる価格はありません。
+4. **価格付け。** 各単価はあなたのリージョンの AWS Price List から取得し、実際の使用量を掛けます。
+   `verify-price.sh --record` がその照会を検出結果に保存し、照会のない金額はバリデーターが却下します。
 5. **分類。** 各発見事項は KEEP、OPTIMIZE、SAFE-TO-DELETE のどれかで、信頼度と証拠が付きます。
 6. **レポート。** `findings-validate.sh` が `findings.json` を検査し、そのあと `findings-summary.sh` が結論と 3 つの行動を出力します。詳細はその後に続きます。
 
@@ -179,10 +184,11 @@ skill 本体は [`SKILL.md`](../skills/aws-cost-audit/SKILL.md) です：5 つ�
 
 | 主張                                       | コマンド                                                     | 今日の出力                                                                    |
 | :----------------------------------------- | :----------------------------------------------------------- | :---------------------------------------------------------------------------- |
-| オフラインのテストスイートが通る           | `make test`                                                  | `Results: 106 passed, 0 failed`                                                |
+| オフラインのテストスイートが通る           | `make test`                                                  | `Results: 144 passed, 0 failed`                                                |
 | 上のサンプルはツールの実際の出力           | `make test`（ケース 39 が 1 行ずつ比較）                     | `[PASS] sample: the README sample report is the script output, line for line` |
 | プラグインのマニフェストが有効             | `claude plugin validate . --strict`                          | `✔ Validation passed`                                                         |
 | 単価がスクリプトに書き込まれていない       | `make test`（no-hardcoded-price ケース）                     | `[PASS] no per-request price literal in any script`                           |
+| 価格付きの検出結果には照会記録が必要       | `make test`（price rule ケース） | `[PASS] price rule: a dollar figure with no price_lookups exits 1` |
 
 テストスイートは `aws` コマンドをスタブに置き換えるので、認証情報は不要で、AWS への呼び出しもありません。
 `delete-unattached-ebs.sh` の安全な順序も検査します：確認の前には何も変更しません。
@@ -205,7 +211,8 @@ skill はエージェントに、先に未使用の証拠とドライランを�
 Cost Explorer は API リクエストごとに課金します。スクリプトはすべてのページを数え、`AWS_COST_AUDIT_CE_BUDGET` で止まります。デフォルトは 50 です。Price List の検索は無料です。
 
 **なぜ金額を信用できますか？**
-どの金額にも、単価、計算、出典が付きます。検証できない金額は「unknown」と書かれ、どの合計にも含まれません。
+どの金額も出典を記録します。Price List の照会、または単一の単価がない場合は Cost Explorer の読み取りです。
+`findings-validate.sh` は出典のない金額を却下します。検証できない金額は「unknown」と書かれ、どの合計にも含まれません。
 
 **サンプルの数字は本物ですか？**
 いいえ。サンプルレポート、ダッシュボード、デモは架空のアカウントを使っています。実際の AWS 請求から読み取ったものは何もありません。
@@ -221,6 +228,9 @@ Cost Explorer は API リクエストごとに課金します。スクリプト�
 - ベースラインには Cost Explorer を有効にする必要があります。有効にしてから、AWS がデータを表示するまで最大 24 時間かかることがあります。
 - skill はエージェントを導くだけです。能力の低いモデルは、手順を飛ばすことがあります。証拠の行を確認してください。
 - 価格は、AWS が返すとおり USD です。
+- バリデーターが確認するのは各価格記録の形式で、AWS が実際に返したかどうかではありません。`verify-price.sh --recheck findings.json` で Price List の照会をやり直せます。
+- S3 Standard ストレージのような段階制の価格や Savings Plans には、単一の単価がありません。その検出結果は Cost Explorer の読み取りを記録します。読み取りは課金されるため、`--recheck` はやり直しません。
+- 取得ではなく保存されている数字は一つだけです。監査自身の Cost Explorer リクエスト費用で、`references/pricing-verification.md` にあります。
 - エージェント表の「テスト済み」は、インストールが実行されファイルが置かれたことを意味します。各エージェントが skill を読み込むところまで確認した、という意味ではありません。
 - 変更前の未使用の証拠とドライランは、skill がエージェントに求める手順です。スクリプトが強制するのは `--apply`、ロールバックファイル、`yes` です。
 

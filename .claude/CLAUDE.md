@@ -69,7 +69,10 @@ When cutting a release, bump the version in every version-carrying file and add 
 - `.claude-plugin/plugin.json`
 - `.cursor-plugin/plugin.json`
 - `.copilot-plugin/plugin.json`
+- `skills/aws-cost-audit/SKILL.md` frontmatter `metadata.version` (the Agent Skills `metadata` map; never touch `description`)
 - `CHANGELOG.md` (new dated section per Keep a Changelog)
+
+`make test` fails when the three manifests and `metadata.version` disagree (the version parity cases).
 
 There is no `package.json` to bump (no npm package). The installer, the discovery manifests, `READMEs/`, and `site/` are repo-only and are not published to any registry.
 

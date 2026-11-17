@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>aws-cost-audit: cut the waste in your AWS bill, priced live</title>
-  <meta name="description" content="Ask your agent to audit your AWS bill and get a verdict, three cuts to make first, and a live price behind each. Dry-run by default: a change needs --apply and your yes." />
+  <meta name="description" content="Ask your agent to audit your AWS bill and get a verdict, three cuts to make first, and where each price came from. Dry-run by default: a change needs --apply and your yes." />
   <meta property="og:title" content="AWS Cost Audit Skill" />
   <meta property="og:description" content="Cut the waste in your AWS bill, priced live. Three cuts first, each with its evidence. Dry-run by default." />
   <meta property="og:image" content="assets/dashboard-preview.png" />
@@ -61,7 +61,7 @@
   <header class="wrap">
     <img class="hero" src="assets/hero.svg" alt="AWS Cost Audit Skill" onerror="this.style.display='none'" />
     <h1>AWS Cost Audit Skill</h1>
-    <p class="tagline">Cut the waste in your AWS bill, priced live. Ask your agent to audit it and get a verdict, three cuts to make first, and a live price behind each. Dry-run by default: a change needs <code>--apply</code> and your yes.</p>
+    <p class="tagline">Cut the waste in your AWS bill, priced live. Ask your agent to audit it and get a verdict, three cuts to make first, and where each price came from. Dry-run by default: a change needs <code>--apply</code> and your yes.</p>
     <div class="cta">
       <a class="btn primary" href="https://github.com/Aboudjem/aws-cost-audit-skill">View on GitHub</a>
       <a class="btn" href="sample-dashboard.html">See a sample dashboard</a>
@@ -73,7 +73,7 @@
     <div class="demo">
       <img src="assets/demo.gif" alt="Claude running an AWS cost audit and streaming an evidence-first savings plan" onerror="this.src='assets/dashboard-preview.png'" />
     </div>
-    <p class="caption">All figures shown are <span class="illustrative">illustrative</span> (synthetic data, no real account). In a real run every dollar is re-derived live from the AWS Price List Query API for your exact Region.</p>
+    <p class="caption">All figures shown are <span class="illustrative">illustrative</span> (synthetic data, no real account). In a real run each unit price comes from the AWS Price List for your exact Region, and a priced finding is rejected unless it records that lookup.</p>
 
     <section>
       <h2>What it is</h2>
@@ -93,7 +93,7 @@
     <section>
       <h2>Why you can trust the numbers</h2>
       <div class="grid">
-        <div class="card"><h3>No made-up prices</h3><p>Every dollar comes from the live AWS price for your Region plus your actual usage, shown as unit price, math, source.</p></div>
+        <div class="card"><h3>No made-up prices</h3><p>Every dollar comes from the AWS price for your Region at run time plus your actual usage, shown as unit price, math, source. Each finding records that lookup.</p></div>
         <div class="card"><h3>Attribute every dollar</h3><p>Cost, purpose, owner, created-when, last-used per resource. If a fact cannot be verified, it says "unknown".</p></div>
         <div class="card"><h3>Nothing destructive without proof</h3><p>A change runs only if proven unused, reversible, dry-run-tested, and certain. Otherwise it stays a recommendation.</p></div>
         <div class="card"><h3>One sample is never the fleet</h3><p>A separate skeptic pass re-derives the headline numbers from the source before they ship.</p></div>

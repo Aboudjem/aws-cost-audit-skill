@@ -6,7 +6,9 @@ working catalog the audit walks resource-by-resource (SKILL.md step 2).
 
 > **Price discipline (Iron Law 1):** this file states **no dollar amount as fact**. Every "Price
 > source" line points to the live, authoritative source, the AWS Price List Query API or the
-> per-service pricing page, for the user's exact Region. Never hardcode a price.
+> per-service pricing page, for the user's exact Region. Never hardcode a price. The pricing page
+> explains the rate; the number in a finding comes from `scripts/verify-price.sh --record`, or from
+> a Cost Explorer read when no single unit price applies.
 >
 > **Region discipline:** commands use `$REGION` as a parameter. Sweep **all** Regions (see
 > [§22 Cross-Region ghosts](#22-cross-region-ghost-resources)); don't assume one default. The single

@@ -138,7 +138,7 @@ the dollar figure live, never a hardcoded price), the risk, and the rollback pat
 
 ```bash
 #!/usr/bin/env bash
-# <action>. Verify savings live (Price List API / pricing page) for your region.
+# <action>. Verify savings live (verify-price.sh --record) for your region.
 # Risk: <none/low/...>. Rollback: <recreate from rollback-*.json / re-enable / resize back>.
 ```
 

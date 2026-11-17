@@ -2,9 +2,10 @@
 
 > **SAMPLE, synthetic data, illustrative only.** Every figure, resource id, and date below is
 > invented for a fictional account `<demo-account>`. Nothing here was read from a real AWS account.
-> It exists only to show the *shape* and *discipline* of a real audit report. In a real run, every
-> dollar is re-derived live from the AWS Price List Query API for your exact Region plus your actual
-> usage (Cost Explorer / CUR); this skill hardcodes no prices.
+> It exists only to show the *shape* and *discipline* of a real audit report. In a real run, each
+> unit price comes from the AWS Price List Query API for your exact Region, times your actual usage
+> (Cost Explorer / CUR), and each priced finding records that lookup. This skill hardcodes no
+> resource prices. The lookup records in `sample-findings.json` are invented too (`SKUEXAMPLE`).
 
 **Account:** `<demo-account>` (12-digit id redacted) · **Primary Region:** `us-east-1` ·
 **Audit window:** trailing 90 days · **Report date:** 2026-05-28 · **Mode:** read-only (no changes made)
@@ -34,6 +35,8 @@ Detail:
 - Needs sign-off: 7 findings, $1,535/mo
 - No verified cost: 0 findings, in no total
 - Keep: 1 finding
+- Price sources: 9 Price List lookups, 4 Cost Explorer reads
+Re-check the Price List prices live: verify-price.sh --recheck examples/sample-findings.json
 Every figure above comes from the findings file. Nothing in your account was changed.
 ```
 

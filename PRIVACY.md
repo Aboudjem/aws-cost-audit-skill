@@ -21,7 +21,7 @@ and `verify-price.sh`:
 
 - `sts get-caller-identity`, `configure get region`
 - `ce get-cost-and-usage`, `ce get-cost-forecast` (billed per request, counted and capped)
-- `pricing get-products` (the live unit price)
+- `pricing get-products` (the live unit price; also what `verify-price.sh --recheck` re-runs)
 - `ec2 describe-regions`, `describe-instances`, `describe-volumes`, `describe-snapshots`,
   `describe-addresses`, `describe-nat-gateways`, `describe-volumes-modifications`
 - `elbv2 describe-load-balancers`, `describe-target-groups`, `describe-target-health`,

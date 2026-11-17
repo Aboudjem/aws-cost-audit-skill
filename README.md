@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="assets/hero-light.svg">
-    <img src="assets/hero-dark.svg" alt="aws-cost-audit: cut the waste in your AWS bill, with every price checked live against AWS" width="100%">
+    <img src="assets/hero-dark.svg" alt="aws-cost-audit: cut the waste in your AWS bill, each price looked up in AWS at run time" width="100%">
   </picture>
 </p>
 
@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  Ask your agent to audit your AWS bill and get a verdict, three cuts to make first, and a live price behind each.
+  Ask your agent to audit your AWS bill and get a verdict, three cuts to make first, and where each price came from.
 </p>
 
 <p align="center">
@@ -62,6 +62,8 @@ Detail:
 - Needs sign-off: 7 findings, $1,535/mo
 - No verified cost: 0 findings, in no total
 - Keep: 1 finding
+- Price sources: 9 Price List lookups, 4 Cost Explorer reads
+Re-check the Price List prices live: verify-price.sh --recheck examples/sample-findings.json
 Every figure above comes from the findings file. Nothing in your account was changed.
 ```
 
@@ -80,9 +82,11 @@ Cost Explorer must be on, and AWS can take up to 24 hours to show data.
 
 - **Know where to start.** A verdict in dollars, then the three cuts to make first.
   Proof: the sample above re-prints with the command above it, and `make test` compares the two line by line.
-- **Trust the numbers.** Prices come from AWS at run time, not from memory or a blog table.
-  Proof: `make test` and a CI scan both fail if a script holds a price literal.
+- **Trust the numbers.** Resource prices come from the AWS Price List at run time, not from memory.
+  A priced finding is rejected unless it records that lookup. The one stored figure is the audit's own Cost Explorer request cost.
+  Proof: `make test` rejects a priced finding with no lookup record, and fails if a script holds a price literal.
 - **Nothing changes by surprise.** It is dry-run by default: change scripts only print what they would do.
+  A dry run saves a local rollback file and changes nothing in your account.
   With `--apply` they save a rollback file, then ask you to type yes. `--yes` skips the question.
   With no terminal to ask in and no `--yes`, they refuse. `make test` checks that order on the EBS script.
 
@@ -158,7 +162,8 @@ This repo has no marketplace manifest of its own. Use the 10x marketplace above 
 1. **Preflight.** `doctor.sh` checks the AWS CLI, credentials, `jq`, the region and the output folder. It changes nothing.
 2. **Baseline.** Cost Explorer gives your spend by service, region and usage type. The scripts count each request and stop at a cap.
 3. **Hunt.** It sweeps every enabled region for idle, oversized or forgotten resources. The checks are in [the hunt list](skills/aws-cost-audit/references/hunt-list.md).
-4. **Price.** Every dollar is the live unit price for your region times your real usage. No price comes from memory.
+4. **Price.** Each unit price comes from the AWS Price List for your region, times your real usage.
+   `verify-price.sh --record` saves that lookup in the finding, and the validator rejects a dollar figure without one.
 5. **Sort.** Each finding is KEEP, OPTIMIZE or SAFE-TO-DELETE, with a confidence level and its evidence.
 6. **Report.** `findings-validate.sh` checks `findings.json`, then `findings-summary.sh` prints the verdict and the three actions. The detail follows.
 
@@ -179,10 +184,11 @@ Every number below is re-printed by the command next to it.
 
 | Claim                                      | Command                                                      | Output today                                                                  |
 | :----------------------------------------- | :----------------------------------------------------------- | :---------------------------------------------------------------------------- |
-| The offline suite passes                   | `make test`                                                  | `Results: 106 passed, 0 failed`                                                |
+| The offline suite passes                   | `make test`                                                  | `Results: 144 passed, 0 failed`                                                |
 | The sample above is the tool's real output | `make test` (case 39 compares them line by line)             | `[PASS] sample: the README sample report is the script output, line for line` |
 | The plugin manifest is valid               | `claude plugin validate . --strict`                          | `✔ Validation passed`                                                         |
 | No unit price is written into a script     | `make test` (no-hardcoded-price case)                        | `[PASS] no per-request price literal in any script`                           |
+| A priced finding needs its lookup record   | `make test` (price rule cases)                               | `[PASS] price rule: a dollar figure with no price_lookups exits 1`            |
 
 The suite stubs the `aws` command, so it needs no credentials and makes no AWS call.
 It also checks the safety order of `delete-unattached-ebs.sh`: no change before the confirmation.
@@ -205,7 +211,8 @@ No. It uses the AWS CLI credentials already on your machine. Your data goes to A
 Cost Explorer bills each API request. The scripts count every page and stop at `AWS_COST_AUDIT_CE_BUDGET`, 50 by default. Price List lookups are free.
 
 **Why trust the dollar figures?**
-Each one shows the unit price, the math and the source. A figure that cannot be verified is written "unknown" and stays out of every total.
+Each one records its source: a Price List lookup, or the Cost Explorer read when no single unit price applies.
+`findings-validate.sh` rejects a dollar figure without one. A figure that cannot be verified is written "unknown" and stays out of every total.
 
 **Are the sample figures real?**
 No. The sample report, the dashboard and the demo use a fictional account. Nothing in them was read from a real AWS bill.
@@ -221,6 +228,9 @@ More answers are in [docs/faq.md](docs/faq.md).
 - The baseline needs Cost Explorer turned on. After you turn it on, AWS can take up to 24 hours to show data.
 - The skill guides your agent. A weaker model can still skip a step, so check the evidence lines.
 - Prices are in USD, as AWS returns them.
+- The validator checks the shape of each price record, not that AWS returned it. `verify-price.sh --recheck findings.json` re-runs the Price List lookups.
+- Tiered prices, like S3 Standard storage, and Savings Plans have no single unit price. Those findings record a Cost Explorer read, which `--recheck` skips because each read is billed.
+- One figure is stored, not fetched: the audit's own Cost Explorer request cost, in `references/pricing-verification.md`.
 - "Tested" in the agent table means the install ran and the files landed. It does not mean each agent was seen loading the skill.
 - Proof of non-use and the dry run before a change are steps the skill asks of your agent. The scripts enforce `--apply`, the rollback file and the `yes`.
 

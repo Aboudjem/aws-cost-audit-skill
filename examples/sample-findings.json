@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "findings": [
     {
       "id": "sample-logs-never-expire",
@@ -12,6 +12,20 @@
       "purpose": "Application logs kept forever. Old lines nobody reads still cost storage.",
       "owner": "unknown, could not verify",
       "evidence": "aws logs describe-log-groups --region us-east-1 --query 'logGroups[?retentionInDays==null].[logGroupName,storedBytes]'",
+      "price_lookups": [
+        {
+          "method": "price-list",
+          "service_code": "AmazonCloudWatch",
+          "region_code": "us-east-1",
+          "filters": [
+            "usagetype=USE1-TimedStorage-ByteHrs"
+          ],
+          "sku": "SKUEXAMPLELOGS01",
+          "unit": "GB-Mo",
+          "price_per_unit_usd": 0.03,
+          "fetched_at": "2026-11-17T09:10:00Z"
+        }
+      ],
       "action": "OPTIMIZE",
       "reversible": true,
       "confidence": "High"
@@ -28,6 +42,21 @@
       "owner": "unknown, could not verify",
       "last_used": "no read or write activity for 90 days (CloudWatch VolumeReadOps and VolumeWriteOps both zero)",
       "evidence": "aws ec2 describe-volumes --region us-east-1 --filters Name=status,Values=available",
+      "price_lookups": [
+        {
+          "method": "price-list",
+          "service_code": "AmazonEC2",
+          "region_code": "us-east-1",
+          "filters": [
+            "productFamily=Storage",
+            "volumeApiName=gp2"
+          ],
+          "sku": "SKUEXAMPLEGP2001",
+          "unit": "GB-Mo",
+          "price_per_unit_usd": 0.1,
+          "fetched_at": "2026-11-17T09:11:00Z"
+        }
+      ],
       "action": "SAFE-TO-DELETE",
       "reversible": true,
       "confidence": "High"
@@ -42,6 +71,14 @@
       "monthly_saving": 58,
       "purpose": "Half-finished uploads. The leftover parts bill as storage.",
       "evidence": "aws s3api list-multipart-uploads --bucket <demo-bucket> --query 'Uploads[].{key:Key,initiated:Initiated}'",
+      "price_lookups": [
+        {
+          "method": "cost-explorer",
+          "command": "aws ce get-cost-and-usage --granularity MONTHLY --metrics UnblendedCost UsageQuantity --group-by Type=DIMENSION,Key=USAGE_TYPE --filter '{\"Dimensions\":{\"Key\":\"SERVICE\",\"Values\":[\"Amazon Simple Storage Service\"]}}'",
+          "reason": "S3 Standard storage is priced in tiers, so no single unit price applies. The rate is the billed cost over the billed GB for this usage type.",
+          "fetched_at": "2026-11-17T09:12:00Z"
+        }
+      ],
       "action": "OPTIMIZE",
       "reversible": true,
       "confidence": "High"
@@ -56,6 +93,34 @@
       "monthly_saving": 28,
       "purpose": "Active server disks on the older gp2 type.",
       "evidence": "aws ec2 describe-volumes --region us-east-1 --filters Name=volume-type,Values=gp2",
+      "price_lookups": [
+        {
+          "method": "price-list",
+          "service_code": "AmazonEC2",
+          "region_code": "us-east-1",
+          "filters": [
+            "productFamily=Storage",
+            "volumeApiName=gp2"
+          ],
+          "sku": "SKUEXAMPLEGP2001",
+          "unit": "GB-Mo",
+          "price_per_unit_usd": 0.1,
+          "fetched_at": "2026-11-17T09:11:00Z"
+        },
+        {
+          "method": "price-list",
+          "service_code": "AmazonEC2",
+          "region_code": "us-east-1",
+          "filters": [
+            "productFamily=Storage",
+            "volumeApiName=gp3"
+          ],
+          "sku": "SKUEXAMPLEGP3001",
+          "unit": "GB-Mo",
+          "price_per_unit_usd": 0.08,
+          "fetched_at": "2026-11-17T09:13:00Z"
+        }
+      ],
       "action": "OPTIMIZE",
       "reversible": true,
       "confidence": "High"
@@ -71,6 +136,36 @@
       "purpose": "The main production database of the web app.",
       "owner": "web-app",
       "evidence": "aws cloudwatch get-metric-statistics --namespace AWS/RDS --metric-name CPUUtilization (average 11%, peak 38% over 90 days)",
+      "price_lookups": [
+        {
+          "method": "price-list",
+          "service_code": "AmazonRDS",
+          "region_code": "us-east-1",
+          "filters": [
+            "instanceType=db.r6g.2xlarge",
+            "databaseEngine=PostgreSQL",
+            "deploymentOption=Multi-AZ"
+          ],
+          "sku": "SKUEXAMPLERDS001",
+          "unit": "Hrs",
+          "price_per_unit_usd": 1.34,
+          "fetched_at": "2026-11-17T09:14:00Z"
+        },
+        {
+          "method": "price-list",
+          "service_code": "AmazonRDS",
+          "region_code": "us-east-1",
+          "filters": [
+            "instanceType=db.r6g.xlarge",
+            "databaseEngine=PostgreSQL",
+            "deploymentOption=Multi-AZ"
+          ],
+          "sku": "SKUEXAMPLERDS002",
+          "unit": "Hrs",
+          "price_per_unit_usd": 0.78,
+          "fetched_at": "2026-11-17T09:14:00Z"
+        }
+      ],
       "action": "OPTIMIZE",
       "reversible": true,
       "confidence": "Medium"
@@ -84,6 +179,14 @@
       "after_monthly_cost": 845,
       "monthly_saving": 360,
       "evidence": "aws ce get-savings-plans-coverage and aws ce get-savings-plans-utilization",
+      "price_lookups": [
+        {
+          "method": "cost-explorer",
+          "command": "aws ce get-savings-plans-purchase-recommendation --savings-plans-type COMPUTE_SP --term-in-years ONE_YEAR --payment-option NO_UPFRONT --lookback-period-in-days THIRTY_DAYS",
+          "reason": "A Savings Plan is a commitment discount on many instance prices, so no single unit price applies. The saving is the estimate AWS returns.",
+          "fetched_at": "2026-11-17T09:15:00Z"
+        }
+      ],
       "action": "OPTIMIZE",
       "reversible": false,
       "confidence": "Medium"
@@ -99,6 +202,14 @@
       "purpose": "A development database with no connection for 60 days.",
       "owner": "unknown, could not verify",
       "evidence": "aws cloudwatch get-metric-statistics --namespace AWS/RDS --metric-name DatabaseConnections (zero for 60 days)",
+      "price_lookups": [
+        {
+          "method": "cost-explorer",
+          "command": "aws ce get-cost-and-usage-with-resources --granularity DAILY --metrics UnblendedCost --group-by Type=DIMENSION,Key=RESOURCE_ID --filter '{\"Dimensions\":{\"Key\":\"SERVICE\",\"Values\":[\"Amazon Relational Database Service\"]}}'",
+          "reason": "The database is deleted outright, so the saving is its whole billed cost, read per resource.",
+          "fetched_at": "2026-11-17T09:16:00Z"
+        }
+      ],
       "action": "SAFE-TO-DELETE",
       "reversible": true,
       "confidence": "Medium"
@@ -112,6 +223,21 @@
       "after_monthly_cost": 372,
       "monthly_saving": 240,
       "evidence": "aws ec2 describe-nat-gateways --region us-east-1, plus CloudWatch BytesOutToDestination",
+      "price_lookups": [
+        {
+          "method": "price-list",
+          "service_code": "AmazonEC2",
+          "region_code": "us-east-1",
+          "filters": [
+            "productFamily=NAT Gateway",
+            "usagetype=NatGateway-Hours"
+          ],
+          "sku": "SKUEXAMPLENAT001",
+          "unit": "Hrs",
+          "price_per_unit_usd": 0.045,
+          "fetched_at": "2026-11-17T09:17:00Z"
+        }
+      ],
       "action": "OPTIMIZE",
       "reversible": true,
       "confidence": "Medium"
@@ -125,6 +251,14 @@
       "after_monthly_cost": 325,
       "monthly_saving": 115,
       "evidence": "aws s3api get-bucket-lifecycle-configuration --bucket <demo-bucket> (no rule set)",
+      "price_lookups": [
+        {
+          "method": "cost-explorer",
+          "command": "aws ce get-cost-and-usage --granularity MONTHLY --metrics UnblendedCost UsageQuantity --group-by Type=DIMENSION,Key=USAGE_TYPE --filter '{\"Dimensions\":{\"Key\":\"SERVICE\",\"Values\":[\"Amazon Simple Storage Service\"]}}'",
+          "reason": "S3 Standard storage is priced in tiers, so no single unit price applies. The rate is the billed cost over the billed GB for this usage type.",
+          "fetched_at": "2026-11-17T09:12:00Z"
+        }
+      ],
       "action": "OPTIMIZE",
       "reversible": false,
       "confidence": "Medium"
@@ -138,6 +272,21 @@
       "after_monthly_cost": 0,
       "monthly_saving": 92,
       "evidence": "aws ec2 describe-snapshots --owner-ids self and aws ec2 describe-images --owners self",
+      "price_lookups": [
+        {
+          "method": "price-list",
+          "service_code": "AmazonEC2",
+          "region_code": "us-east-1",
+          "filters": [
+            "productFamily=Storage Snapshot",
+            "usagetype=EBS:SnapshotUsage"
+          ],
+          "sku": "SKUEXAMPLESNAP01",
+          "unit": "GB-Mo",
+          "price_per_unit_usd": 0.05,
+          "fetched_at": "2026-11-17T09:18:00Z"
+        }
+      ],
       "action": "SAFE-TO-DELETE",
       "reversible": false,
       "confidence": "Low"
@@ -154,6 +303,21 @@
       "owner": "unknown, could not verify",
       "created_when": "unknown, predates the CloudTrail look-back window",
       "evidence": "aws elbv2 describe-target-health (no healthy target), CloudWatch RequestCount near zero for 90 days",
+      "price_lookups": [
+        {
+          "method": "price-list",
+          "service_code": "AWSELB",
+          "region_code": "us-east-1",
+          "filters": [
+            "productFamily=Load Balancer-Application",
+            "usagetype=LoadBalancerUsage"
+          ],
+          "sku": "SKUEXAMPLEALB001",
+          "unit": "Hrs",
+          "price_per_unit_usd": 0.0225,
+          "fetched_at": "2026-11-17T09:19:00Z"
+        }
+      ],
       "action": "SAFE-TO-DELETE",
       "reversible": false,
       "confidence": "High"

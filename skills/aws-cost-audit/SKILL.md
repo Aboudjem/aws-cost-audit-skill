@@ -11,6 +11,8 @@ description: >-
   "FinOps", "Cost Explorer", "where is my money going", "unused AWS resources",
   and "cloud cost audit".
 license: MIT
+metadata:
+  version: "0.4.3"
 ---
 
 # AWS Cost Audit
@@ -37,8 +39,10 @@ its spirit, so do not look for loopholes.
 
 1. **No unverified price. Ever.** Never state a unit price, a monthly cost, or a "$X saved" figure
    from memory. Every dollar figure must come from BOTH (a) the **live unit price** for the user's
-   exact Region (AWS Price List Query API or the service's pricing page) and (b) the user's **actual
-   usage** (Cost Explorer / CUR). Always show: `unit price → math → source`. **Never hardcode a
+   exact Region (AWS Price List Query API, recorded with `scripts/verify-price.sh --record`) and
+   (b) the user's **actual usage** (Cost Explorer / CUR). Always show: `unit price → math → source`.
+   When no single unit price applies (a tiered price, a Savings Plan, a resource deleted outright),
+   the figure comes from a Cost Explorer read instead, recorded as such. **Never hardcode a
    price in this skill, a script, or a report.** Prices change and are Region-specific; memorized
    prices are how two runs produce two different wrong numbers.
 
@@ -78,8 +82,13 @@ its step (token-efficient progressive disclosure).
 3. **Classify** each resource **KEEP / OPTIMIZE / SAFE-TO-DELETE**, and justify every dollar.
 4. **Build the savings model** using the output contract (Law 5). Per item: current → after, $ saved,
    confidence + evidence + reversibility.
-5. **Verify prices live + skeptic pass.** Every dollar figure is re-derived from the live price
-   source and actual usage by a *separate* check (Law 1 + Law 4). See `references/pricing-verification.md`.
+5. **Verify prices live + skeptic pass.** Get each unit price with `scripts/verify-price.sh
+   --service-code CODE --region-code REGION --filter FIELD=VALUE --record`, and put the record it
+   prints in the finding's `price_lookups` array. It refuses unless exactly one price matches. When
+   no single unit price applies, add a `cost-explorer` record instead: the `aws ce` command you read,
+   the reason, and the UTC time. `findings-validate.sh` rejects a dollar figure with neither. Then a
+   *separate* check re-derives every figure (Law 1 + Law 4); `verify-price.sh --recheck findings.json`
+   re-runs the Price List records. See `references/pricing-verification.md`.
 6. **Gated remediation.** Only High-confidence, reversible, tested, certain items may run, and
    only with the executor → verifier → rollback gate. Everything else is a labeled recommendation.
    Before any `--apply`: show the user the proof of non-use and the script's dry-run output, then
@@ -156,12 +165,10 @@ aws cloudwatch get-metric-statistics --namespace AWS/EBS --metric-name VolumeRea
   --period 86400 --statistics Sum --region "$REGION"                          # last-used signal
 
 # 3. VERIFY PRICE LIVE (never from memory): gp3 storage $/GB-month for THIS region
-aws pricing get-products --service-code AmazonEC2 --region us-east-1 \
-  --filters "Type=TERM_MATCH,Field=productFamily,Value=Storage" \
-            "Type=TERM_MATCH,Field=volumeApiName,Value=gp3" \
-            "Type=TERM_MATCH,Field=regionCode,Value=$REGION" \
-  --query 'PriceList' --output text     # parse the returned JSON for the per-GB-mo USD rate
-# savings $/mo = (live $/GB-mo) × (provisioned GB).  Show the math and the source.
+scripts/verify-price.sh --service-code AmazonEC2 --region-code "$REGION" \
+  --filter productFamily=Storage --filter volumeApiName=gp3 --record
+# prints one price_lookups record: service code, region, filters, SKU, unit, USD per unit, fetch time.
+# savings $/mo = (live $/GB-mo) × (provisioned GB).  Show the math; the record is the source.
 ```
 
 **Finding (the shape every item takes):**

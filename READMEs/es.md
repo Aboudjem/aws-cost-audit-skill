@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../assets/hero-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="../assets/hero-light.svg">
-    <img src="../assets/hero-dark.svg" alt="aws-cost-audit: recorta el desperdicio de tu factura de AWS, cada precio comprobado en vivo con AWS" width="100%">
+    <img src="../assets/hero-dark.svg" alt="aws-cost-audit: recorta el desperdicio de tu factura de AWS, cada precio consultado en AWS en tiempo de ejecución" width="100%">
   </picture>
 </p>
 
@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  Pide a tu agente que audite tu factura de AWS: un veredicto, tres recortes para empezar y un precio en vivo detrás de cada uno.
+  Pide a tu agente que audite tu factura de AWS: un veredicto, tres recortes para empezar y de dónde sale cada precio.
 </p>
 
 <p align="center">
@@ -62,6 +62,8 @@ Detail:
 - Needs sign-off: 7 findings, $1,535/mo
 - No verified cost: 0 findings, in no total
 - Keep: 1 finding
+- Price sources: 9 Price List lookups, 4 Cost Explorer reads
+Re-check the Price List prices live: verify-price.sh --recheck examples/sample-findings.json
 Every figure above comes from the findings file. Nothing in your account was changed.
 ```
 
@@ -80,9 +82,11 @@ Cost Explorer debe estar activado, y AWS puede tardar hasta 24 horas en mostrar 
 
 - **Sabe por dónde empezar.** Un veredicto en dólares y luego los tres recortes que hacer primero.
   Prueba: la muestra de arriba se reimprime con el comando de arriba, y `make test` compara las dos línea a línea.
-- **Confía en las cifras.** Los precios vienen de AWS en tiempo de ejecución, no de la memoria ni de una tabla de un blog.
-  Prueba: `make test` y un escaneo de la CI fallan si un script contiene un precio fijo.
+- **Confía en las cifras.** Los precios de los recursos vienen de la Price List de AWS en tiempo de ejecución, no de la memoria.
+  Un hallazgo con precio se rechaza si no registra esa consulta. La única cifra guardada es el coste de las peticiones a Cost Explorer de la propia auditoría.
+  Prueba: `make test` rechaza un hallazgo con precio sin registro de consulta, y falla si un script contiene un precio fijo.
 - **Nada cambia por sorpresa.** Es dry-run por defecto: los scripts de cambio solo muestran lo que harían.
+  Una simulación guarda un archivo de reversión local y no cambia nada en tu cuenta.
   Con `--apply` guardan un archivo de reversión y luego te piden escribir yes. `--yes` se salta la pregunta.
   Sin terminal donde preguntar y sin `--yes`, se niegan. `make test` comprueba ese orden en el script de EBS.
 
@@ -158,7 +162,8 @@ Este repositorio no tiene manifiesto de marketplace propio. Para el plugin, usa 
 1. **Comprobación previa.** `doctor.sh` revisa la AWS CLI, las credenciales, `jq`, la región y la carpeta de salida. No cambia nada.
 2. **Base de referencia.** Cost Explorer da tu gasto por servicio, región y tipo de uso. Los scripts cuentan cada petición y se detienen en un tope.
 3. **Búsqueda.** Recorre cada región activada en busca de recursos inactivos, sobredimensionados u olvidados. Las comprobaciones están en [la lista de búsqueda](../skills/aws-cost-audit/references/hunt-list.md).
-4. **Precio.** Cada dólar es el precio unitario en vivo de tu región por tu uso real. Ningún precio sale de la memoria.
+4. **Precio.** Cada precio unitario viene de la Price List de AWS para tu región, por tu uso real.
+   `verify-price.sh --record` guarda esa consulta en el hallazgo, y el validador rechaza una cifra en dólares sin ella.
 5. **Clasificación.** Cada hallazgo es KEEP, OPTIMIZE o SAFE-TO-DELETE, con un nivel de confianza y su evidencia.
 6. **Informe.** `findings-validate.sh` revisa `findings.json`, y luego `findings-summary.sh` imprime el veredicto y las tres acciones. El detalle sigue.
 
@@ -179,10 +184,11 @@ Cada número de abajo lo vuelve a imprimir el comando que tiene al lado.
 
 | Afirmación                                 | Comando                                                      | Resultado hoy                                                                 |
 | :----------------------------------------- | :----------------------------------------------------------- | :---------------------------------------------------------------------------- |
-| La suite sin conexión pasa                 | `make test`                                                  | `Results: 106 passed, 0 failed`                                                |
+| La suite sin conexión pasa                 | `make test`                                                  | `Results: 144 passed, 0 failed`                                                |
 | La muestra de arriba es la salida real de la herramienta | `make test` (el caso 39 las compara línea por línea) | `[PASS] sample: the README sample report is the script output, line for line` |
 | El manifiesto del plugin es válido         | `claude plugin validate . --strict`                          | `✔ Validation passed`                                                         |
 | Ningún precio unitario está escrito en un script | `make test` (caso «no-hardcoded-price»)                | `[PASS] no per-request price literal in any script`                           |
+| Un hallazgo con precio necesita su registro de consulta | `make test` (casos «price rule») | `[PASS] price rule: a dollar figure with no price_lookups exits 1` |
 
 La suite simula el comando `aws`, así que no necesita credenciales ni hace llamadas a AWS.
 También comprueba el orden de seguridad de `delete-unattached-ebs.sh`: ningún cambio antes de la confirmación.
@@ -205,7 +211,8 @@ No. Usa las credenciales de la AWS CLI que ya tienes en tu equipo. Tus datos van
 Cost Explorer cobra cada petición a su API. Los scripts cuentan cada página y paran en `AWS_COST_AUDIT_CE_BUDGET`, 50 por defecto. Las consultas a la Price List son gratis.
 
 **¿Por qué fiarse de las cifras en dólares?**
-Cada una muestra el precio unitario, el cálculo y la fuente. Una cifra que no se puede verificar se escribe «unknown» y queda fuera de todos los totales.
+Cada una registra su fuente: una consulta a la Price List, o la lectura de Cost Explorer cuando no hay un único precio unitario.
+`findings-validate.sh` rechaza una cifra en dólares sin fuente. Una cifra que no se puede verificar se escribe «unknown» y queda fuera de todos los totales.
 
 **¿Son reales las cifras de la muestra?**
 No. El informe de muestra, el panel y la demo usan una cuenta ficticia. Nada en ellos se leyó de una factura real de AWS.
@@ -221,6 +228,9 @@ Hay más respuestas en [docs/faq.md](../docs/faq.md).
 - La base de referencia necesita Cost Explorer activado. Tras activarlo, AWS puede tardar hasta 24 horas en mostrar datos.
 - El skill guía a tu agente. Un modelo más débil aún puede saltarse un paso, así que revisa las líneas de evidencia.
 - Los precios están en USD, tal como los devuelve AWS.
+- El validador comprueba la forma de cada registro de precio, no que AWS lo devolviera. `verify-price.sh --recheck findings.json` repite las consultas a la Price List.
+- Los precios por tramos, como el almacenamiento S3 Standard, y los Savings Plans no tienen un único precio unitario. Esos hallazgos registran una lectura de Cost Explorer, que `--recheck` no repite porque cada lectura se cobra.
+- Una sola cifra se guarda en lugar de consultarse: el coste de las peticiones a Cost Explorer de la propia auditoría, en `references/pricing-verification.md`.
 - «Probado» en la tabla de agentes significa que la instalación se ejecutó y los archivos quedaron en su sitio. No significa que se viera a cada agente cargar el skill.
 - La prueba de no uso y la simulación antes de un cambio son pasos que el skill pide a tu agente. Los scripts imponen `--apply`, el archivo de reversión y el `yes`.
 

@@ -8,9 +8,19 @@
 #
 # The JSON file is the machine-checkable CORE of the prose output contract, not
 # a replacement for it. The prose contract still governs the
-# current -> after -> saved math trail and the price source. The eight optional
-# keys below carry that material when a run chooses to emit it, and they are
-# type-checked when present.
+# current -> after -> saved math trail. The optional keys below carry that
+# material when a run chooses to emit it, and they are type-checked when
+# present.
+#
+# The price rule: a finding with any dollar figure (monthly_cost_estimate,
+# after_monthly_cost or monthly_saving set to a number) must carry
+# price_lookups, a non-empty array of records saying where each price came
+# from. A "price-list" record is what `verify-price.sh --record` prints: the
+# service code, region, filters, SKU, unit, unit price and fetch time. A
+# "cost-explorer" record is the labelled escape for a figure with no unit
+# price: it names the `aws ce` command it read and why no unit price applies.
+# This checks the shape of each record. `verify-price.sh --recheck` re-runs the
+# price-list records live.
 #
 # Exit codes:
 #   0  the file satisfies the contract; prints one [OK] line with the count
@@ -38,7 +48,14 @@ Required keys per finding:
 
 Optional keys, type-checked when present:
   after_monthly_cost, monthly_saving, purpose, owner, created_by, created_when,
-  last_used, price_source
+  last_used, price_source, price_lookups
+
+Price rule: a finding with a dollar figure needs price_lookups, an array of
+records. Get a "price-list" record from:
+  verify-price.sh --service-code CODE --region-code REGION --filter F=V --record
+A figure with no unit price uses a "cost-explorer" record instead:
+  {"method": "cost-explorer", "command": "aws ce ...",
+   "reason": "why no unit price applies", "fetched_at": "YYYY-MM-DDTHH:MM:SSZ"}
 
 Exit: 0 valid, 1 invalid, 2 could not check.
 EOF
@@ -77,7 +94,13 @@ PROBLEMS="$(jq -r '
      "action","reversible","confidence"];
   def opt_keys:
     ["after_monthly_cost","monthly_saving","purpose","owner","created_by",
-     "created_when","last_used","price_source"];
+     "created_when","last_used","price_source","price_lookups"];
+  def money_keys: ["monthly_cost_estimate","after_monthly_cost","monthly_saving"];
+  def pl_keys: ["method","service_code","region_code","filters","sku","unit",
+                "price_per_unit_usd","fetched_at"];
+  def ce_keys: ["method","command","reason","fetched_at"];
+  def utc_ts: type == "string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$");
+  def region_code: type == "string" and test("^[a-z]{2}(-[a-z]+)+-[0-9]+$");
   def actions: ["KEEP","OPTIMIZE","SAFE-TO-DELETE"];
   def confidences: ["High","Medium","Low"];
 
@@ -88,6 +111,46 @@ PROBLEMS="$(jq -r '
   def number_or_null($w; $k; $v):
     if ($v | type) == "number" or $v == null then []
     else ["\($w).\($k) must be a number or null, got \($v | type)"] end;
+
+  def str_ok: type == "string" and length > 0;
+
+  def check_record($w; $f; $r):
+    if ($r | type) != "object" then ["\($w) must be an object"]
+    elif $r.method == "price-list" then
+      ((pl_keys - ($r | keys)) | map("\($w).\(.) is required in a price-list record but missing"))
+      + ((($r | keys) - pl_keys) | map("\($w).\(.) is not a key of a price-list record"))
+      + (["service_code","region_code","sku","unit"] | map(. as $k
+          | if ($r | has($k)) and ($r[$k] | str_ok | not) then "\($w).\($k) must be a non-empty string" else empty end))
+      + (if ($r | has("filters")) and ((($r.filters | type) != "array") or ($r.filters | length) == 0
+             or ($r.filters | any(type != "string" or (test("^[^=]+=.+$") | not))))
+         then ["\($w).filters must be a non-empty array of FIELD=VALUE strings"] else [] end)
+      + (if ($r | has("price_per_unit_usd")) and ((($r.price_per_unit_usd | type) != "number") or $r.price_per_unit_usd < 0)
+         then ["\($w).price_per_unit_usd must be a number, 0 or more"] else [] end)
+      + (if ($r | has("fetched_at")) and ($r.fetched_at | utc_ts | not)
+         then ["\($w).fetched_at must be a UTC time like 2026-01-31T09:30:00Z"] else [] end)
+      + (if ($f.region | region_code) and ($r.region_code | region_code) and $r.region_code != $f.region
+         then ["\($w).region_code is \($r.region_code) but the finding is in \($f.region): price the region the resource is in"] else [] end)
+    elif $r.method == "cost-explorer" then
+      ((ce_keys - ($r | keys)) | map("\($w).\(.) is required in a cost-explorer record but missing"))
+      + ((($r | keys) - ce_keys) | map("\($w).\(.) is not a key of a cost-explorer record"))
+      + (if ($r | has("command")) and ((($r.command | type) != "string") or ($r.command | startswith("aws ce ") | not))
+         then ["\($w).command must be the aws ce command that was read, starting with \"aws ce \""] else [] end)
+      + (if ($r | has("reason")) and ($r.reason | str_ok | not)
+         then ["\($w).reason must say why no unit price applies"] else [] end)
+      + (if ($r | has("fetched_at")) and ($r.fetched_at | utc_ts | not)
+         then ["\($w).fetched_at must be a UTC time like 2026-01-31T09:30:00Z"] else [] end)
+    else ["\($w).method must be price-list or cost-explorer, got \($r.method | tojson)"] end;
+
+  def check_prices($w; $f):
+    (if ($f | has("price_lookups")) then
+       if ($f.price_lookups | type) != "array" or ($f.price_lookups | length) == 0
+       then ["\($w).price_lookups must be a non-empty array of records"]
+       else [$f.price_lookups | to_entries[] | check_record("\($w).price_lookups[\(.key)]"; $f; .value)] | add // []
+       end
+     else [] end)
+    + (if (money_keys | any(. as $k | ($f[$k] | type) == "number")) and (($f | has("price_lookups")) | not)
+       then ["\($w) has a dollar figure but no price_lookups. Run verify-price.sh --record and add its output, or add a cost-explorer record. See references/output-and-reporting.md"]
+       else [] end);
 
   def check_finding($w; $f):
     if ($f | type) != "object" then ["\($w) must be an object"]
@@ -106,6 +169,7 @@ PROBLEMS="$(jq -r '
          then ["\($w).confidence must be one of \(confidences | join(", ")), got \($f.confidence | tojson)"] else [] end)
       + (if ($f | has("reversible")) and (($f.reversible | type) != "boolean")
          then ["\($w).reversible must be true or false, got \($f.reversible | type)"] else [] end)
+      + check_prices($w; $f)
     end;
 
   if type != "object" then ["top level must be a JSON object, got \(type)"]

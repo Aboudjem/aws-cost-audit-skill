@@ -4,6 +4,38 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.3] - 2026-11-17
+
+The price claim is now enforced by the tool, and every surface says exactly what the code does.
+
+### Added
+
+- `verify-price.sh --record` prints one live Price List lookup as a JSON record: service code,
+  region, filters, SKU, unit, USD price per unit and UTC fetch time. It refuses unless exactly one
+  price matched.
+- `verify-price.sh --recheck findings.json` re-runs every recorded Price List lookup and reports
+  `[OK]` or `[CHANGED]`. It exits 1 if a price moved. Cost Explorer records are listed, not re-run.
+- `findings.json` contract 1.1: a `price_lookups` array per finding, with two record types.
+  `price-list` is what `--record` prints. `cost-explorer` is the labelled escape for a figure with
+  no single unit price, and must name the `aws ce` command and the reason.
+- `findings-summary.sh` counts the price records behind the figures and names the re-check command.
+- `metadata.version` in the `SKILL.md` frontmatter, kept equal to the manifests by a parity test.
+- 38 new test cases. `make test`: 144 passed, 0 failed.
+
+### Changed
+
+- `findings-validate.sh` rejects a finding with a dollar figure and no `price_lookups`, and names
+  the command to run. It also rejects a record priced for another region than the finding.
+- Law 1 in `SKILL.md`, the references, `AGENTS.md` and `CONTRIBUTING.md` drop "or the service's
+  pricing page" as a recorded price source. The pricing page explains a rate; the record holds it.
+- "Every price checked live" is gone from every surface. The README, translations, manifests,
+  hero and social SVGs, `llms.txt`, `AGENTS.md`, docs and site now say: resource prices come from
+  the AWS Price List at run time, and a priced finding is rejected unless it records that lookup.
+  The one stored figure is the audit's own Cost Explorer request cost.
+- The safety bullet says a dry run saves a local rollback file and changes nothing in your account.
+- The sample findings carry invented lookup records (`SKUEXAMPLE` SKUs). The README sample block
+  and the sample report are re-printed from the script.
+
 ## [0.4.2] - 2026-11-17
 
 A clearer first screen and listing, in true words. No change to the skill or the scripts.

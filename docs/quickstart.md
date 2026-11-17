@@ -7,7 +7,8 @@ account and writes a report: a verdict, three cuts to make first, and the eviden
 The three change scripts do nothing without `--apply`. With it, they save a rollback file,
 then ask you to type `yes`. `--yes` skips the question; with no terminal and no `--yes`,
 they refuse. Give it read-only credentials: the skill guides your agent, the scripts
-enforce the yes. No script holds a price: each dollar figure uses the live price for your region.
+enforce the yes. No script holds a resource price: each dollar figure uses the price AWS returns
+for your region at run time, and records that lookup.
 
 ---
 
@@ -121,8 +122,10 @@ Nothing below changes your account. Steps 1 to 6 are read, describe, and list ca
    volumes, old snapshots, gp2 volumes, over-retained logs, missing Savings Plan coverage, and
    the rest.
 6. **Live price verification.** For every candidate saving, the skill fetches the current,
-   region-specific unit price from the AWS Price List Query API. Those lookups are free. It
-   shows unit price, then the math, then the source, for every dollar figure.
+   region-specific unit price with `verify-price.sh --record`. Those lookups are free. Each
+   record goes into the finding, and `findings-validate.sh` rejects a dollar figure without one.
+   When no single unit price applies, the finding records the Cost Explorer read instead.
+   `verify-price.sh --recheck findings.json` re-runs the Price List lookups later.
 7. **Report.** Findings are written as `current $/mo -> after $/mo -> $ saved`, each with a
    confidence level, the evidence, and how to reverse it, split into "save now safely" and
    "maximum theoretical save". See [`examples/sample-report.md`](../examples/sample-report.md)
@@ -156,7 +159,8 @@ Both samples use synthetic data on no real account, clearly labelled.
   recommendation, not an action. The change scripts do nothing without `--apply`, save a
   rollback file first, and ask you to type `yes` (`--yes` skips the question; with no
   terminal and no `--yes` they refuse).
-- **Prices are verified live, never hardcoded.** Every figure is computed from the
-  live unit price for your region times your actual usage, with the source shown.
+- **Prices are looked up at run time, never hardcoded.** Every figure is computed from the
+  unit price AWS returns for your region times your actual usage. A priced finding is rejected
+  unless it records that lookup.
 
 That's it. Install, then say "audit my AWS bill".

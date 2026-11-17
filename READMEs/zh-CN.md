@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../assets/hero-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="../assets/hero-light.svg">
-    <img src="../assets/hero-dark.svg" alt="aws-cost-audit：砍掉 AWS 账单里的浪费，每个价格都向 AWS 实时核对" width="100%">
+    <img src="../assets/hero-dark.svg" alt="aws-cost-audit：砍掉 AWS 账单里的浪费，每个价格都在运行时向 AWS 查询" width="100%">
   </picture>
 </p>
 
@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  让你的 agent 审计 AWS 账单，你会得到一个结论、最先要做的三项削减，以及每项背后的实时价格。
+  让你的 agent 审计 AWS 账单，你会得到一个结论、最先要做的三项削减，以及每个价格的来源。
 </p>
 
 <p align="center">
@@ -62,6 +62,8 @@ Detail:
 - Needs sign-off: 7 findings, $1,535/mo
 - No verified cost: 0 findings, in no total
 - Keep: 1 finding
+- Price sources: 9 Price List lookups, 4 Cost Explorer reads
+Re-check the Price List prices live: verify-price.sh --recheck examples/sample-findings.json
 Every figure above comes from the findings file. Nothing in your account was changed.
 ```
 
@@ -80,10 +82,12 @@ Cost Explorer 只给出总额，不告诉你该关掉什么。这个 skill 会�
 
 - **知道从哪里开始。** 一个以美元计的结论，然后是最先要做的三项削减。
   证明：上面的示例可用上面的命令重新打印，`make test` 会逐行比较两者。
-- **数字可信。** 价格在运行时从 AWS 获取，不来自记忆或博客里的价格表。
-  证明：如果脚本里写死了价格，`make test` 和 CI 扫描都会失败。
+- **数字可信。** 资源价格在运行时从 AWS Price List 获取，不来自记忆。
+  带价格的发现如果没有记录这次查询，就会被拒绝。唯一存储的数字是审计自身的 Cost Explorer 请求费用。
+  证明：`make test` 会拒绝没有查询记录的带价格发现；如果脚本里写死了价格，它也会失败。
 - **不会意外改动。** 默认是 dry-run：改动脚本只打印它们将做什么。
   加上 `--apply` 后，它们先保存回滚文件，再要求你输入 yes。`--yes` 会跳过这个问题。
+  试运行会在本地保存回滚文件，不会改动你账户里的任何东西。
   没有可提问的终端又没有 `--yes` 时，它们会拒绝。`make test` 在 EBS 脚本上检查这个顺序。
 
 ## 安装
@@ -158,7 +162,8 @@ cp -r aws-cost-audit-skill/skills/aws-cost-audit ~/.claude/skills/aws-cost-audit
 1. **预检。** `doctor.sh` 检查 AWS CLI、凭证、`jq`、区域和输出文件夹。它不会改动任何东西。
 2. **基线。** Cost Explorer 提供按服务、区域和用量类型划分的支出。脚本会统计每次请求，并在达到上限时停止。
 3. **查找。** 它会扫描每个已启用的区域，找出闲置、配置过大或被遗忘的资源。检查项见[查找清单](../skills/aws-cost-audit/references/hunt-list.md)。
-4. **定价。** 每一美元都是你所在区域的实时单价乘以你的真实用量。没有任何价格来自记忆。
+4. **定价。** 每个单价都来自你所在区域的 AWS Price List，再乘以你的真实用量。
+   `verify-price.sh --record` 把这次查询保存进发现，校验器会拒绝没有查询记录的金额。
 5. **分类。** 每条发现都是 KEEP、OPTIMIZE 或 SAFE-TO-DELETE，并附有置信度和证据。
 6. **报告。** `findings-validate.sh` 先检查 `findings.json`，然后 `findings-summary.sh` 打印结论和三项行动。细节随后列出。
 
@@ -179,10 +184,11 @@ skill 本身是 [`SKILL.md`](../skills/aws-cost-audit/SKILL.md)：五条规则�
 
 | 说明                         | 命令                                                         | 今天的输出                                                                    |
 | :--------------------------- | :----------------------------------------------------------- | :---------------------------------------------------------------------------- |
-| 离线测试套件通过             | `make test`                                                  | `Results: 106 passed, 0 failed`                                                |
+| 离线测试套件通过             | `make test`                                                  | `Results: 144 passed, 0 failed`                                                |
 | 上面的示例就是工具的真实输出 | `make test`（第 39 个用例逐行对比两者）                      | `[PASS] sample: the README sample report is the script output, line for line` |
 | 插件清单有效                 | `claude plugin validate . --strict`                          | `✔ Validation passed`                                                         |
 | 脚本里没有写死任何单价       | `make test`（no-hardcoded-price 用例）                       | `[PASS] no per-request price literal in any script`                           |
+| 带价格的发现必须有查询记录   | `make test`（price rule 用例） | `[PASS] price rule: a dollar figure with no price_lookups exits 1` |
 
 测试套件用桩替代了 `aws` 命令，所以不需要凭证，也不会调用任何 AWS 接口。
 它还会检查 `delete-unattached-ebs.sh` 的安全顺序：确认之前不做任何改动。
@@ -205,7 +211,8 @@ skill 要求你的 agent 先给你看“未使用”的证据和试运行结果�
 Cost Explorer 对每次 API 请求计费。脚本会统计每一页，并在达到 `AWS_COST_AUDIT_CE_BUDGET` 时停止，默认是 50。Price List 查询免费。
 
 **为什么可以相信这些金额？**
-每个金额都会给出单价、计算过程和来源。无法核实的金额会写成“unknown”，并且不计入任何合计。
+每个金额都记录其来源：一次 Price List 查询，或在没有单一单价时的一次 Cost Explorer 读取。
+`findings-validate.sh` 会拒绝没有来源的金额。无法核实的金额会写成“unknown”，并且不计入任何合计。
 
 **示例里的数字是真的吗？**
 不是。示例报告、仪表板和演示用的都是虚构账户。里面的内容没有一条是从真实 AWS 账单读取的。
@@ -221,6 +228,9 @@ Cost Explorer 对每次 API 请求计费。脚本会统计每一页，并在达�
 - 基线需要开启 Cost Explorer。开启后，AWS 最多可能要 24 小时才会显示数据。
 - skill 只是引导你的 agent。能力较弱的模型仍可能跳过某一步，所以请检查证据行。
 - 价格以美元计，与 AWS 返回的一致。
+- 校验器检查的是每条价格记录的格式，而不是 AWS 是否真的返回了它。`verify-price.sh --recheck findings.json` 会重新执行 Price List 查询。
+- 阶梯价格（例如 S3 Standard 存储）和 Savings Plans 没有单一单价。这类发现记录的是一次 Cost Explorer 读取；每次读取都要计费，所以 `--recheck` 不会重跑它。
+- 只有一个数字是存储的而不是查询的：审计自身的 Cost Explorer 请求费用，见 `references/pricing-verification.md`。
 - agent 表里的“已测试”是指安装命令跑通、文件已落地。它不表示每个 agent 都被观察到加载了这个 skill。
 - 改动之前的“未使用”证据和试运行，是 skill 要求你的 agent 做的步骤。脚本强制执行的是 `--apply`、回滚文件和 `yes`。
 

@@ -516,6 +516,13 @@ if command -v jq >/dev/null 2>&1; then
     "$FV3_OUT" "schema_version must be a string"
   rm -rf "$FV3"
 
+  # A price-list record, as verify-price.sh --record prints it. The unit price
+  # is computed at run time, so no price is committed to this file.
+  PL_PRICE="0.0$(( (RANDOM % 89) + 10 ))"
+  PL_REC='{"method": "price-list", "service_code": "AmazonEC2", "region_code": "us-east-1",
+    "filters": ["productFamily=Storage", "volumeApiName=gp3"], "sku": "SKUEXAMPLE",
+    "unit": "GB-Mo", "price_per_unit_usd": '"$PL_PRICE"', "fetched_at": "2026-11-17T09:00:00Z"}'
+
   # 33. A numeric cost is accepted. The number is computed at run time and the
   # file is temporary, because CONTRIBUTING.md forbids writing a monthly cost
   # figure into any committed script, reference, example or fixture.
@@ -532,6 +539,7 @@ if command -v jq >/dev/null 2>&1; then
       "service": "Amazon EC2",
       "monthly_cost_estimate": $FV4_N,
       "evidence": "aws ec2 describe-volumes --region <region>",
+      "price_lookups": [$PL_REC],
       "action": "OPTIMIZE",
       "reversible": true,
       "confidence": "Low"
@@ -543,6 +551,83 @@ JSON
   FV4_OUT=$(bash "$VALIDATE" "$FV4/numeric.json" 2>&1) || FV4_RC=$?
   assert_eq "findings-validate: accepts a numeric cost as well as null" "$FV4_RC" "0"
   assert_contains "findings-validate: counts the numeric-case finding" "$FV4_OUT" "1 finding(s)"
+
+  # 33b. The price rule. A dollar figure without a lookup record is rejected,
+  # and the message names the command that makes one.
+  pv_case() { # pv_case <file> <price_lookups JSON, or "" for none> [region]
+    local lookups="" region="${3:-us-east-1}"
+    [ -n "$2" ] && lookups="\"price_lookups\": $2,"
+    cat > "$1" <<JSON
+{"schema_version": "1.1", "findings": [
+  {"id": "priced", "resource": "vol-EXAMPLE", "region": "$region", "service": "Amazon EBS",
+   "monthly_cost_estimate": $FV4_N, "evidence": "aws ec2 describe-volumes", $lookups
+   "action": "OPTIMIZE", "reversible": true, "confidence": "High"}]}
+JSON
+  }
+  pv_run() { PV_RC=0; PV_OUT=$(bash "$VALIDATE" "$1" 2>&1) || PV_RC=$?; }
+
+  pv_case "$FV4/none.json" ""
+  pv_run "$FV4/none.json"
+  assert_eq "price rule: a dollar figure with no price_lookups exits 1" "$PV_RC" "1"
+  assert_contains "price rule: the rejection names the finding and the missing record" \
+    "$PV_OUT" "[FAIL] findings[0] has a dollar figure but no price_lookups."
+  assert_contains "price rule: the rejection names the command to run" \
+    "$PV_OUT" "Run verify-price.sh --record and add its output"
+
+  FV4_SRC_N=$FV4_N; FV4_N=null
+  pv_case "$FV4/null.json" ""
+  pv_run "$FV4/null.json"
+  assert_eq "price rule: a finding with no dollar figure needs no record" "$PV_RC" "0"
+  FV4_N=$FV4_SRC_N
+
+  pv_case "$FV4/pl.json" "[$PL_REC]"
+  pv_run "$FV4/pl.json"
+  assert_eq "price rule: accepted with a price-list record" "$PV_RC" "0"
+
+  pv_case "$FV4/ce.json" '[{"method": "cost-explorer",
+    "command": "aws ce get-cost-and-usage-with-resources --group-by Type=DIMENSION,Key=RESOURCE_ID",
+    "reason": "deleted outright, so the saving is its whole billed cost",
+    "fetched_at": "2026-11-17T09:00:00Z"}]'
+  pv_run "$FV4/ce.json"
+  assert_eq "price rule: the labelled cost-explorer escape is accepted" "$PV_RC" "0"
+
+  pv_case "$FV4/ce-bad.json" '[{"method": "cost-explorer", "command": "from memory",
+    "fetched_at": "yesterday"}]'
+  pv_run "$FV4/ce-bad.json"
+  assert_eq "price rule: an escape with no source command or reason exits 1" "$PV_RC" "1"
+  assert_contains "price rule: the escape must name the aws ce command it read" \
+    "$PV_OUT" "command must be the aws ce command that was read"
+  assert_contains "price rule: the escape must say why no unit price applies" \
+    "$PV_OUT" "reason is required in a cost-explorer record but missing"
+  assert_contains "price rule: the escape must carry a UTC fetch time" \
+    "$PV_OUT" "fetched_at must be a UTC time"
+
+  pv_case "$FV4/pl-bad.json" '[{"method": "price-list", "service_code": "AmazonEC2",
+    "region_code": "us-east-1", "filters": [], "unit": "GB-Mo",
+    "price_per_unit_usd": "cheap", "fetched_at": "2026-11-17T09:00:00Z"}]'
+  pv_run "$FV4/pl-bad.json"
+  assert_eq "price rule: an incomplete price-list record exits 1" "$PV_RC" "1"
+  assert_contains "price rule: a price-list record needs the SKU" \
+    "$PV_OUT" "sku is required in a price-list record but missing"
+  assert_contains "price rule: a price-list record needs its filters" \
+    "$PV_OUT" "filters must be a non-empty array of FIELD=VALUE strings"
+  assert_contains "price rule: the unit price must be a number" \
+    "$PV_OUT" "price_per_unit_usd must be a number"
+
+  pv_case "$FV4/str.json" '"aws pricing get-products, trust me"'
+  pv_run "$FV4/str.json"
+  assert_eq "price rule: a free-text price source is not a record" "$PV_RC" "1"
+
+  pv_case "$FV4/other.json" '[{"method": "memory"}]'
+  pv_run "$FV4/other.json"
+  assert_contains "price rule: only the two methods exist" \
+    "$PV_OUT" "method must be price-list or cost-explorer"
+
+  pv_case "$FV4/region.json" "[$PL_REC]" "eu-west-1"
+  pv_run "$FV4/region.json"
+  assert_eq "price rule: a price from another region exits 1" "$PV_RC" "1"
+  assert_contains "price rule: and says to price the resource's own region" \
+    "$PV_OUT" "region_code is us-east-1 but the finding is in eu-west-1"
   rm -rf "$FV4"
   # ---- findings-summary.sh --------------------------------------------------
   # The report order is fixed: verdict, then the three things to do, then the
@@ -570,19 +655,19 @@ JSON
   "findings": [
     {"id": "b-second", "resource": "res-B", "region": "<region>", "service": "Svc B",
      "monthly_cost_estimate": $FS_COST, "after_monthly_cost": 40,
-     "evidence": "cmd b", "action": "OPTIMIZE", "reversible": true, "confidence": "High"},
+     "evidence": "cmd b", "price_lookups": [$PL_REC], "action": "OPTIMIZE", "reversible": true, "confidence": "High"},
     {"id": "c-gated", "resource": "res-C", "region": "<region>", "service": "Svc C",
      "monthly_cost_estimate": $FS_C,
-     "evidence": "cmd c", "action": "SAFE-TO-DELETE", "reversible": false, "confidence": "High"},
+     "evidence": "cmd c", "price_lookups": [$PL_REC], "action": "SAFE-TO-DELETE", "reversible": false, "confidence": "High"},
     {"id": "a-first", "resource": "res-A", "region": "<region>", "service": "Svc A",
      "monthly_cost_estimate": null, "monthly_saving": $FS_A,
-     "evidence": "cmd a", "action": "OPTIMIZE", "reversible": true, "confidence": "High"},
+     "evidence": "cmd a", "price_lookups": [$PL_REC], "action": "OPTIMIZE", "reversible": true, "confidence": "High"},
     {"id": "d-unknown", "resource": "res-D", "region": "<region>", "service": "Svc D",
      "monthly_cost_estimate": null,
      "evidence": "cmd d", "action": "OPTIMIZE", "reversible": true, "confidence": "Low"},
     {"id": "k-keep", "resource": "res-K", "region": "<region>", "service": "Svc K",
      "monthly_cost_estimate": $FS_A,
-     "evidence": "cmd k", "action": "KEEP", "reversible": false, "confidence": "High"}
+     "evidence": "cmd k", "price_lookups": [$PL_REC], "action": "KEEP", "reversible": false, "confidence": "High"}
   ]
 }
 JSON
@@ -609,6 +694,10 @@ JSON
   FS1_ORDER="$(printf '%s\n' "$FS1_OUT" | grep -n -E '^(VERDICT:|Do these three first:|Detail:)' | cut -d: -f2 | tr '\n' ' ')"
   assert_eq "findings-summary: order is verdict, three actions, detail" \
     "$FS1_ORDER" "VERDICT Do these three first Detail "
+  assert_contains "findings-summary: counts the price records behind the figures" \
+    "$FS1_OUT" "- Price sources: 4 Price List lookups, 0 Cost Explorer reads"
+  assert_contains "findings-summary: names the command that re-checks them" \
+    "$FS1_OUT" "Re-check the Price List prices live: verify-price.sh --recheck $FS1/f.json"
   assert_contains "findings-summary: a KEEP finding is never listed as an action" \
     "$(printf '%s\n' "$FS1_OUT" | grep -c 'res-K' | tr -d ' ')" "0"
   rm -rf "$FS1"
@@ -620,7 +709,7 @@ JSON
 {"schema_version": "1.0", "findings": [
   {"id": "big", "resource": "res-big", "region": "<region>", "service": "Svc",
    "monthly_cost_estimate": null, "monthly_saving": $FS_BIG.5,
-   "evidence": "cmd", "action": "OPTIMIZE", "reversible": true, "confidence": "High"}]}
+   "evidence": "cmd", "price_lookups": [$PL_REC], "action": "OPTIMIZE", "reversible": true, "confidence": "High"}]}
 JSON
   FS2_OUT=$(bash "$SUMMARY" "$FS2/f.json" 2>/dev/null) || true
   assert_eq "findings-summary: formats thousands and cents" \
@@ -664,8 +753,9 @@ JSON
   FS6_RC=0
   bash "$VALIDATE" "$ROOT/examples/sample-findings.json" >/dev/null 2>&1 || FS6_RC=$?
   assert_eq "sample: examples/sample-findings.json satisfies the contract" "$FS6_RC" "0"
-  # 2>&1: the README must match what a terminal shows, stderr included.
-  FS6_OUT=$(bash "$SUMMARY" "$ROOT/examples/sample-findings.json" 2>&1) || true
+  # 2>&1: the README must match what a terminal shows, stderr included. Run
+  # from the repo root with the same relative path the README tells you to use.
+  FS6_OUT=$(cd "$ROOT" && bash "$SUMMARY" examples/sample-findings.json 2>&1) || true
   FS6_README=$(awk '/<!-- sample-report:begin -->/{f=1;next} /<!-- sample-report:end -->/{f=0} f' \
     "$ROOT/README.md" | grep -v '^```' | sed '/./,$!d' || true)
   assert_eq "sample: the README sample report is the script output, line for line" \
@@ -680,7 +770,7 @@ JSON
     "$(printf '%s\n' "$FS6_OUT" | sed -n 1p | cut -c1-8)" "VERDICT:"
   assert_eq "findings-summary: no [OK] contract line without --verbose" \
     "$(printf '%s\n' "$FS6_OUT" | grep -c '^\[OK\]' | tr -d ' ')" "0"
-  FS7_OUT=$(bash "$SUMMARY" --verbose "$ROOT/examples/sample-findings.json" 2>&1) || true
+  FS7_OUT=$(cd "$ROOT" && bash "$SUMMARY" --verbose examples/sample-findings.json 2>&1) || true
   assert_eq "findings-summary: --verbose still opens on the verdict" \
     "$(printf '%s\n' "$FS7_OUT" | sed -n 1p | cut -c1-8)" "VERDICT:"
   assert_contains "findings-summary: --verbose prints the [OK] line last" \
@@ -704,6 +794,88 @@ JSON
   done
 else
   printf '[SKIP] findings-validate and findings-summary cases: jq is not installed on this machine\n'
+fi
+
+# ---- verify-price.sh --record and --recheck ----------------------------------
+# A stubbed `aws` answers pricing get-products with one product whose price is
+# chosen at run time, and logs every call. No AWS call is made.
+if command -v jq >/dev/null 2>&1; then
+  VP="$HERE/../skills/aws-cost-audit/scripts/verify-price.sh"
+  make_pricing_stub() { # make_pricing_stub <bin-dir> <calls-log>
+    mkdir -p "$1"
+    cat > "$1/aws" <<STUB
+#!/usr/bin/env bash
+printf '%s\n' "\$*" >> "$2"
+case "\$1 \$2" in
+  "pricing get-products")
+    jq -n --arg usd "\$STUB_USD" --argjson dims "\${STUB_DIMS:-1}" '
+      [range(\$dims) | {("RATE" + tostring): {unit: "GB-Mo", pricePerUnit: {USD: \$usd},
+                         description: "stub dimension"}}] | add as \$pd
+      | {PriceList: [ {product: {sku: "SKUSTUB"},
+                       terms: {OnDemand: {"SKUSTUB.TERM": {priceDimensions: \$pd}}}} | tojson ]}'
+    ;;
+  *) echo "unexpected call: \$*" >&2; exit 9;;
+esac
+STUB
+    chmod +x "$1/aws"
+  }
+  VP_DIR="$(mktemp -d)"
+  make_pricing_stub "$VP_DIR/bin" "$VP_DIR/calls"
+  VP_USD="0.0$(( (RANDOM % 89) + 10 ))"
+
+  # 46. --record prints one record that the validator accepts in a finding.
+  VP_RC=0
+  VP_REC=$(PATH="$VP_DIR/bin:$PATH" STUB_USD="$VP_USD" bash "$VP" --service-code AmazonEC2 \
+    --region-code us-east-1 --filter productFamily=Storage --filter volumeApiName=gp3 --record 2>/dev/null) || VP_RC=$?
+  assert_eq "verify-price --record: exits 0 when one price matches" "$VP_RC" "0"
+  assert_eq "verify-price --record: records the live unit price as a number" \
+    "$(printf '%s' "$VP_REC" | jq -r '.price_per_unit_usd == ($u | tonumber)' --arg u "$VP_USD")" "true"
+  assert_eq "verify-price --record: records the SKU, unit, filters and region" \
+    "$(printf '%s' "$VP_REC" | jq -c '[.method, .sku, .unit, .region_code, .filters]')" \
+    '["price-list","SKUSTUB","GB-Mo","us-east-1",["productFamily=Storage","volumeApiName=gp3"]]'
+  assert_eq "verify-price --record: stamps the fetch time in UTC" \
+    "$(printf '%s' "$VP_REC" | jq -r '.fetched_at | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]{8}Z$")')" "true"
+  VP_N=$(( (RANDOM % 900) + 100 ))
+  printf '{"schema_version": "1.1", "findings": [{"id": "e2e", "resource": "vol-EXAMPLE",
+    "region": "us-east-1", "service": "Amazon EBS", "monthly_cost_estimate": %s,
+    "evidence": "aws ec2 describe-volumes", "price_lookups": [%s],
+    "action": "OPTIMIZE", "reversible": true, "confidence": "High"}]}' "$VP_N" "$VP_REC" > "$VP_DIR/f.json"
+  VP_RC=0; bash "$HERE/../skills/aws-cost-audit/scripts/findings-validate.sh" "$VP_DIR/f.json" >/dev/null 2>&1 || VP_RC=$?
+  assert_eq "verify-price --record: its output satisfies the price rule as it is" "$VP_RC" "0"
+
+  # 47. --record refuses a lookup that matched more than one price.
+  VP_RC=0
+  VP_OUT=$(PATH="$VP_DIR/bin:$PATH" STUB_USD="$VP_USD" STUB_DIMS=2 bash "$VP" --service-code AmazonS3 \
+    --region-code us-east-1 --filter storageClass=General --record 2>&1) || VP_RC=$?
+  assert_eq "verify-price --record: two matching prices exit 1" "$VP_RC" "1"
+  assert_contains "verify-price --record: and says to narrow the filters" "$VP_OUT" "Add --filter until one price is left"
+  assert_eq "verify-price --record: and prints no record" "$(printf '%s' "$VP_OUT" | grep -c '"method"' | tr -d ' ')" "0"
+
+  # 48. --recheck: an unchanged price passes, a changed one fails and says so.
+  : > "$VP_DIR/calls"
+  VP_RC=0
+  VP_OUT=$(PATH="$VP_DIR/bin:$PATH" STUB_USD="$VP_USD" bash "$VP" --recheck "$VP_DIR/f.json" 2>/dev/null) || VP_RC=$?
+  assert_eq "verify-price --recheck: an unchanged price exits 0" "$VP_RC" "0"
+  assert_contains "verify-price --recheck: reports the match" "$VP_OUT" "[OK] e2e: AmazonEC2 SKUSTUB still"
+  assert_eq "verify-price --recheck: makes only Price List calls" \
+    "$(grep -vc '^pricing get-products ' "$VP_DIR/calls" | tr -d ' ')" "0"
+  VP_RC=0
+  VP_OUT=$(PATH="$VP_DIR/bin:$PATH" STUB_USD="9$VP_USD" bash "$VP" --recheck "$VP_DIR/f.json" 2>/dev/null) || VP_RC=$?
+  assert_eq "verify-price --recheck: a changed price exits 1" "$VP_RC" "1"
+  assert_contains "verify-price --recheck: and names the finding and the new price" "$VP_OUT" "[CHANGED] e2e:"
+
+  # 49. --recheck lists a cost-explorer record without calling Cost Explorer.
+  jq '.findings[0].price_lookups += [{"method": "cost-explorer", "command": "aws ce get-cost-and-usage",
+       "reason": "no unit price", "fetched_at": "2026-11-17T09:00:00Z"}]' "$VP_DIR/f.json" > "$VP_DIR/g.json"
+  : > "$VP_DIR/calls"
+  VP_OUT=$(PATH="$VP_DIR/bin:$PATH" STUB_USD="$VP_USD" bash "$VP" --recheck "$VP_DIR/g.json" 2>/dev/null) || true
+  assert_contains "verify-price --recheck: a Cost Explorer record is listed as not re-checked" \
+    "$VP_OUT" "[SKIP] e2e: cost-explorer record, not re-checked"
+  assert_eq "verify-price --recheck: and no billed Cost Explorer call is made" \
+    "$(grep -c '^ce ' "$VP_DIR/calls" | tr -d ' ')" "0"
+  rm -rf "$VP_DIR"
+else
+  printf '[SKIP] verify-price.sh --record and --recheck cases: jq is not installed on this machine\n'
 fi
 
 # ---- delete-unattached-ebs.sh gating -------------------------------------------
@@ -774,6 +946,18 @@ assert_eq "delete-ebs: --no-snapshot --apply --yes exits 0" "$E5_RC" "0"
 assert_eq "delete-ebs: and only deletes, no snapshot" \
   "$(grep -E '^ec2 (create-snapshot|wait|delete-volume)' "$E5/calls" | cut -d' ' -f2 | tr '\n' ' ')" "delete-volume "
 rm -rf "$E5"
+
+# ---- version parity ------------------------------------------------------------
+# The three plugin manifests and SKILL.md metadata.version carry one version.
+PARITY_ROOT="$HERE/.."
+manifest_version() { sed -n 's/^ *"version": *"\([^"]*\)".*/\1/p' "$1" | head -1; }
+V_CLAUDE="$(manifest_version "$PARITY_ROOT/.claude-plugin/plugin.json")"
+V_SKILL="$(awk '/^---$/{n++; next} n==1 && /^metadata:/{m=1; next} n==1 && m && /^  version:/{gsub(/[" ]/,"",$2); print $2; exit}' FS=: "$PARITY_ROOT/skills/aws-cost-audit/SKILL.md")"
+assert_eq "version parity: SKILL.md metadata.version matches .claude-plugin/plugin.json" "$V_SKILL" "$V_CLAUDE"
+assert_eq "version parity: .cursor-plugin/plugin.json matches .claude-plugin/plugin.json" \
+  "$(manifest_version "$PARITY_ROOT/.cursor-plugin/plugin.json")" "$V_CLAUDE"
+assert_eq "version parity: .copilot-plugin/plugin.json matches .claude-plugin/plugin.json" \
+  "$(manifest_version "$PARITY_ROOT/.copilot-plugin/plugin.json")" "$V_CLAUDE"
 
 # ---- summary -----------------------------------------------------------------
 echo ""

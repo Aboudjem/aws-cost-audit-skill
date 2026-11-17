@@ -83,7 +83,7 @@ These are non-negotiable. They mirror the skill's Iron Laws in `AGENTS.md` /
   cost, or a "$X saved" figure into the skill, a script, a reference, or a test fixture.
   The one exception is `examples/`: invented figures for a fictional account, marked SAMPLE.
   Every dollar must come from BOTH the live, Region-specific unit price (AWS Price
-  List Query API or the service's pricing page) AND the user's actual usage (Cost
+  List Query API, recorded with `verify-price.sh --record`) AND the user's actual usage (Cost
   Explorer / CUR), shown as `unit price → math → source`. Prices are Region-specific
   and change; a memorized price is a guess.
 - **Nothing destructive without the gate.** Discovery is read-only (describe / list
@@ -106,8 +106,9 @@ Before opening a PR, verify your change three ways:
    claude plugin validate . --strict
    ```
    All three must pass. `make test` runs the offline suite with a stubbed `aws`,
-   so it needs `jq` but no credentials. Also confirm the three manifests in
-   `.claude-plugin/`, `.cursor-plugin/` and `.copilot-plugin/` carry the same version.
+   so it needs `jq` but no credentials. A version bump touches four places:
+   the manifests in `.claude-plugin/`, `.cursor-plugin/` and `.copilot-plugin/`, and
+   `metadata.version` in `skills/aws-cost-audit/SKILL.md`. `make test` fails if they differ.
 
 2. **Run the skill for real.** Drop the skill into your local Claude Code and
    exercise the path you changed:

@@ -8,7 +8,7 @@ goes.
 |:--|:--|:--|:--|
 | Runs against your live account | Yes | Yes | Yes |
 | Cost to start | None, MIT licensed | None | Usually a paid plan |
-| Verifies each price live | Yes, per region, per run | Depends on the person | Shows its own figures |
+| Records where each price came from | Yes, a Price List lookup per figure, checked by the validator | Depends on the person | Shows its own figures |
 | Attributes cost, owner, and last used per resource | Yes | Slow, by hand | Partial |
 | Can act on a finding | Yes, gated and reversible | Yes, manually | Read-only |
 | Produces a shareable report | Yes, Markdown and HTML | By hand | Yes |
@@ -19,7 +19,7 @@ goes.
 
 Every dollar carries its own arithmetic. A finding is not "you could save about $40 a month on
 this volume", it is the live unit price for your region, the usage that price was multiplied by,
-the API the price came from, and how to reverse the change. That is checkable by someone who did
+the lookup record the price came from, and how to reverse the change. That is checkable by someone who did
 not run the audit, which is the part a dashboard screenshot cannot give you.
 
 ## Where the other tools are genuinely better

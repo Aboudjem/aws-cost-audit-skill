@@ -120,7 +120,7 @@
   <g transform="translate(544,0)">
     <text class="mono eyebrow" x="0" y="134">AWS BILL AUDIT SKILL</text>
     <text class="disp head" x="0" y="186">Cut the waste in your AWS bill</text>
-    <text class="disp sub" x="0" y="222">Three cuts first. Every price checked live.</text>
+    <text class="disp sub" x="0" y="222">Three cuts first. Prices fetched from AWS.</text>
     <text class="disp sub" x="0" y="249">Dry-run by default. A change needs your yes.</text>
     <g transform="translate(0,292)"><g class="awp1"><circle cx="0" cy="0" r="4.5" fill="#8C5400"/></g><g class="awp2"><circle cx="22" cy="0" r="4.5" fill="#8C5400"/></g><g class="awp3"><circle cx="44" cy="0" r="4.5" fill="#8C5400"/></g><g class="awp4"><circle cx="66" cy="0" r="4.5" fill="#8C5400"/></g><g class="awp5"><circle cx="88" cy="0" r="4.5" fill="#8C5400"/></g><g class="awp6"><circle cx="110" cy="0" r="4.5" fill="#8C5400"/></g><text class="mono tag" x="146" y="4">EVIDENCE FIRST</text></g>
   </g>

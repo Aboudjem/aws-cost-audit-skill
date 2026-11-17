@@ -32,8 +32,8 @@ the AWS Price List Query API (see `verify-price.sh`), never assumed.
 | `00-baseline.sh` | Cost Explorer total, by-service, by-region, by-usage-type, 90d daily trend, 30d forecast → JSON | No (read-only) | Establishes the spend picture so you target the biggest line items | None | N/A (read-only) |
 | `inventory-regions.sh` | Loops `describe-regions` and runs read-only inventory per region (EC2, EBS, snapshots, EIPs, ELB, TGs, NAT, RDS, ElastiCache, log groups) | No (read-only) | Finds resources you forgot in other regions | None | N/A (read-only) |
 | `find-idle.sh` | Candidate table: unassociated EIPs, unattached EBS, idle ALBs/empty TGs, never-expire log groups, gp2 volumes | No (read-only) | Pinpoints concrete waste to act on | None | N/A (read-only) |
-| `verify-price.sh` | Live unit price from `pricing get-products` for a service-code + region-code + filters | No (read-only) | Proves savings math with real, current prices (no guessing) | None | N/A (read-only) |
-| `findings-validate.sh` | Checks a `findings.json` file against the contract in `../references/output-and-reporting.md` (jq) | No (read-only) | Lets two audits be diffed instead of re-read | None | N/A (read-only) |
+| `verify-price.sh` | Live unit price from `pricing get-products` for a service-code + region-code + filters. `--record` prints the lookup as a `price_lookups` record for `findings.json`; `--recheck FILE` re-runs every recorded lookup | No (read-only) | Proves savings math with real, current prices (no guessing) | None | N/A (read-only) |
+| `findings-validate.sh` | Checks a `findings.json` file against the contract in `../references/output-and-reporting.md` (jq). Rejects a dollar figure with no `price_lookups` record | No (read-only) | Lets two audits be diffed instead of re-read | None | N/A (read-only) |
 | `findings-summary.sh` | Prints the top of the report from a valid `findings.json`: the verdict, the three things to do first, the counts (jq) | No (read-only) | The reader sees how much to save and what to do in the first lines | None | N/A (read-only) |
 | `set-log-retention.sh` | Gated `put-retention-policy` with `--days`; one group or all never-expire groups | Yes (`--apply`) | Caps CloudWatch Logs storage growth | Low, too-short retention can drop logs you still need | Re-apply old `--days` (saved in artifact) or `delete-retention-policy` |
 | `gp2-to-gp3.sh` | Gated `modify-volume` gp2→gp3 for a `--volume-id` | Yes (`--apply`) | gp3 is typically cheaper per GB than gp2 | Low, online change, no detach | `modify-volume --volume-type gp2` (prior type saved in artifact) |
@@ -60,7 +60,9 @@ is billed the same way but is invisible to it.
 2. `./00-baseline.sh --output ./out`, snapshot current spend.
 3. `./inventory-regions.sh --output ./out`, sweep every region.
 4. `./find-idle.sh --region <region> --output ./out`, list candidates per region.
-5. `./verify-price.sh --service-code AmazonEC2 --region-code <region> ...`,    confirm the live price before you size any savings claim.
+5. `./verify-price.sh --service-code AmazonEC2 --region-code <region> --filter ... --record`,
+   get the live price as a record and add it to the finding's `price_lookups`.
+   Later, `./verify-price.sh --recheck findings.json` re-runs every recorded lookup.
 6. Act with the gated scripts in **dry-run first**, review the printed plan and
    the rollback artifact path, then re-run with `--apply`.
 
@@ -71,8 +73,8 @@ is billed the same way but is invisible to it.
   resource is genuinely idle before deleting or modifying it. The finder scripts
   surface *candidates*, not verdicts.
 - **Law 1, never assume a price.** Verify it live for your exact region and
-  usage type with `verify-price.sh` (or the service's pricing page) before
-  claiming a dollar amount.
+  usage type with `verify-price.sh --record` before claiming a dollar amount.
+  `findings-validate.sh` rejects a dollar figure with no lookup record.
 - **Dry-run is the default.** Treat the dry-run output and the rollback artifact
   as the review gate. Only pass `--apply` once you have read both.
 - **Reversibility first.** `delete-unattached-ebs.sh` snapshots before deleting;

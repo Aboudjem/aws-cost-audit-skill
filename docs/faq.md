@@ -37,7 +37,10 @@ region, and ships with no account ids, ARNs, or prices baked in.
 ## Does it hardcode AWS prices?
 
 No, on purpose. Prices change and vary by region, so it fetches the live price for your region
-and combines it with your real usage. The one figure this repo records is Cost Explorer's own
+and combines it with your real usage. `verify-price.sh --record` saves each lookup in the finding,
+and `findings-validate.sh` rejects a dollar figure without a lookup record. A figure with no single
+unit price, such as a tiered S3 price, records the Cost Explorer read it came from instead.
+The one figure this repo records is Cost Explorer's own
 per-request API charge, which is the cost of running the audit rather than the price of anything
 the audit reports on. It lives in
 [`references/pricing-verification.md`](../skills/aws-cost-audit/references/pricing-verification.md)
@@ -72,7 +75,8 @@ The skill is built around five rules it will not break. They are stated in full 
 [`why-these-laws.md`](../skills/aws-cost-audit/references/why-these-laws.md).
 
 1. **No made-up prices.** Every dollar comes from the live AWS price for your region plus your
-   actual usage, shown as unit price, then the math, then the source.
+   actual usage, shown as unit price, then the math, then the source. Each finding records that
+   lookup, and the validator rejects a dollar figure without one.
 2. **Attribute every dollar, or say "unknown".** It never invents an owner, a date, or a
    last-used timestamp.
 3. **Nothing destructive without proof.** The skill tells your agent to act only if the resource
