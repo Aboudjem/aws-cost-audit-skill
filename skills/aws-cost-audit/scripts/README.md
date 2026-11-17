@@ -4,8 +4,8 @@ Generic, account-agnostic helper scripts for auditing and reducing AWS spend.
 
 **Every script is dry-run unless you pass `--apply`.** Read-only scripts have no
 `--apply` flag at all. Mutating scripts save a rollback artifact *before* they
-change anything, and most require an interactive `yes` confirmation (skippable
-with `--yes` for automation).
+change anything, then ask you to type `yes` (skippable with `--yes`). With no TTY
+and no `--yes` they refuse before any change.
 
 Nothing here hardcodes an account id, region, ARN, resource id, or a dollar
 price. Region is resolved from `--region`, then `$AWS_REGION`, then

@@ -32,23 +32,30 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 usage() {
   cat <<'EOF'
-Usage: findings-summary.sh <findings.json>
+Usage: findings-summary.sh [--verbose] <findings.json>
 
 Prints the top of the report from one findings file:
   line 1    the verdict: what you can save now, and the ceiling with sign-offs
   then      the three things to do first, largest verified saving first
   then      the counts behind the verdict
 
-The file is checked with findings-validate.sh first.
+The file is checked with findings-validate.sh first. A file that breaks the
+contract gets the validator's [FAIL] lines on stderr and no summary.
+
+Options:
+  -v, --verbose   After the summary, also print the validator's [OK] line
+                  on stderr. Without it, the first line you see is the verdict.
 
 Exit: 0 summary printed, 1 file breaks the contract, 2 could not check.
 EOF
 }
 
 FILE=""
+VERBOSE=0
 while [ $# -gt 0 ]; do
   case "$1" in
     -h|--help) usage; exit 0;;
+    -v|--verbose) VERBOSE=1; shift;;
     -*) err "Unknown option: $1 (see --help)"; exit 2;;
     *) FILE="$1"; shift;;
   esac
@@ -57,10 +64,13 @@ done
 [ -n "$FILE" ] || { usage; exit 2; }
 
 # The validator owns every "could not check" and "breaks the contract" message.
-# Its output goes to stderr here so stdout holds the summary and nothing else.
+# Its output is held back so the verdict is the first line in a terminal. On a
+# failure it goes to stderr; on success only --verbose prints it, after the
+# summary.
 VALIDATE_RC=0
-bash "$HERE/findings-validate.sh" "$FILE" >&2 || VALIDATE_RC=$?
+VALIDATE_OUT="$(bash "$HERE/findings-validate.sh" "$FILE" 2>&1)" || VALIDATE_RC=$?
 if [ "$VALIDATE_RC" -ne 0 ]; then
+  printf '%s\n' "$VALIDATE_OUT" >&2
   err "No summary printed: fix the problems above, then run this again."
   exit "$VALIDATE_RC"
 fi
@@ -143,3 +153,7 @@ jq -r '
     "- Keep: \(plural($keep | length; "finding"; "findings"))",
     "Every figure above comes from the findings file. Nothing in your account was changed."
 ' "$FILE"
+
+if [ "$VERBOSE" = "1" ]; then
+  printf '%s\n' "$VALIDATE_OUT" >&2
+fi

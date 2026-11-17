@@ -75,9 +75,11 @@ The skill is built around five rules it will not break. They are stated in full 
    actual usage, shown as unit price, then the math, then the source.
 2. **Attribute every dollar, or say "unknown".** It never invents an owner, a date, or a
    last-used timestamp.
-3. **Nothing destructive without proof.** A change runs only if the resource is proven unused,
-   the action is reversible, it passed a dry run, and the result is certain. Otherwise it stays
-   a recommendation.
+3. **Nothing destructive without proof.** The skill tells your agent to act only if the resource
+   is proven unused, the action is reversible, it passed a dry run, and the result is certain.
+   Otherwise it stays a recommendation. The change scripts enforce the rest in code: nothing
+   changes without `--apply`, a rollback file is saved first, and you type `yes` unless you pass
+   `--yes`. With no terminal and no `--yes`, they refuse.
 4. **One sample is never the whole fleet.** A separate skeptic pass re-derives the headline
    numbers from the source before they ship.
 5. **Every finding shows its evidence.** Current cost, cost after, dollars saved, a confidence

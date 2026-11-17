@@ -152,7 +152,9 @@ Both samples use synthetic data on no real account, clearly labelled.
   account on its own.
 - **Nothing destructive without proof + your sign-off.** A resource is only proposed
   for deletion if it is proven-unused, reversible, and tested, otherwise it stays a
-  recommendation, not an action. You approve each change.
+  recommendation, not an action. The change scripts do nothing without `--apply`, save a
+  rollback file first, and ask you to type `yes` (`--yes` skips the question; with no
+  terminal and no `--yes` they refuse).
 - **Prices are verified live, never hardcoded.** Every figure is computed from the
   live unit price for your region times your actual usage, with the source shown.
 

@@ -80,8 +80,12 @@ its step (token-efficient progressive disclosure).
    confidence + evidence + reversibility.
 5. **Verify prices live + skeptic pass.** Every dollar figure is re-derived from the live price
    source and actual usage by a *separate* check (Law 1 + Law 4). See `references/pricing-verification.md`.
-6. **Gated remediation.** Only High-confidence, reversible, tested, certain items may auto-run, and
+6. **Gated remediation.** Only High-confidence, reversible, tested, certain items may run, and
    only with the executor → verifier → rollback gate. Everything else is a labeled recommendation.
+   Before any `--apply`: show the user the proof of non-use and the script's dry-run output, then
+   ask them to type `yes` in the chat. Pass `--apply --yes` only after that yes. Your shell has no
+   TTY, so the script refuses `--apply` without `--yes`, and that refusal is correct; never add
+   `--yes` to get past it without the user's yes. Never pass `--no-snapshot`.
 7. **Deliver, verdict first.** Write `findings.json`, then run `scripts/findings-summary.sh` on it.
    Its output opens the report as it is: the verdict, then the three things to do first, then the
    counts. The detail comes after. Then a plain-language report (`references/output-and-reporting.md`), an optional generated
@@ -100,7 +104,7 @@ digraph gate {
   q2 [shape=diamond, label="Reversible?\n(snapshot/backup/versioning/detach-first)"];
   q3 [shape=diamond, label="Tested in dry-run AND\n100% sure of blast radius?"];
   rec [label="RECOMMEND only\n(put on report w/ confidence, do NOT run)"];
-  run [label="May auto-run\nvia executor → verifier → rollback"];
+  run [label="May run after the user's typed yes\nvia executor → verifier → rollback"];
   q1 -> rec [label="no / unsure"];
   q1 -> q2 [label="yes"];
   q2 -> rec [label="no"];

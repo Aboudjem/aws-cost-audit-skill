@@ -3,9 +3,11 @@
 #
 # SAFETY ORDER OF OPERATIONS:
 #   1. Require the volume status to be 'available' (i.e. NOT attached).
-#   2. Take a snapshot FIRST and wait for it to complete (the rollback path).
-#   3. Save a rollback artifact (volume metadata + snapshot id).
-#   4. Only then, on --apply AND explicit confirmation, delete the volume.
+#   2. Save a rollback artifact (volume metadata) before any change.
+#   3. On --apply, ask for confirmation BEFORE the first change. Without a TTY
+#      and without --yes it refuses, and nothing has changed.
+#   4. Take a snapshot and wait for it to complete (the rollback path), add
+#      its id to the rollback artifact, and only then delete the volume.
 #
 # Default is DRY-RUN. Deleting a volume is destructive; the snapshot is your
 # restore point (create a new volume from the snapshot to recover).
@@ -27,10 +29,12 @@ Required:
 Options:
   --region REGION   Region (else $AWS_REGION / config).
   --output DIR      Rollback artifact dir (default ./cost-audit-out or $OUT_DIR).
-  --no-snapshot     Skip the safety snapshot (NOT recommended; refused unless
-                    combined with --apply and --yes).
+  --no-snapshot     Skip the safety snapshot (NOT recommended: the deletion
+                    cannot be undone). The dry run shows the plan. With
+                    --apply it is refused unless --yes is also passed.
   --apply           Actually snapshot + delete (omit for dry-run).
-  --yes             Skip interactive confirm.
+  --yes             Skip the typed confirmation. Without it, and without a
+                    TTY, --apply is refused before any change.
   -h, --help        Show this help
 
 Rollback: by default a snapshot is taken before deletion and its id recorded in
@@ -100,11 +104,18 @@ if [ "$APPLY" != "1" ]; then
 fi
 
 # --apply path.
+# The rollback file and the confirmation both come before the first change, so
+# a refusal (no TTY, no --yes, or a "no") leaves the account untouched.
+printf '%s\n' "$VOL_JSON" > "$ROLLBACK"
+info "Rollback metadata saved: $ROLLBACK"
+
 SNAP_ID="(skipped)"
 if [ "$NO_SNAPSHOT" = "1" ]; then
+  [ "$ASSUME_YES" = "1" ] || die "Refusing --no-snapshot with --apply unless --yes is also passed: the deletion could not be undone."
   warn "--no-snapshot set: NO restore point will exist after deletion."
-  confirm "Delete $VOL_ID WITHOUT a snapshot (unrecoverable)?"
+  confirm "Delete $VOL_ID in $REGION WITHOUT a snapshot (unrecoverable)?"
 else
+  confirm "Snapshot, then delete EBS volume $VOL_ID in ${REGION}?"
   info "Creating safety snapshot first..."
   SNAP_ID="$(aws ec2 create-snapshot --volume-id "$VOL_ID" --region "$REGION" \
     --description "pre-delete safety snapshot of $VOL_ID ($TS)" \
@@ -114,7 +125,7 @@ else
   info "Snapshot $SNAP_ID completed."
 fi
 
-# Write rollback artifact (now including snapshot id).
+# Rewrite the rollback artifact, now including the snapshot id.
 {
   echo "{"
   echo "  \"region\": \"$REGION\","
@@ -127,7 +138,6 @@ fi
 } > "$ROLLBACK"
 info "Rollback artifact saved: $ROLLBACK"
 
-confirm "Delete EBS volume $VOL_ID in ${REGION}? (snapshot: $SNAP_ID)"
 aws ec2 delete-volume --volume-id "$VOL_ID" --region "$REGION"
 info "DONE. Volume $VOL_ID deleted."
 [ "$SNAP_ID" != "(skipped)" ] && info "Recover with: aws ec2 create-volume --snapshot-id $SNAP_ID --availability-zone $AZ --region $REGION"

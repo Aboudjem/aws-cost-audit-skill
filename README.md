@@ -27,10 +27,17 @@
 </p>
 
 ```bash
-npx skills add Aboudjem/aws-cost-audit-skill
+npx skills add Aboudjem/aws-cost-audit-skill -a claude-code
 ```
 
-Then ask your agent: `audit my AWS bill`. Claude Code plugin users: see [Install](#install).
+Swap `claude-code` for your agent: `codex`, `cursor`, `gemini-cli`, `github-copilot` or `opencode`.
+Drop `-a` and the CLI asks you to pick. Claude Code plugin users: see [Install](#install).
+
+Then ask your agent: `audit my AWS bill`. You need the AWS CLI with read access plus billing read.
+Billing read means the `ce:Get*` and `pricing:GetProducts` permissions, so it can see costs and prices.
+
+A sign-off means the resource owner agrees before anything changes.
+Savings that are not both high confidence and reversible need one.
 
 ## Sample report
 
@@ -77,7 +84,7 @@ npx skills add Aboudjem/aws-cost-audit-skill
 ```
 
 You also need the [AWS CLI](https://aws.amazon.com/cli/) with read access to the account, and `jq`.
-The AWS managed `ReadOnlyAccess` policy plus billing read is enough.
+The AWS managed `ReadOnlyAccess` policy plus billing read (`ce:Get*`, `pricing:GetProducts`) is enough.
 
 Then ask your agent: `audit my AWS bill`. It checks your setup first and names anything missing.
 
@@ -96,8 +103,16 @@ Then ask your agent: `audit my AWS bill`. It checks your setup first and names a
 "Tested" means the install ran and `SKILL.md` landed where the agent reads it.
 CI repeats the install for Claude Code, Codex and Cursor on every push.
 
-Documented, not tested end to end: Pi, Mistral Vibe, Trae, OpenClaw, Antigravity, Hermes, Cline and Kimi through `./install.sh <platform>`.
-Their agent codes were accepted by the pinned skills CLI on 2026-11-17. Per-editor paths are in [docs/editors.md](docs/editors.md).
+Documented, not tested end to end: Pi, Mistral Vibe, Trae, OpenClaw, Antigravity, Hermes, Cline and Kimi.
+Their agent codes were accepted by the pinned skills CLI on 2026-11-17. Install them with `install.sh`, from a clone:
+
+```bash
+git clone https://github.com/Aboudjem/aws-cost-audit-skill && cd aws-cost-audit-skill
+./install.sh pi
+```
+
+That installs for your whole user profile. Add `--project` to install into the current folder only.
+Per-editor paths are in [docs/editors.md](docs/editors.md).
 
 <details>
 <summary>Copy the skill by hand instead</summary>
@@ -126,8 +141,14 @@ This repo has no marketplace manifest of its own. Use the 10x marketplace above 
 5. **Sort.** Each finding is KEEP, OPTIMIZE or SAFE-TO-DELETE, with a confidence level and its evidence.
 6. **Report.** `findings-validate.sh` checks `findings.json`, then `findings-summary.sh` prints the verdict and the three actions. The detail follows.
 
-Nothing changes in your account unless you ask. A change also needs proof of non-use, a way back, a dry run and your typed `yes`.
-Irreversible actions, like a Savings Plan purchase, always stay recommendations.
+Nothing changes in your account unless you ask. Three scripts can change something, and the code enforces this:
+
+- Without `--apply` they only print a dry run.
+- With `--apply` they save a rollback file first, then ask you to type `yes`.
+- `--yes` skips that question. With no terminal to ask in and no `--yes`, they refuse before any change.
+
+The skill also tells your agent to show you proof of non-use and the dry run first, then wait for your yes.
+It tells your agent to keep irreversible actions, like a Savings Plan purchase, as recommendations.
 
 The skill itself is [`SKILL.md`](skills/aws-cost-audit/SKILL.md): five rules, the steps, and reference files it loads on demand.
 
@@ -137,12 +158,14 @@ Every number below is re-printed by the command next to it.
 
 | Claim                                      | Command                                                      | Output today                                                                  |
 | :----------------------------------------- | :----------------------------------------------------------- | :---------------------------------------------------------------------------- |
-| The offline suite passes                   | `make test`                                                  | `Results: 86 passed, 0 failed`                                                |
+| The offline suite passes                   | `make test`                                                  | `Results: 106 passed, 0 failed`                                                |
 | The sample above is the tool's real output | `make test` (case 39 compares them line by line)             | `[PASS] sample: the README sample report is the script output, line for line` |
 | The plugin manifest is valid               | `claude plugin validate . --strict`                          | `✔ Validation passed`                                                         |
-| No unit price is written into a script     | `make test` (no-hardcoded-price cases) and the CI price scan | `PASS: no hardcoded unit prices found`                                        |
+| No unit price is written into a script     | `make test` (no-hardcoded-price case)                        | `[PASS] no per-request price literal in any script`                           |
 
 The suite stubs the `aws` command, so it needs no credentials and makes no AWS call.
+It also checks the safety order of `delete-unattached-ebs.sh`: no change before the confirmation.
+CI adds a scan of every script for a hardcoded unit price.
 CI runs it on every push and pull request, with shellcheck and the skills CLI install.
 
 What the scripts may call, and what they never send anywhere, is in [PRIVACY.md](PRIVACY.md).
@@ -150,7 +173,9 @@ What the scripts may call, and what they never send anywhere, is in [PRIVACY.md]
 ## FAQ
 
 **Will it delete anything on its own?**
-No. It reads by default. A change runs only after proof of non-use, a dry run and your typed `yes`. Irreversible actions stay recommendations.
+No. It reads by default. A change script runs only with `--apply`, saves a rollback file, then asks you to type `yes`.
+`--yes` skips the question, and the skill tells your agent to pass it only after you said yes in the chat.
+The skill tells your agent to show proof of non-use and the dry run first. Irreversible actions stay recommendations.
 
 **Does it need my AWS keys?**
 No. It uses the AWS CLI credentials already on your machine. Your data goes to AWS and to your agent, nowhere else.
@@ -175,6 +200,8 @@ More answers are in [docs/faq.md](docs/faq.md).
 - The baseline needs Cost Explorer turned on. After you turn it on, AWS can take up to 24 hours to show data.
 - The skill guides your agent. A weaker model can still skip a step, so check the evidence lines.
 - Prices are in USD, as AWS returns them.
+- "Tested" in the agent table means the install ran and the files landed. It does not mean each agent was seen loading the skill.
+- Proof of non-use and the dry run before a change are steps the skill asks of your agent. The scripts enforce `--apply`, the rollback file and the `yes`.
 
 ## Learn more
 

@@ -664,7 +664,8 @@ JSON
   FS6_RC=0
   bash "$VALIDATE" "$ROOT/examples/sample-findings.json" >/dev/null 2>&1 || FS6_RC=$?
   assert_eq "sample: examples/sample-findings.json satisfies the contract" "$FS6_RC" "0"
-  FS6_OUT=$(bash "$SUMMARY" "$ROOT/examples/sample-findings.json" 2>/dev/null) || true
+  # 2>&1: the README must match what a terminal shows, stderr included.
+  FS6_OUT=$(bash "$SUMMARY" "$ROOT/examples/sample-findings.json" 2>&1) || true
   FS6_README=$(awk '/<!-- sample-report:begin -->/{f=1;next} /<!-- sample-report:end -->/{f=0} f' \
     "$ROOT/README.md" | grep -v '^```' | sed '/./,$!d' || true)
   assert_eq "sample: the README sample report is the script output, line for line" \
@@ -672,6 +673,21 @@ JSON
   assert_eq "sample: examples/sample-report.md opens with the same verdict" \
     "$(grep -m1 '^VERDICT:' "$ROOT/examples/sample-report.md")" \
     "$(printf '%s\n' "$FS6_OUT" | sed -n 1p)"
+
+  # 39b. In a terminal the verdict is the very first line; the validator's [OK]
+  # line appears only with --verbose, and only after the summary.
+  assert_eq "findings-summary: in a terminal, line 1 is the verdict (stderr included)" \
+    "$(printf '%s\n' "$FS6_OUT" | sed -n 1p | cut -c1-8)" "VERDICT:"
+  assert_eq "findings-summary: no [OK] contract line without --verbose" \
+    "$(printf '%s\n' "$FS6_OUT" | grep -c '^\[OK\]' | tr -d ' ')" "0"
+  FS7_OUT=$(bash "$SUMMARY" --verbose "$ROOT/examples/sample-findings.json" 2>&1) || true
+  assert_eq "findings-summary: --verbose still opens on the verdict" \
+    "$(printf '%s\n' "$FS7_OUT" | sed -n 1p | cut -c1-8)" "VERDICT:"
+  assert_contains "findings-summary: --verbose prints the [OK] line last" \
+    "$(printf '%s\n' "$FS7_OUT" | tail -1)" "[OK] "
+  FS8_ERR=$(bash "$SUMMARY" "$FIX_BAD" 2>&1 >/dev/null) || true
+  assert_contains "findings-summary: a broken file still shows the validator's [FAIL] lines" \
+    "$FS8_ERR" "[FAIL]"
 
   # 40. The report template the skill follows is verdict first.
   first_line() { grep -n -m1 -e "$2" "$1" | cut -d: -f1; }
@@ -689,6 +705,75 @@ JSON
 else
   printf '[SKIP] findings-validate and findings-summary cases: jq is not installed on this machine\n'
 fi
+
+# ---- delete-unattached-ebs.sh gating -------------------------------------------
+# A stubbed `aws` logs every call. Each case checks which calls ran, so "no
+# change before the confirmation" is tested, not assumed. stdin is /dev/null,
+# so there is no TTY.
+EBS="$HERE/../skills/aws-cost-audit/scripts/delete-unattached-ebs.sh"
+make_ebs_stub() {
+  local dir="$1" calls="$2"
+  mkdir -p "$dir"
+  cat > "$dir/aws" <<STUB
+#!/usr/bin/env bash
+echo "\$*" >> "$calls"
+case "\$1 \$2" in
+  "ec2 describe-volumes") echo '{"id": "vol-TEST", "state": "available", "size": 8, "az": "eu-west-1a", "type": "gp3", "attachments": []}';;
+  "ec2 create-snapshot") echo "snap-TEST";;
+esac
+exit 0
+STUB
+  chmod +x "$dir/aws"
+}
+ebs_run() {
+  local d="$1"; shift
+  PATH="$d/bin:$PATH" AWS_REGION="eu-west-1" "$BASH_BIN" "$EBS" --volume-id vol-TEST --output "$d/out" "$@" </dev/null >"$d/log" 2>&1
+}
+ebs_changes() { grep -c -E '^ec2 (create-snapshot|wait|delete-volume)' "$1" 2>/dev/null | tr -d ' ' || true; }
+
+# 41. Dry run: no change, rollback metadata saved.
+E1="$(mktemp -d)"; make_ebs_stub "$E1/bin" "$E1/calls"
+E1_RC=0; ebs_run "$E1" || E1_RC=$?
+assert_eq "delete-ebs: the dry run exits 0" "$E1_RC" "0"
+assert_eq "delete-ebs: the dry run changes nothing" "$(ebs_changes "$E1/calls")" "0"
+assert_eq "delete-ebs: the dry run saves a rollback file" "$(ls "$E1/out" | grep -c '^rollback-ebs-delete-vol-TEST' | tr -d ' ')" "1"
+rm -rf "$E1"
+
+# 42. --apply with no TTY and no --yes: refused before the snapshot.
+E2="$(mktemp -d)"; make_ebs_stub "$E2/bin" "$E2/calls"
+E2_RC=0; ebs_run "$E2" --apply || E2_RC=$?
+assert_eq "delete-ebs: --apply without a TTY or --yes is refused" "$E2_RC" "1"
+assert_contains "delete-ebs: and says why" "$(cat "$E2/log")" "without a TTY and without --yes"
+assert_eq "delete-ebs: and nothing changed, not even a snapshot" "$(ebs_changes "$E2/calls")" "0"
+assert_eq "delete-ebs: the rollback file was saved before the refusal" "$(ls "$E2/out" | grep -c '^rollback-ebs-delete-vol-TEST' | tr -d ' ')" "1"
+rm -rf "$E2"
+
+# 43. --no-snapshot --apply without --yes: refused, as the help says.
+E3="$(mktemp -d)"; make_ebs_stub "$E3/bin" "$E3/calls"
+E3_RC=0; ebs_run "$E3" --no-snapshot --apply || E3_RC=$?
+assert_eq "delete-ebs: --no-snapshot --apply without --yes is refused" "$E3_RC" "1"
+assert_contains "delete-ebs: and names the rule" "$(cat "$E3/log")" "Refusing --no-snapshot with --apply unless --yes"
+assert_eq "delete-ebs: and nothing changed" "$(ebs_changes "$E3/calls")" "0"
+rm -rf "$E3"
+
+# 44. --apply --yes: snapshot, wait, then delete, in that order.
+E4="$(mktemp -d)"; make_ebs_stub "$E4/bin" "$E4/calls"
+E4_RC=0; ebs_run "$E4" --apply --yes || E4_RC=$?
+assert_eq "delete-ebs: --apply --yes exits 0" "$E4_RC" "0"
+assert_eq "delete-ebs: snapshot, wait, then delete" \
+  "$(grep -E '^ec2 (create-snapshot|wait|delete-volume)' "$E4/calls" | cut -d' ' -f2 | tr '\n' ' ')" \
+  "create-snapshot wait delete-volume "
+assert_contains "delete-ebs: the rollback file records the snapshot id" \
+  "$(cat "$E4/out"/rollback-ebs-delete-vol-TEST-*.json)" '"snapshotId": "snap-TEST"'
+rm -rf "$E4"
+
+# 45. --no-snapshot --apply --yes: deletes with no snapshot call.
+E5="$(mktemp -d)"; make_ebs_stub "$E5/bin" "$E5/calls"
+E5_RC=0; ebs_run "$E5" --no-snapshot --apply --yes || E5_RC=$?
+assert_eq "delete-ebs: --no-snapshot --apply --yes exits 0" "$E5_RC" "0"
+assert_eq "delete-ebs: and only deletes, no snapshot" \
+  "$(grep -E '^ec2 (create-snapshot|wait|delete-volume)' "$E5/calls" | cut -d' ' -f2 | tr '\n' ' ')" "delete-volume "
+rm -rf "$E5"
 
 # ---- summary -----------------------------------------------------------------
 echo ""

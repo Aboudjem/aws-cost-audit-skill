@@ -77,10 +77,13 @@ trailing 30 days; figures below are SAMPLE).
 | Amazon S3 | $498 | 10% | No lifecycle rules; old versions + incomplete uploads |
 | Amazon EBS | $356 | 7% | gp2 volumes + unattached volumes |
 | CloudWatch (logs + metrics) | $241 | 5% | Several log groups set to never expire |
-| Elastic Load Balancing | $118 | 2% | Includes one ALB with no healthy targets |
+| Elastic Load Balancing | $118 | 3% | Includes one ALB with no healthy targets |
 | Data transfer (inter-AZ/out) | $96 | 2% |, |
 | Everything else | $46 | 1% | Route 53, Secrets Manager, etc. |
 | **Total** | **$4,812** | **100%** | *(all figures SAMPLE; verify live before acting)* |
+
+> Shares are rounded to whole percents so the column adds to 100%. The exact shares are each
+> $/mo divided by $4,812.
 
 > Price-source discipline: each $/mo above equals *(live unit price for us-east-1) × (your measured
 > usage)*. Example for the gp2 line: `(gp2 $/GB-mo from Price List API) × (provisioned GB from
@@ -163,8 +166,8 @@ approved by the resource owner.
 | 3.1 | **[SIGN-OFF REQUIRED]** Rightsize oversized prod RDS instance (one class down) | $410 | Medium | Capacity/perf change; needs load review + maintenance window |
 | 3.2 | **[SIGN-OFF REQUIRED]** Stop/delete idle dev RDS instance (CPU <2%, 0 connections 60d) | $295 | Medium | Could still be someone's dev env; confirm owner before stopping |
 | 3.3 | **[SIGN-OFF REQUIRED]** Purchase a Compute Savings Plan for steady EC2 baseline | $360 | Medium | **Irreversible 1- or 3-yr financial commitment**, finance approval |
-| 3.4 | Consolidate NAT Gateways / route public traffic via gateway endpoints | $240 | Medium | Routing change; validate no asymmetric routing first |
-| 3.5 | Apply S3 lifecycle: expire noncurrent versions + transition cold data to IA | $115 | Medium | Need owner confirmation that old versions aren't required |
+| 3.4 | **[SIGN-OFF REQUIRED]** Consolidate NAT Gateways / route public traffic via gateway endpoints | $240 | Medium | Routing change; validate no asymmetric routing first |
+| 3.5 | **[SIGN-OFF REQUIRED]** Apply S3 lifecycle: expire noncurrent versions + transition cold data to IA | $115 | Medium | Need owner confirmation that old versions aren't required |
 | 3.6 | **[SIGN-OFF REQUIRED]** Delete 12 snapshots/AMIs older than 1 yr, unreferenced | $92 | Low | **Destructive**, confirm no DR/restore dependency |
 | 3.7 | **[SIGN-OFF REQUIRED]** Delete the ALB with no healthy targets (Card C) | $23 | High | **Irreversible**: the DNS name and listener config are lost |
 | | **Additional theoretical save beyond section 2** | **$1,535** | | |

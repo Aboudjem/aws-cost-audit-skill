@@ -4,6 +4,31 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-11-17
+
+Safety fixes from an independent review: the code and the docs now say exactly the same thing.
+
+### Fixed
+
+- `delete-unattached-ebs.sh` asks for confirmation before the safety snapshot, not after it. A refusal
+  (no TTY and no `--yes`, or a "no") now leaves the account untouched. The rollback file is saved first.
+- `delete-unattached-ebs.sh --no-snapshot --apply` is refused unless `--yes` is also passed, as its
+  help text always said.
+- `findings-summary.sh` opens on the verdict in a terminal. The validator's `[OK]` line now prints only
+  with `--verbose`, after the summary.
+- The sample report: service shares add to 100%, and items 3.4 and 3.5 carry the SIGN-OFF REQUIRED tag.
+
+### Changed
+
+- README, FAQ, PRIVACY.md and SKILL.md word the safety rules exactly: what the scripts enforce
+  (`--apply`, rollback file, typed `yes` unless `--yes`, refusal with no TTY) and what the skill asks of
+  the agent (proof of non-use and the dry run first, `--yes` only after your yes in the chat).
+- PRIVACY.md lists `ec2 wait snapshot-completed` among the calls that change something.
+- README: the first screen names the agents, defines billing read and sign-off, and the `install.sh`
+  path says to clone first and that `--project` installs into the current folder.
+- The four translated READMEs (zh-CN, ja, es, fr) now match the current English README.
+- `make test` grows from 86 to 106 checks, including the EBS gating order against a stubbed `aws`.
+
 ## [0.4.0] - 2026-11-17
 
 The report now opens with the answer: a verdict, then the three things to do first, then the detail.
@@ -185,6 +210,7 @@ Initial release.
   preview card, and a CI workflow that validates frontmatter, JSON, links, and scans for hardcoded
   prices, account IDs, and secrets.
 
+[0.4.1]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.2.0...v0.3.0

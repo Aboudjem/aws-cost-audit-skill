@@ -1,7 +1,7 @@
 # Privacy and AWS access
 
 Short answer: it reads your AWS account with the AWS CLI you already have. It sends nothing to
-anyone else. It changes nothing unless you ask, run a dry run and confirm.
+anyone else. It changes nothing unless a change script runs with `--apply` and you confirm.
 
 ## Who sees your data
 
@@ -30,14 +30,21 @@ and `verify-price.sh`:
 - `elasticache describe-cache-clusters`
 - `logs describe-log-groups`
 
-Calls that change something exist in three scripts only. Each runs only with `--apply`, saves a
-rollback file first, and asks for a typed `yes`:
+Calls that change something exist in three scripts only. The code enforces these rules:
+
+- Without `--apply`, each script prints a dry run and changes nothing.
+- With `--apply`, it saves a rollback file first, then asks you to type `yes`.
+- `--yes` skips that question. With no terminal and no `--yes`, it refuses before any change.
+- `delete-unattached-ebs.sh --no-snapshot --apply` is refused unless `--yes` is also passed.
+
+The skill also tells your agent to show you proof of non-use and the dry run, then wait for your yes.
+That part is an instruction to the agent, not a check in the code.
 
 | Script                     | Calls                                           | Undo                                       |
 | :------------------------- | :---------------------------------------------- | :----------------------------------------- |
 | `set-log-retention.sh`     | `logs put-retention-policy`                     | Old value saved; `delete-retention-policy` |
 | `gp2-to-gp3.sh`            | `ec2 modify-volume`                             | `modify-volume --volume-type gp2`          |
-| `delete-unattached-ebs.sh` | `ec2 create-snapshot`, then `ec2 delete-volume` | `ec2 create-volume` from the snapshot      |
+| `delete-unattached-ebs.sh` | `ec2 create-snapshot`, `ec2 wait snapshot-completed`, then `ec2 delete-volume` | `ec2 create-volume` from the snapshot      |
 
 Following `SKILL.md`, your agent may also run read-only commands of its own, such as
 `cloudwatch get-metric-statistics`, `cloudtrail lookup-events` or
