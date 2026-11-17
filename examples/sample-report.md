@@ -78,7 +78,7 @@ trailing 30 days; figures below are SAMPLE).
 | Amazon EBS | $356 | 7% | gp2 volumes + unattached volumes |
 | CloudWatch (logs + metrics) | $241 | 5% | Several log groups set to never expire |
 | Elastic Load Balancing | $118 | 3% | Includes one ALB with no healthy targets |
-| Data transfer (inter-AZ/out) | $96 | 2% |, |
+| Data transfer (inter-AZ/out) | $96 | 2% | |
 | Everything else | $46 | 1% | Route 53, Secrets Manager, etc. |
 | **Total** | **$4,812** | **100%** | *(all figures SAMPLE; verify live before acting)* |
 
