@@ -25,7 +25,8 @@ defined in the Contributor Covenant are not tolerated.
 
 If you experience or witness unacceptable behavior, report it privately to the maintainer:
 
-- **Email:** boudjemaa.adam@gmail.com
+- **Private report:** https://github.com/Aboudjem/aws-cost-audit-skill/security/advisories/new (only the maintainer can read it)
+- **Maintainer on GitHub:** https://github.com/Aboudjem
 
 All reports will be reviewed and investigated promptly and fairly, and the reporter's privacy will
 be respected. Maintainers who do not follow or enforce the Code of Conduct in good faith may face
