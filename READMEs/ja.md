@@ -141,7 +141,7 @@ npx skills add Aboudjem/aws-cost-audit-skill -g -a opencode
 
 ### Claude Code プラグイン
 
-スキルに何も追加しません：コマンド、フック、MCP サーバーはありません。[10x マーケットプレイス](https://github.com/Aboudjem/10x) でプラグインを管理するなら使ってください。
+同じスキルです。何も追加しません：コマンド、フック、MCP サーバーはありません。[10x マーケットプレイス](https://github.com/Aboudjem/10x) でプラグインを管理するなら使ってください。
 
 ```bash
 claude plugin marketplace add Aboudjem/10x

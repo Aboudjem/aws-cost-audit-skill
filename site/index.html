@@ -87,7 +87,7 @@
       <p>It works in more than 70 agents (<a href="https://github.com/vercel-labs/skills#supported-agents">supported agents</a>). In a script, add <code>-a &lt;agent&gt;</code>, or it installs into every agent folder. See its <a href="https://skills.sh/aboudjem/aws-cost-audit-skill">skills.sh page</a>.</p>
       <p>Or straight into one agent, for example Codex:</p>
       <pre><code>npx skills add Aboudjem/aws-cost-audit-skill -g -a codex</code></pre>
-      <p>Or as a Claude Code plugin from the 10x marketplace (it adds no commands, hooks or MCP server over the skill):</p>
+      <p>Or as a Claude Code plugin from the 10x marketplace. Same skill: it adds no commands, hooks or MCP server:</p>
       <pre><code>claude plugin marketplace add Aboudjem/10x
 claude plugin install aws-cost-audit@10x</code></pre>
       <p>You need the AWS CLI configured with read access to the account you want to audit. <code>ReadOnlyAccess</code> is enough.</p>

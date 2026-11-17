@@ -141,7 +141,7 @@ Otro agente: pon su código después de `-a`.
 
 ### Plugin de Claude Code
 
-No añade nada al skill: ni comandos, ni hooks, ni servidor MCP. Úsalo si gestionas plugins con el [marketplace 10x](https://github.com/Aboudjem/10x).
+El mismo skill. No añade nada: ni comandos, ni hooks, ni servidor MCP. Úsalo si gestionas plugins con el [marketplace 10x](https://github.com/Aboudjem/10x).
 
 ```bash
 claude plugin marketplace add Aboudjem/10x

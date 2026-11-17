@@ -141,7 +141,7 @@ npx skills add Aboudjem/aws-cost-audit-skill -g -a opencode
 
 ### Claude Code 插件
 
-它没有在 skill 之外增加任何东西：没有命令、hook 或 MCP 服务器。如果你用 [10x 市场](https://github.com/Aboudjem/10x) 管理插件，就用它。
+同一个 skill。它没有增加任何东西：没有命令、hook 或 MCP 服务器。如果你用 [10x 市场](https://github.com/Aboudjem/10x) 管理插件，就用它。
 
 ```bash
 claude plugin marketplace add Aboudjem/10x

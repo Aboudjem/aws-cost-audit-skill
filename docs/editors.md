@@ -5,6 +5,16 @@ The whole plugin is one `SKILL.md` plus reference documents and bash helper scri
 that reads a `SKILL.md` can run it. The only runtime requirement is the AWS CLI, configured with
 read access to the account you want to audit.
 
+## Recommended: one command, pick your agent
+
+```bash
+npx skills add Aboudjem/aws-cost-audit-skill -g
+```
+
+It installs for all your projects and works in more than 70 agents
+([supported agents](https://github.com/vercel-labs/skills#supported-agents)): pick yours in the menu.
+In a terminal it shows the agent menu. In a script it installs into every agent folder, so add `-a <agent>` there.
+
 ## One line per agent
 
 The [Vercel skills CLI](https://github.com/vercel-labs/skills) installs this repo into whichever
@@ -12,15 +22,15 @@ agent you name with `-a`. `-g` installs for all your projects (your user profile
 
 | Agent | Command | Where the skill lands (project / global) |
 |:--|:--|:--|
-| Claude Code | `npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code -y` | `.claude/skills/` / `~/.claude/skills/` |
-| Cursor | `npx skills add Aboudjem/aws-cost-audit-skill -g -a cursor -y` | `.agents/skills/` / `~/.agents/skills/` |
-| Codex | `npx skills add Aboudjem/aws-cost-audit-skill -g -a codex -y` | `.agents/skills/` / `~/.agents/skills/` |
-| GitHub Copilot | `npx skills add Aboudjem/aws-cost-audit-skill -g -a github-copilot -y` | `.agents/skills/` / `~/.agents/skills/` |
-| Gemini CLI | `npx skills add Aboudjem/aws-cost-audit-skill -g -a gemini-cli -y` | `.agents/skills/` / `~/.agents/skills/` |
-| OpenCode | `npx skills add Aboudjem/aws-cost-audit-skill -g -a opencode -y` | `.agents/skills/` / `~/.agents/skills/` |
-| Windsurf | `npx skills add Aboudjem/aws-cost-audit-skill -g -a windsurf -y` | `.windsurf/skills/` / `~/.codeium/windsurf/skills/` |
-| Zed | `npx skills add Aboudjem/aws-cost-audit-skill -g -a zed -y` | `.agents/skills/` / `~/.agents/skills/` |
-| Kimi Code CLI | `npx skills add Aboudjem/aws-cost-audit-skill -g -a kimi-code-cli -y` | `.agents/skills/` / `~/.agents/skills/` |
+| Claude Code | `npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code` | `.claude/skills/` / `~/.claude/skills/` |
+| Cursor | `npx skills add Aboudjem/aws-cost-audit-skill -g -a cursor` | `.agents/skills/` / `~/.agents/skills/` |
+| Codex | `npx skills add Aboudjem/aws-cost-audit-skill -g -a codex` | `.agents/skills/` / `~/.agents/skills/` |
+| GitHub Copilot | `npx skills add Aboudjem/aws-cost-audit-skill -g -a github-copilot` | `.agents/skills/` / `~/.agents/skills/` |
+| Gemini CLI | `npx skills add Aboudjem/aws-cost-audit-skill -g -a gemini-cli` | `.agents/skills/` / `~/.agents/skills/` |
+| OpenCode | `npx skills add Aboudjem/aws-cost-audit-skill -g -a opencode` | `.agents/skills/` / `~/.agents/skills/` |
+| Windsurf | `npx skills add Aboudjem/aws-cost-audit-skill -g -a windsurf` | `.windsurf/skills/` / `~/.codeium/windsurf/skills/` |
+| Zed | `npx skills add Aboudjem/aws-cost-audit-skill -g -a zed` | `.agents/skills/` / `~/.agents/skills/` |
+| Kimi Code CLI | `npx skills add Aboudjem/aws-cost-audit-skill -g -a kimi-code-cli` | `.agents/skills/` / `~/.agents/skills/` |
 
 Omit `-a` and the CLI detects the agents you already have installed and asks which to use.
 `npx skills add Aboudjem/aws-cost-audit-skill --list` prints what it found without installing.

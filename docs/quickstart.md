@@ -43,10 +43,26 @@ region is just an example, use yours.
 
 ---
 
-## 1. Install: Method A: plugin (recommended)
+## 1. Install: Method A: the Vercel skills CLI (recommended)
 
-**Recommended: via the [10x marketplace](https://github.com/Aboudjem/10x)**, a
-curated set of Claude Code tools. Run these two commands inside Claude Code:
+`npx skills` is Vercel's open installer for agent skills. It installs for all your projects:
+
+```shell
+npx skills add Aboudjem/aws-cost-audit-skill -g
+```
+
+Pick your agent in the menu. It works in more than 70 agents
+([supported agents](https://github.com/vercel-labs/skills#supported-agents)).
+In a terminal it shows the agent menu. In a script it installs into every agent folder,
+so add `-a <agent>` there, for example `-a codex`. Only this project: drop `-g`.
+Its page: [skills.sh/aboudjem/aws-cost-audit-skill](https://skills.sh/aboudjem/aws-cost-audit-skill).
+
+---
+
+## 2. Install: Method B: Claude Code plugin
+
+Same skill, managed through the [10x marketplace](https://github.com/Aboudjem/10x).
+It adds no commands, hooks or MCP server. Run these two commands inside Claude Code:
 
 ```text
 /plugin marketplace add Aboudjem/10x
@@ -66,7 +82,7 @@ To update later: `/plugin marketplace update 10x`. To remove:
 
 ---
 
-## 2. Install: Method B: drop-in skill (no plugin)
+## 3. Install: Method C: drop-in skill (no plugin)
 
 If you would rather not use the plugin system, copy the skill folder into your
 personal skills directory:
@@ -83,7 +99,7 @@ Claude Code restart the first time before it is watched.)
 
 ---
 
-## 3. Run it
+## 4. Run it
 
 Just ask Claude Code in plain language, the skill auto-triggers on cost/FinOps
 phrasing:
@@ -101,7 +117,7 @@ want a quick scan or a full account-wide pass.
 
 ---
 
-## 4. What a run does, step by step
+## 5. What a run does, step by step
 
 Nothing below changes your account. Steps 1 to 6 are read, describe, and list calls only.
 
@@ -139,7 +155,7 @@ Both samples use synthetic data on no real account, clearly labelled.
 
 ---
 
-## 5. What you get
+## 6. What you get
 
 - A **verified report**: every dollar attributed (cost, purpose, owner, created-when,
   last-used) or marked "unknown, could not verify". Each finding shows
@@ -150,7 +166,7 @@ Both samples use synthetic data on no real account, clearly labelled.
 
 ---
 
-## 6. Safety
+## 7. Safety
 
 - **Read-only by default.** The skill describes and lists; it does not change your
   account on its own.
