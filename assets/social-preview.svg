@@ -133,8 +133,8 @@
     </g>
   </g>
   <text class="mono eyebrow" x="96" y="258">AWS BILL AUDIT SKILL</text>
-  <text class="disp head" x="96" y="416">A savings plan you can check</text>
-  <text class="disp sub" x="96" y="458">Every number checked against live AWS pricing.</text>
-  <text class="disp sub" x="96" y="490">Nothing deleted without your say-so.</text>
+  <text class="disp head" x="96" y="416">Cut the waste in your AWS bill</text>
+  <text class="disp sub" x="96" y="458">Three cuts first. Every price checked live.</text>
+  <text class="disp sub" x="96" y="490">Dry-run by default. A change needs your yes.</text>
   <text class="mono tag" x="96" y="604">github.com/Aboudjem/aws-cost-audit-skill</text>
 </svg>

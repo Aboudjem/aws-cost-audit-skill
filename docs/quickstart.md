@@ -1,12 +1,13 @@
 # Quickstart
 
-Audit your AWS bill with Claude Code in a few minutes. The skill reads your live
-AWS account, finds waste, and writes an evidence-backed savings report.
+Cut the waste in your AWS bill in a few minutes. The skill reads your live AWS
+account and writes a report: a verdict, three cuts to make first, and the evidence behind each.
 
-**It is read-only by default.** It only runs read/describe/list calls unless you
-explicitly approve a change. Nothing is deleted or modified without proof and your
-sign-off. It never hardcodes prices, every dollar figure is verified live for your
-exact region.
+**It is dry-run by default.** Discovery runs only read, describe and list calls.
+The three change scripts do nothing without `--apply`. With it, they save a rollback file,
+then ask you to type `yes`. `--yes` skips the question; with no terminal and no `--yes`,
+they refuse. Give it read-only credentials: the skill guides your agent, the scripts
+enforce the yes. No script holds a price: each dollar figure uses the live price for your region.
 
 ---
 

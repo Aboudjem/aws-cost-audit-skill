@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../assets/hero-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="../assets/hero-light.svg">
-    <img src="../assets/hero-dark.svg" alt="aws-cost-audit: un plan de ahorro que puedes comprobar, con cada cifra verificada contra los precios de AWS en vivo" width="100%">
+    <img src="../assets/hero-dark.svg" alt="aws-cost-audit: recorta el desperdicio de tu factura de AWS, cada precio comprobado en vivo con AWS" width="100%">
   </picture>
 </p>
 
@@ -19,11 +19,15 @@
 </p>
 
 <p align="center">
-  <strong>Pídele a Claude que audite tu factura de AWS. Recibes un veredicto, las tres acciones que hacer primero y un precio en vivo detrás de cada dólar.</strong>
+  <strong>Recorta el desperdicio de tu factura de AWS, con precios en vivo.</strong>
 </p>
 
 <p align="center">
-  <a href="#informe-de-muestra">Informe de muestra</a> · <a href="#instalación">Instalación</a> · <a href="#cómo-funciona">Cómo funciona</a> · <a href="#pruebas">Pruebas</a> · <a href="#preguntas-frecuentes">Preguntas frecuentes</a> · <a href="#límites">Límites</a>
+  Pide a tu agente que audite tu factura de AWS: un veredicto, tres recortes para empezar y un precio en vivo detrás de cada uno.
+</p>
+
+<p align="center">
+  <a href="#informe-de-muestra">Informe de muestra</a> · <a href="#por-qué-usarlo">Por qué usarlo</a> · <a href="#instalación">Instalación</a> · <a href="#cómo-funciona">Cómo funciona</a> · <a href="#pruebas">Pruebas</a> · <a href="#preguntas-frecuentes">Preguntas frecuentes</a> · <a href="#límites">Límites</a>
 </p>
 
 ```bash
@@ -33,11 +37,9 @@ npx skills add Aboudjem/aws-cost-audit-skill -a claude-code
 Cambia `claude-code` por tu agente: `codex`, `cursor`, `gemini-cli`, `github-copilot` u `opencode`.
 Si omites `-a`, la CLI te pide que elijas. Si usas el plugin de Claude Code, mira [Instalación](#instalación).
 
-Después pídele a tu agente: `audit my AWS bill`. Necesitas la AWS CLI con acceso de lectura y lectura de facturación.
-Lectura de facturación significa los permisos `ce:Get*` y `pricing:GetProducts`, para ver costes y precios.
+Después pídele a tu agente: `audit my AWS bill`. Lo que necesitas en tu máquina está en [Instalación](#instalación).
 
-Una aprobación es el visto bueno del responsable del recurso antes de cambiar nada.
-Todo ahorro que no sea a la vez de confianza alta y reversible necesita una.
+Dale credenciales de solo lectura: el skill guía a tu agente, los scripts exigen el sí.
 
 ## Informe de muestra
 
@@ -68,6 +70,22 @@ Every figure above comes from the findings file. Nothing in your account was cha
 El informe completo sigue con lo que pagas por servicio, cada hallazgo con su evidencia y cómo deshacerlo.
 Mira [`examples/sample-report.md`](../examples/sample-report.md) y el [panel HTML](../examples/sample-dashboard.html) opcional.
 
+Es para desarrolladores y equipos pequeños que pagan la factura de AWS sin una persona de FinOps.
+Cost Explorer muestra el total, no qué apagar. Este skill nombra qué recortar.
+Volúmenes sin uso, logs guardados para siempre, subidas que nadie terminó: cada hallazgo lleva su evidencia y dice si se puede deshacer.
+Todo ahorro que no sea a la vez de confianza alta y reversible espera la aprobación del responsable.
+Cost Explorer debe estar activado, y AWS puede tardar hasta 24 horas en mostrar datos.
+
+## Por qué usarlo
+
+- **Sabe por dónde empezar.** Un veredicto en dólares y luego los tres recortes que hacer primero.
+  Prueba: la muestra de arriba se reimprime con el comando de arriba, y `make test` compara las dos línea a línea.
+- **Confía en las cifras.** Los precios vienen de AWS en tiempo de ejecución, no de la memoria ni de una tabla de un blog.
+  Prueba: `make test` y un escaneo de la CI fallan si un script contiene un precio fijo.
+- **Nada cambia por sorpresa.** Es dry-run por defecto: los scripts de cambio solo muestran lo que harían.
+  Con `--apply` guardan un archivo de reversión y luego te piden escribir yes. `--yes` se salta la pregunta.
+  Sin terminal donde preguntar y sin `--yes`, se niegan. `make test` comprueba ese orden en el script de EBS.
+
 ## Instalación
 
 Dentro de Claude Code, desde el [marketplace 10x](https://github.com/Aboudjem/10x):
@@ -87,6 +105,9 @@ También necesitas la [AWS CLI](https://aws.amazon.com/cli/) con acceso de lectu
 Basta con la política administrada de AWS `ReadOnlyAccess` más lectura de facturación (`ce:Get*`, `pricing:GetProducts`).
 
 Después pídele a tu agente: `audit my AWS bill`. Primero revisa tu configuración y nombra lo que falte.
+
+Una aprobación es el visto bueno del responsable del recurso antes de cambiar nada.
+Todo ahorro que no sea a la vez de confianza alta y reversible necesita una.
 
 ### Funciona con
 

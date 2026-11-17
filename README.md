@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="assets/hero-light.svg">
-    <img src="assets/hero-dark.svg" alt="aws-cost-audit: a savings plan you can check, with every number verified against live AWS pricing" width="100%">
+    <img src="assets/hero-dark.svg" alt="aws-cost-audit: cut the waste in your AWS bill, with every price checked live against AWS" width="100%">
   </picture>
 </p>
 
@@ -19,11 +19,15 @@
 </p>
 
 <p align="center">
-  <strong>Ask Claude to audit your AWS bill. You get a verdict, the three things to do first, and a live price behind every dollar.</strong>
+  <strong>Cut the waste in your AWS bill, priced live.</strong>
 </p>
 
 <p align="center">
-  <a href="#sample-report">Sample report</a> · <a href="#install">Install</a> · <a href="#how-it-works">How it works</a> · <a href="#proof">Proof</a> · <a href="#faq">FAQ</a> · <a href="#limits">Limits</a>
+  Ask your agent to audit your AWS bill and get a verdict, three cuts to make first, and a live price behind each.
+</p>
+
+<p align="center">
+  <a href="#sample-report">Sample report</a> · <a href="#why-use-it">Why use it</a> · <a href="#install">Install</a> · <a href="#how-it-works">How it works</a> · <a href="#proof">Proof</a> · <a href="#faq">FAQ</a> · <a href="#limits">Limits</a>
 </p>
 
 ```bash
@@ -33,11 +37,9 @@ npx skills add Aboudjem/aws-cost-audit-skill -a claude-code
 Swap `claude-code` for your agent: `codex`, `cursor`, `gemini-cli`, `github-copilot` or `opencode`.
 Drop `-a` and the CLI asks you to pick. Claude Code plugin users: see [Install](#install).
 
-Then ask your agent: `audit my AWS bill`. You need the AWS CLI with read access plus billing read.
-Billing read means the `ce:Get*` and `pricing:GetProducts` permissions, so it can see costs and prices.
+Then ask your agent: `audit my AWS bill`. What it needs on your machine is under [Install](#install).
 
-A sign-off means the resource owner agrees before anything changes.
-Savings that are not both high confidence and reversible need one.
+Give it read-only credentials: the skill guides your agent, the scripts enforce the yes.
 
 ## Sample report
 
@@ -68,6 +70,22 @@ Every figure above comes from the findings file. Nothing in your account was cha
 The full report goes on with what you pay per service, each finding with its evidence, and how to undo it.
 See [`examples/sample-report.md`](examples/sample-report.md) and the optional [HTML dashboard](examples/sample-dashboard.html).
 
+It is for developers and small teams who pay the AWS bill without a FinOps person.
+Cost Explorer shows the total, not what to turn off. This skill names what to cut.
+Idle volumes, logs kept forever, uploads nobody finished: each finding carries its evidence and says if it can be undone.
+Anything not both high confidence and reversible waits for the owner's sign-off.
+Cost Explorer must be on, and AWS can take up to 24 hours to show data.
+
+## Why use it
+
+- **Know where to start.** A verdict in dollars, then the three cuts to make first.
+  Proof: the sample above re-prints with the command above it, and `make test` compares the two line by line.
+- **Trust the numbers.** Prices come from AWS at run time, not from memory or a blog table.
+  Proof: `make test` and a CI scan both fail if a script holds a price literal.
+- **Nothing changes by surprise.** It is dry-run by default: change scripts only print what they would do.
+  With `--apply` they save a rollback file, then ask you to type yes. `--yes` skips the question.
+  With no terminal to ask in and no `--yes`, they refuse. `make test` checks that order on the EBS script.
+
 ## Install
 
 Inside Claude Code, from the [10x marketplace](https://github.com/Aboudjem/10x):
@@ -87,6 +105,9 @@ You also need the [AWS CLI](https://aws.amazon.com/cli/) with read access to the
 The AWS managed `ReadOnlyAccess` policy plus billing read (`ce:Get*`, `pricing:GetProducts`) is enough.
 
 Then ask your agent: `audit my AWS bill`. It checks your setup first and names anything missing.
+
+A sign-off means the resource owner agrees before anything changes.
+Savings that are not both high confidence and reversible need one.
 
 ### Works with
 

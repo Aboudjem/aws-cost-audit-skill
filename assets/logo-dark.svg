@@ -129,5 +129,5 @@
             height="84" fill="url(#aw-sheen)" opacity="0.45"/>
     </g>
   </g>
-  <text class="mono tag" x="140" y="142">read-only by default  &#183;  live pricing</text>
+  <text class="mono tag" x="140" y="142">dry-run by default  &#183;  live pricing</text>
 </svg>

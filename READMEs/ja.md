@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../assets/hero-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="../assets/hero-light.svg">
-    <img src="../assets/hero-dark.svg" alt="aws-cost-audit：確認できる節約プラン。すべての数字を AWS の最新価格で検証" width="100%">
+    <img src="../assets/hero-dark.svg" alt="aws-cost-audit：AWS の請求のムダを削る。すべての価格を AWS でライブ確認" width="100%">
   </picture>
 </p>
 
@@ -19,11 +19,15 @@
 </p>
 
 <p align="center">
-  <strong>Claude に AWS の請求を監査してもらいます。結論、最初にやる 3 つのこと、そしてすべての金額の裏づけとなる最新価格が手に入ります。</strong>
+  <strong>AWS の請求のムダを、最新価格つきで削る。</strong>
 </p>
 
 <p align="center">
-  <a href="#サンプルレポート">サンプルレポート</a> · <a href="#インストール">インストール</a> · <a href="#仕組み">仕組み</a> · <a href="#検証">検証</a> · <a href="#よくある質問">よくある質問</a> · <a href="#制限事項">制限事項</a>
+  エージェントに AWS の請求の監査を頼むと、結論、最初にやる 3 つの削減、それぞれの裏づけとなる最新価格が手に入ります。
+</p>
+
+<p align="center">
+  <a href="#サンプルレポート">サンプルレポート</a> · <a href="#使う理由">使う理由</a> · <a href="#インストール">インストール</a> · <a href="#仕組み">仕組み</a> · <a href="#検証">検証</a> · <a href="#よくある質問">よくある質問</a> · <a href="#制限事項">制限事項</a>
 </p>
 
 ```bash
@@ -33,11 +37,9 @@ npx skills add Aboudjem/aws-cost-audit-skill -a claude-code
 `claude-code` は使っているエージェントに置き換えてください：`codex`、`cursor`、`gemini-cli`、`github-copilot`、`opencode`。
 `-a` を省くと、CLI が選択を求めます。Claude Code プラグインを使う方は[インストール](#インストール)を見てください。
 
-そのあとエージェントに `audit my AWS bill` と頼みます。AWS CLI と、読み取り権限、請求の読み取り権限が必要です。
-請求の読み取り権限とは `ce:Get*` と `pricing:GetProducts` のことで、費用と価格を見るために使います。
+そのあとエージェントに `audit my AWS bill` と頼みます。マシンに必要なものは[インストール](#インストール)にあります。
 
-サインオフ（sign-off）とは、何かを変更する前にリソースの持ち主が同意することです。
-信頼度が高く、しかも元に戻せる節約案でなければ、サインオフが必要です。
+読み取り専用の認証情報を渡してください。スキルはエージェントを導き、yes の確認はスクリプトが強制します。
 
 ## サンプルレポート
 
@@ -68,6 +70,22 @@ Every figure above comes from the findings file. Nothing in your account was cha
 完全版のレポートには、サービスごとの支払額、証拠つきの各発見事項、元に戻す方法が続きます。
 [`examples/sample-report.md`](../examples/sample-report.md) と、任意の [HTML ダッシュボード](../examples/sample-dashboard.html)を見てください。
 
+FinOps 担当がいないまま AWS の請求を払っている開発者や小さなチーム向けです。
+Cost Explorer は合計を見せますが、何を止めればよいかは教えてくれません。このスキルは削るものを名指しします。
+使われていないボリューム、期限のないログ、終わっていないアップロード。各発見事項には証拠があり、元に戻せるかどうかも示します。
+信頼度が高く、しかも元に戻せるものでなければ、持ち主のサインオフを待ちます。
+Cost Explorer を有効にする必要があり、AWS がデータを表示するまで最大 24 時間かかることがあります。
+
+## 使う理由
+
+- **どこから始めるかがわかる。** ドル建ての結論と、最初にやる 3 つの削減。
+  証拠：上のサンプルは上のコマンドで再出力でき、`make test` が 1 行ずつ比較します。
+- **数字を信頼できる。** 価格は実行時に AWS から取得し、記憶やブログの表からは取りません。
+  証拠：スクリプトに価格が直書きされると、`make test` と CI のスキャンが失敗します。
+- **予期せぬ変更はない。** デフォルトは dry-run で、変更スクリプトは何をするかを表示するだけです。
+  `--apply` を付けると、ロールバックファイルを保存してから yes の入力を求めます。`--yes` で質問を省略します。
+  質問できる端末がなく `--yes` もなければ、拒否します。`make test` が EBS スクリプトでこの順序を確認します。
+
 ## インストール
 
 Claude Code の中で、[10x マーケットプレイス](https://github.com/Aboudjem/10x)から入れます：
@@ -87,6 +105,9 @@ npx skills add Aboudjem/aws-cost-audit-skill
 AWS 管理ポリシーの `ReadOnlyAccess` に請求の読み取り権限（`ce:Get*`、`pricing:GetProducts`）を足せば十分です。
 
 そのあとエージェントに `audit my AWS bill` と頼みます。最初に環境を確認し、足りないものを知らせます。
+
+サインオフ（sign-off）とは、何かを変更する前にリソースの持ち主が同意することです。
+信頼度が高く、しかも元に戻せる節約案でなければ、サインオフが必要です。
 
 ### 対応エージェント
 

@@ -1,8 +1,8 @@
 {
   "$schema": "https://schemas.anthropic.com/claude-code/plugin.schema.json",
   "name": "aws-cost-audit",
-  "version": "0.4.1",
-  "description": "Audit a live AWS account end-to-end: attribute every dollar, find idle/orphaned resources, rightsize, check Savings Plans/RI coverage, and produce an evidence-backed savings plan with confidence levels and reversible, gated actions. Verifies prices live; hardcodes none.",
+  "version": "0.4.2",
+  "description": "Ranks what to cut on your AWS bill, three cuts first, every price checked live against AWS. Dry-run by default: a change needs --apply and your yes.",
   "author": {
     "name": "Adam Boudjemaa",
     "url": "https://github.com/Aboudjem"

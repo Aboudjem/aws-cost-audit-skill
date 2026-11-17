@@ -104,5 +104,5 @@
     <text class="disp" x="140" y="108" font-size="62" font-weight="800"
           letter-spacing="-1.9" fill="url(#aw-word)">aws-cost-audit</text>
   </g>
-  <text class="mono tag" x="140" y="142">read-only by default  &#183;  live pricing</text>
+  <text class="mono tag" x="140" y="142">dry-run by default  &#183;  live pricing</text>
 </svg>

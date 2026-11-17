@@ -144,10 +144,10 @@
   <line x1="500" y1="90" x2="500" y2="270" stroke="url(#aw-rule)" stroke-width="1.5"/>
   <g transform="translate(544,0)">
     <text class="mono eyebrow" x="0" y="121">AWS BILL AUDIT SKILL</text>
-    <text class="disp head" x="0" y="167">A savings plan you can check</text>
-    <text class="disp sub" x="0" y="203">Every number checked against live AWS pricing.</text>
-    <text class="disp sub" x="0" y="230">Nothing deleted without your say-so.</text>
+    <text class="disp head" x="0" y="167">Cut the waste in your AWS bill</text>
+    <text class="disp sub" x="0" y="203">Three cuts first. Every price checked live.</text>
+    <text class="disp sub" x="0" y="230">Dry-run by default. A change needs your yes.</text>
     <g transform="translate(0,270)"><g class="awp1"><circle cx="0" cy="0" r="4.5" fill="#FFB341" filter="url(#aw-glow-sm)"/></g><g class="awp2"><circle cx="22" cy="0" r="4.5" fill="#FFB341" filter="url(#aw-glow-sm)"/></g><g class="awp3"><circle cx="44" cy="0" r="4.5" fill="#FFB341" filter="url(#aw-glow-sm)"/></g><g class="awp4"><circle cx="66" cy="0" r="4.5" fill="#FFB341" filter="url(#aw-glow-sm)"/></g><g class="awp5"><circle cx="88" cy="0" r="4.5" fill="#FFB341" filter="url(#aw-glow-sm)"/></g><g class="awp6"><circle cx="110" cy="0" r="4.5" fill="#FFB341" filter="url(#aw-glow-sm)"/></g><text class="mono tag" x="146" y="4">EVIDENCE FIRST</text></g>
   </g>
-  <text class="mono tag" x="76" y="317">read-only by default  &#183;  live pricing  &#183;  no deletes without confirm</text>
+  <text class="mono tag" x="76" y="317">dry-run by default  &#183;  live pricing  &#183;  rollback file first</text>
 </svg>

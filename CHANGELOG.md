@@ -4,6 +4,24 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2026-11-17
+
+A clearer first screen and listing, in true words. No change to the skill or the scripts.
+
+### Changed
+
+- README: a new tagline and one sentence, a short paragraph on who it is for, and a "Why use it" block.
+  Each of its three points names its proof. The setup needs and the sign-off rule move under Install.
+- The safety wording says "dry-run by default" and states the exact rule: `--apply`, a rollback file
+  first, then a typed `yes` (`--yes` skips it; no terminal and no `--yes` means refusal).
+- The first screen adds the honest limits: give it read-only credentials, and Cost Explorer can take
+  up to 24 hours to show data.
+- The plugin listing description is shorter and outcome first, in all three manifests.
+- Hero, logo and diagram SVGs and the social preview carry the new headline. Their old line
+  "nothing deleted without your say-so" is gone.
+- `llms.txt`, `AGENTS.md`, the quickstart intro and the site say the same thing.
+- The four translated READMEs (zh-CN, ja, es, fr) mirror the English changes.
+
 ## [0.4.1] - 2026-11-17
 
 Safety fixes from an independent review: the code and the docs now say exactly the same thing.
@@ -210,6 +228,7 @@ Initial release.
   preview card, and a CI workflow that validates frontmatter, JSON, links, and scans for hardcoded
   prices, account IDs, and secrets.
 
+[0.4.2]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.3.0...v0.3.1

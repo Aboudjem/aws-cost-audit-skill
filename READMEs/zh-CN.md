@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../assets/hero-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="../assets/hero-light.svg">
-    <img src="../assets/hero-dark.svg" alt="aws-cost-audit：一份可以核对的省钱方案，每个数字都对照 AWS 实时价格验证" width="100%">
+    <img src="../assets/hero-dark.svg" alt="aws-cost-audit：砍掉 AWS 账单里的浪费，每个价格都向 AWS 实时核对" width="100%">
   </picture>
 </p>
 
@@ -19,11 +19,15 @@
 </p>
 
 <p align="center">
-  <strong>让 Claude 审计你的 AWS 账单。你会得到一个结论、最先要做的三件事，以及每一美元背后的实时价格。</strong>
+  <strong>砍掉 AWS 账单里的浪费，价格实时核对。</strong>
 </p>
 
 <p align="center">
-  <a href="#示例报告">示例报告</a> · <a href="#安装">安装</a> · <a href="#工作原理">工作原理</a> · <a href="#验证">验证</a> · <a href="#常见问题">常见问题</a> · <a href="#限制">限制</a>
+  让你的 agent 审计 AWS 账单，你会得到一个结论、最先要做的三项削减，以及每项背后的实时价格。
+</p>
+
+<p align="center">
+  <a href="#示例报告">示例报告</a> · <a href="#为什么用它">为什么用它</a> · <a href="#安装">安装</a> · <a href="#工作原理">工作原理</a> · <a href="#验证">验证</a> · <a href="#常见问题">常见问题</a> · <a href="#限制">限制</a>
 </p>
 
 ```bash
@@ -33,11 +37,9 @@ npx skills add Aboudjem/aws-cost-audit-skill -a claude-code
 把 `claude-code` 换成你用的 agent：`codex`、`cursor`、`gemini-cli`、`github-copilot` 或 `opencode`。
 不加 `-a`，CLI 会让你自己选。Claude Code 插件用户：见[安装](#安装)。
 
-然后对你的 agent 说：`audit my AWS bill`。你需要装有 AWS CLI，并有读取权限和账单读取权限。
-账单读取权限指 `ce:Get*` 和 `pricing:GetProducts`，这样才能看到费用和价格。
+然后对你的 agent 说：`audit my AWS bill`。你的机器需要什么，见[安装](#安装)。
 
-签字确认（sign-off）是指，在任何改动之前，资源负责人要先同意。
-凡是不能同时满足“高置信度”和“可回滚”的节省项，都需要签字确认。
+请给它只读凭证：skill 引导你的 agent，脚本强制要求输入 yes。
 
 ## 示例报告
 
@@ -68,6 +70,22 @@ Every figure above comes from the findings file. Nothing in your account was cha
 完整报告还会继续列出：每项服务你花了多少钱、每条发现及其证据，以及如何撤销。
 见 [`examples/sample-report.md`](../examples/sample-report.md) 和可选的 [HTML 仪表板](../examples/sample-dashboard.html)。
 
+它适合没有 FinOps 专人、自己付 AWS 账单的开发者和小团队。
+Cost Explorer 只给出总额，不告诉你该关掉什么。这个 skill 会点名该砍什么。
+闲置的卷、永久保留的日志、没传完的上传：每条发现都附带证据，并说明能否撤销。
+凡是不能同时满足“高置信度”和“可回滚”的项，都要等资源负责人签字确认。
+必须开启 Cost Explorer，开启后 AWS 最多需要 24 小时才显示数据。
+
+## 为什么用它
+
+- **知道从哪里开始。** 一个以美元计的结论，然后是最先要做的三项削减。
+  证明：上面的示例可用上面的命令重新打印，`make test` 会逐行比较两者。
+- **数字可信。** 价格在运行时从 AWS 获取，不来自记忆或博客里的价格表。
+  证明：如果脚本里写死了价格，`make test` 和 CI 扫描都会失败。
+- **不会意外改动。** 默认是 dry-run：改动脚本只打印它们将做什么。
+  加上 `--apply` 后，它们先保存回滚文件，再要求你输入 yes。`--yes` 会跳过这个问题。
+  没有可提问的终端又没有 `--yes` 时，它们会拒绝。`make test` 在 EBS 脚本上检查这个顺序。
+
 ## 安装
 
 在 Claude Code 里，从 [10x 市场](https://github.com/Aboudjem/10x)安装：
@@ -87,6 +105,9 @@ npx skills add Aboudjem/aws-cost-audit-skill
 AWS 托管策略 `ReadOnlyAccess` 加上账单读取权限（`ce:Get*`、`pricing:GetProducts`）就够了。
 
 然后对你的 agent 说：`audit my AWS bill`。它会先检查你的环境，并指出缺少的东西。
+
+签字确认（sign-off）是指，在任何改动之前，资源负责人要先同意。
+凡是不能同时满足“高置信度”和“可回滚”的节省项，都需要签字确认。
 
 ### 支持的 agent
 
