@@ -6,6 +6,8 @@ The skill targets Claude Code and shells out to the AWS CLI against the account 
 
 Who it is for: AWS account owners, FinOps practitioners, DevOps/platform engineers, and anyone whose AWS bill is too high and who wants a careful, auditable, safe-by-default cost review rather than a guess.
 
+Every report opens with a verdict line, then the three things to do first, then the detail. `scripts/findings-summary.sh` prints that opening from a validated `findings.json`.
+
 Three ways to install. As a Claude Code plugin through the 10x marketplace: run `claude plugin marketplace add Aboudjem/10x` then `claude plugin install aws-cost-audit@10x`. In any other agent, through the Vercel skills CLI: `npx skills add Aboudjem/aws-cost-audit-skill`. As a drop-in skill: copy the `skills/aws-cost-audit/` directory into `~/.claude/skills/aws-cost-audit/`. There is no direct-from-this-repo plugin path: this repo ships no marketplace manifest of its own.
 
 ## Docs
@@ -33,9 +35,10 @@ Three ways to install. As a Claude Code plugin through the 10x marketplace: run 
 
 ## Examples
 
-- [Examples](https://github.com/Aboudjem/aws-cost-audit-skill/tree/main/examples): Worked example runs of an AWS cost audit (each finding shown as detect -> attribute -> verify-price-live -> verdict).
+- [Examples](https://github.com/Aboudjem/aws-cost-audit-skill/tree/main/examples): A SAMPLE report for a fictional account. It opens with the verdict, then the three things to do first, then the detail. `sample-findings.json` is the matching findings file.
+- [Privacy](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/PRIVACY.md): Which AWS calls the scripts make, which ones change something, and where the data goes.
 
 ## Optional
 
-- [Research notes](https://github.com/Aboudjem/aws-cost-audit-skill/tree/main/docs/research): Background research behind the skill: AWS cost tactics, plugin spec, skill-authoring, and GEO/AEO conventions. Skip if a shorter context is needed.
+- [Research notes](https://github.com/Aboudjem/aws-cost-audit-skill/tree/main/docs/research): Background research behind the skill: AWS cost tactics, plugin spec, practitioner notes and skill-authoring. Skip if a shorter context is needed.
 - [Assets](https://github.com/Aboudjem/aws-cost-audit-skill/tree/main/assets): Optional HTML dashboard template generated from verified data. Skip if a shorter context is needed.

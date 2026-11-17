@@ -470,6 +470,13 @@ FV0_OUT=$(
 ) || FV0_RC=$?
 assert_eq "findings-validate: exits 2 when jq is missing, never 0" "$FV0_RC" "2"
 assert_contains "findings-validate: says why it could not check" "$FV0_OUT" "jq is not installed"
+FV0S_RC=0
+FV0S_OUT=$(
+  PATH="$(make_stub_path "$FV0/bin2" "")" \
+  "$BASH_BIN" "$HERE/../skills/aws-cost-audit/scripts/findings-summary.sh" "$FIX_GOOD" 2>/dev/null
+) || FV0S_RC=$?
+assert_eq "findings-summary: exits 2 when jq is missing, never 0" "$FV0S_RC" "2"
+assert_eq "findings-summary: prints no summary when it could not check" "$FV0S_OUT" ""
 rm -rf "$FV0"
 
 if command -v jq >/dev/null 2>&1; then
@@ -537,8 +544,150 @@ JSON
   assert_eq "findings-validate: accepts a numeric cost as well as null" "$FV4_RC" "0"
   assert_contains "findings-validate: counts the numeric-case finding" "$FV4_OUT" "1 finding(s)"
   rm -rf "$FV4"
+  # ---- findings-summary.sh --------------------------------------------------
+  # The report order is fixed: verdict, then the three things to do, then the
+  # detail. These cases pin that order and the arithmetic behind the verdict.
+  SUMMARY="$HERE/../skills/aws-cost-audit/scripts/findings-summary.sh"
+  ROOT="$HERE/.."
+  # Whole dollars with thousands separators, the way the summary prints them.
+  usd() {
+    local n="$1" out=""
+    while [ "${#n}" -gt 3 ]; do out=",${n: -3}$out"; n="${n:0:${#n}-3}"; done
+    printf '$%s' "$n$out"
+  }
+
+  # 34. Totals. Every number is computed at run time, so no cost figure is
+  # committed here. A is a stated saving, B is cost minus after, C is the cost
+  # of a SAFE-TO-DELETE finding that needs a sign-off, D has no verified cost.
+  FS1="$(mktemp -d)"
+  FS_A=$(( (RANDOM % 300) + 500 ))
+  FS_B=$(( (RANDOM % 200) + 200 ))
+  FS_C=$(( (RANDOM % 100) + 50 ))
+  FS_COST=$(( FS_B + 40 ))
+  cat > "$FS1/f.json" <<JSON
+{
+  "schema_version": "1.0",
+  "findings": [
+    {"id": "b-second", "resource": "res-B", "region": "<region>", "service": "Svc B",
+     "monthly_cost_estimate": $FS_COST, "after_monthly_cost": 40,
+     "evidence": "cmd b", "action": "OPTIMIZE", "reversible": true, "confidence": "High"},
+    {"id": "c-gated", "resource": "res-C", "region": "<region>", "service": "Svc C",
+     "monthly_cost_estimate": $FS_C,
+     "evidence": "cmd c", "action": "SAFE-TO-DELETE", "reversible": false, "confidence": "High"},
+    {"id": "a-first", "resource": "res-A", "region": "<region>", "service": "Svc A",
+     "monthly_cost_estimate": null, "monthly_saving": $FS_A,
+     "evidence": "cmd a", "action": "OPTIMIZE", "reversible": true, "confidence": "High"},
+    {"id": "d-unknown", "resource": "res-D", "region": "<region>", "service": "Svc D",
+     "monthly_cost_estimate": null,
+     "evidence": "cmd d", "action": "OPTIMIZE", "reversible": true, "confidence": "Low"},
+    {"id": "k-keep", "resource": "res-K", "region": "<region>", "service": "Svc K",
+     "monthly_cost_estimate": $FS_A,
+     "evidence": "cmd k", "action": "KEEP", "reversible": false, "confidence": "High"}
+  ]
+}
+JSON
+  FS1_RC=0
+  FS1_OUT=$(bash "$SUMMARY" "$FS1/f.json" 2>/dev/null) || FS1_RC=$?
+  assert_eq "findings-summary: exits 0 on a valid file" "$FS1_RC" "0"
+  assert_eq "findings-summary: line 1 is the verdict, with both totals" \
+    "$(printf '%s\n' "$FS1_OUT" | sed -n 1p)" \
+    "VERDICT: save $(usd $(( FS_A + FS_B )))/mo now, safely. Up to $(usd $(( FS_A + FS_B + FS_C )))/mo with sign-offs."
+  assert_eq "findings-summary: line 2 counts safe, sign-off and keep" \
+    "$(printf '%s\n' "$FS1_OUT" | sed -n 2p)" \
+    "4 findings to act on: 2 safe now, 2 need sign-off. 1 to keep."
+  assert_contains "findings-summary: an unknown saving is named and kept out of the totals" \
+    "$FS1_OUT" "1 finding has no verified cost and is in no total."
+  assert_eq "findings-summary: action 1 is the largest safe saving" \
+    "$(printf '%s\n' "$FS1_OUT" | grep '^1\. ')" \
+    "1. OPTIMIZE res-A (Svc A, <region>): saves \$$FS_A/mo. High confidence, reversible."
+  assert_eq "findings-summary: action 2 is the next safe saving, cost minus after" \
+    "$(printf '%s\n' "$FS1_OUT" | grep '^2\. ')" \
+    "2. OPTIMIZE res-B (Svc B, <region>): saves \$$FS_B/mo. High confidence, reversible."
+  assert_eq "findings-summary: action 3 is a sign-off item, and says so" \
+    "$(printf '%s\n' "$FS1_OUT" | grep '^3\. ')" \
+    "3. SAFE-TO-DELETE res-C (Svc C, <region>): saves \$$FS_C/mo. High confidence, not reversible, needs sign-off."
+  FS1_ORDER="$(printf '%s\n' "$FS1_OUT" | grep -n -E '^(VERDICT:|Do these three first:|Detail:)' | cut -d: -f2 | tr '\n' ' ')"
+  assert_eq "findings-summary: order is verdict, three actions, detail" \
+    "$FS1_ORDER" "VERDICT Do these three first Detail "
+  assert_contains "findings-summary: a KEEP finding is never listed as an action" \
+    "$(printf '%s\n' "$FS1_OUT" | grep -c 'res-K' | tr -d ' ')" "0"
+  rm -rf "$FS1"
+
+  # 35. Money is printed with thousands separators and with cents when needed.
+  FS2="$(mktemp -d)"
+  FS_BIG=$(( 1000 * 1000 + 2345 ))
+  cat > "$FS2/f.json" <<JSON
+{"schema_version": "1.0", "findings": [
+  {"id": "big", "resource": "res-big", "region": "<region>", "service": "Svc",
+   "monthly_cost_estimate": null, "monthly_saving": $FS_BIG.5,
+   "evidence": "cmd", "action": "OPTIMIZE", "reversible": true, "confidence": "High"}]}
+JSON
+  FS2_OUT=$(bash "$SUMMARY" "$FS2/f.json" 2>/dev/null) || true
+  assert_eq "findings-summary: formats thousands and cents" \
+    "$(printf '%s\n' "$FS2_OUT" | sed -n 1p)" \
+    "VERDICT: save \$1,002,345.50/mo now, safely. No further saving needs a sign-off."
+  assert_contains "findings-summary: one action is announced as one" "$FS2_OUT" "Do this first:"
+  rm -rf "$FS2"
+
+  # 36. No verified cost anywhere: the verdict says unknown and prints no dollar.
+  FS3_RC=0
+  FS3_OUT=$(bash "$SUMMARY" "$FIX_GOOD" 2>/dev/null) || FS3_RC=$?
+  assert_eq "findings-summary: the null-cost fixture exits 0" "$FS3_RC" "0"
+  assert_eq "findings-summary: with no verified cost the verdict says unknown" \
+    "$(printf '%s\n' "$FS3_OUT" | sed -n 1p)" \
+    "VERDICT: 2 findings to act on, saving unknown, could not verify."
+  assert_eq "findings-summary: with no verified cost no dollar figure is printed" \
+    "$(printf '%s\n' "$FS3_OUT" | grep -c '\$' | tr -d ' ')" "0"
+
+  # 37. A file that breaks the contract gets no summary at all.
+  FS4_RC=0
+  FS4_OUT=$(bash "$SUMMARY" "$FIX_BAD" 2>/dev/null) || FS4_RC=$?
+  assert_eq "findings-summary: a file that breaks the contract exits 1" "$FS4_RC" "1"
+  assert_eq "findings-summary: and prints no summary" "$FS4_OUT" ""
+
+  # 38. Nothing to act on.
+  FS5="$(mktemp -d)"
+  cat > "$FS5/f.json" <<'JSON'
+{"schema_version": "1.0", "findings": [
+  {"id": "k", "resource": "res-K", "region": "<region>", "service": "Svc",
+   "monthly_cost_estimate": null,
+   "evidence": "cmd", "action": "KEEP", "reversible": false, "confidence": "High"}]}
+JSON
+  FS5_OUT=$(bash "$SUMMARY" "$FS5/f.json" 2>/dev/null) || true
+  assert_eq "findings-summary: all KEEP means nothing to act on" \
+    "$(printf '%s\n' "$FS5_OUT" | sed -n 1p)" \
+    "VERDICT: nothing to act on. 1 finding checked, all marked KEEP."
+  rm -rf "$FS5"
+
+  # 39. The synthetic sample is valid, and the README shows exactly what the
+  # script prints for it. A README sample that drifts from the tool fails here.
+  FS6_RC=0
+  bash "$VALIDATE" "$ROOT/examples/sample-findings.json" >/dev/null 2>&1 || FS6_RC=$?
+  assert_eq "sample: examples/sample-findings.json satisfies the contract" "$FS6_RC" "0"
+  FS6_OUT=$(bash "$SUMMARY" "$ROOT/examples/sample-findings.json" 2>/dev/null) || true
+  FS6_README=$(awk '/<!-- sample-report:begin -->/{f=1;next} /<!-- sample-report:end -->/{f=0} f' \
+    "$ROOT/README.md" | grep -v '^```' | sed '/./,$!d' || true)
+  assert_eq "sample: the README sample report is the script output, line for line" \
+    "$FS6_README" "$FS6_OUT"
+  assert_eq "sample: examples/sample-report.md opens with the same verdict" \
+    "$(grep -m1 '^VERDICT:' "$ROOT/examples/sample-report.md")" \
+    "$(printf '%s\n' "$FS6_OUT" | sed -n 1p)"
+
+  # 40. The report template the skill follows is verdict first.
+  first_line() { grep -n -m1 -e "$2" "$1" | cut -d: -f1; }
+  for f in skills/aws-cost-audit/references/output-and-reporting.md examples/sample-report.md; do
+    V=$(first_line "$ROOT/$f" '^## Verdict')
+    T=$(first_line "$ROOT/$f" '^## Do these three first')
+    D=$(first_line "$ROOT/$f" '^## 1\. ')
+    if [ -n "$V" ] && [ -n "$T" ] && [ -n "$D" ] && [ "$V" -lt "$T" ] && [ "$T" -lt "$D" ]; then
+      ok "report order: $f puts the verdict, then three actions, then the detail"
+    else
+      fail "report order: $f puts the verdict, then three actions, then the detail" \
+        "verdict line ${V:-none}, actions line ${T:-none}, detail line ${D:-none}" "verdict < actions < detail"
+    fi
+  done
 else
-  printf '[SKIP] findings-validate cases: jq is not installed on this machine\n'
+  printf '[SKIP] findings-validate and findings-summary cases: jq is not installed on this machine\n'
 fi
 
 # ---- summary -----------------------------------------------------------------

@@ -42,12 +42,27 @@ jobs:
           fi
           echo "Tag $GITHUB_REF_NAME matches plugin.json."
 
+      - name: Release notes from CHANGELOG.md
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          awk -v v="$VERSION" '
+            index($0, "## [" v "]") == 1 { f = 1; next }
+            f && /^## \[/ { exit }
+            f { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ "$(grep -c '[^[:space:]]' release-notes.md)" -lt 3 ]; then
+            echo "CHANGELOG.md has no entry of 3 lines or more for $VERSION. Write one, then release again."
+            exit 1
+          fi
+          cat release-notes.md
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.value }}
           name: v${{ steps.version.outputs.value }}
-          generate_release_notes: true
+          body_path: release-notes.md
           draft: false
           prerelease: false
 

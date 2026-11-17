@@ -11,7 +11,6 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Aboudjem/aws-cost-audit-skill" alt="MIT license"></a>
   <a href="https://github.com/Aboudjem/aws-cost-audit-skill/actions/workflows/validate.yml"><img src="https://img.shields.io/github/actions/workflow/status/Aboudjem/aws-cost-audit-skill/validate.yml?branch=main&label=validate" alt="validate workflow status"></a>
-  <a href="https://github.com/Aboudjem/aws-cost-audit-skill/stargazers"><img src="https://img.shields.io/github/stars/Aboudjem/aws-cost-audit-skill" alt="GitHub stars"></a>
   <a href="https://github.com/Aboudjem/10x"><img src="https://img.shields.io/badge/part%20of-10x-FFB341" alt="Part of the 10x marketplace"></a>
 </p>
 
@@ -20,33 +19,41 @@
 </p>
 
 <p align="center">
-  <strong>Ask Claude to audit your AWS bill. Every number is checked against live AWS pricing.</strong>
+  <strong>Ask Claude to audit your AWS bill. You get a verdict, the three things to do first, and a live price behind every dollar.</strong>
 </p>
 
 <p align="center">
-  <a href="#what-it-does">What it does</a> · <a href="#install">Install</a> · <a href="#use-it">Use it</a> · <a href="#what-you-get">What you get</a> · <a href="#works-in-your-editor">Works in your editor</a> · <a href="#good-to-know">Good to know</a>
+  <a href="#sample-report">Sample report</a> · <a href="#install">Install</a> · <a href="#how-it-works">How it works</a> · <a href="#proof">Proof</a> · <a href="#faq">FAQ</a> · <a href="#limits">Limits</a>
 </p>
 
-![aws-cost-audit demo](assets/demo.gif)
+## Sample report
 
-<p align="center"><sub>Every figure in the recording is <b>illustrative</b>: synthetic data, no real account.</sub></p>
+Every report opens like this. This one is an illustration: a fictional account, invented figures, no real AWS data.
+Re-print it from the repo with `bash skills/aws-cost-audit/scripts/findings-summary.sh examples/sample-findings.json`.
 
-```bash
-claude plugin marketplace add Aboudjem/10x
-claude plugin install aws-cost-audit@10x
+<!-- sample-report:begin -->
+
+```text
+VERDICT: save $242/mo now, safely. Up to $1,777/mo with sign-offs.
+11 findings to act on: 4 safe now, 7 need sign-off. 1 to keep.
+
+Do these three first:
+1. OPTIMIZE 9 log groups that never expire (Amazon CloudWatch Logs, us-east-1): saves $84/mo. High confidence, reversible.
+2. SAFE-TO-DELETE 4 unattached EBS volumes (vol-EXAMPLE1 to vol-EXAMPLE4) (Amazon EBS, us-east-1): saves $72/mo. High confidence, reversible.
+3. OPTIMIZE abandoned multipart uploads in <demo-bucket> (Amazon S3, us-east-1): saves $58/mo. High confidence, reversible.
+
+Detail:
+- Save now safely: 4 findings, $242/mo
+- Needs sign-off: 7 findings, $1,535/mo
+- No verified cost: 0 findings, in no total
+- Keep: 1 finding
+Every figure above comes from the findings file. Nothing in your account was changed.
 ```
 
-## What it does
+<!-- sample-report:end -->
 
-It is a skill for [Claude Code](https://www.claude.com/product/claude-code): a Markdown instruction file, six reference documents it loads only when it needs them, and ten bash helper scripts. Claude picks it up when you ask about AWS spend.
-
-You say "audit my AWS bill". It reads your account through the AWS CLI you already have, works out what each resource costs and why, and hands you a plan. It reads only by default. It never quotes a price from memory, and it never deletes anything on its own.
-
-- **A spend breakdown.** What you pay per service and per region, pulled live from Cost Explorer.
-- **A per-resource view.** What each thing costs, what it does in plain words, who made it, and when it was last used. If a fact cannot be verified it says so instead of guessing.
-- **A savings plan in two halves.** "Save now safely" (reversible, high confidence) kept apart from "maximum theoretical save", which needs your sign-off.
-
-The method follows the [AWS Well-Architected cost-optimization pillar](https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html) and the [FinOps Foundation](https://www.finops.org/framework/) framework, so it is not something the skill made up.
+The full report goes on with what you pay per service, each finding with its evidence, and how to undo it.
+See [`examples/sample-report.md`](examples/sample-report.md) and the optional [HTML dashboard](examples/sample-dashboard.html).
 
 ## Install
 
@@ -57,18 +64,39 @@ claude plugin marketplace add Aboudjem/10x
 claude plugin install aws-cost-audit@10x
 ```
 
-In any other agent, through the [Vercel skills CLI](https://github.com/vercel-labs/skills):
+In any other agent, with the [skills CLI](https://github.com/vercel-labs/skills):
 
 ```bash
 npx skills add Aboudjem/aws-cost-audit-skill
 ```
 
-You also need the [AWS CLI](https://aws.amazon.com/cli/) configured with read access to the account you want to audit. The AWS managed `ReadOnlyAccess` policy plus billing read is enough for the audit itself.
+You also need the [AWS CLI](https://aws.amazon.com/cli/) with read access to the account, and `jq`.
+The AWS managed `ReadOnlyAccess` policy plus billing read is enough.
+
+Then ask your agent: `audit my AWS bill`. It checks your setup first and names anything missing.
+
+### Works with
+
+| Agent                | Install command                                                  | Tested     |
+| :------------------- | :--------------------------------------------------------------- | :--------- |
+| Claude Code (plugin) | `claude plugin install aws-cost-audit@10x`                       | 2026-11-17 |
+| Claude Code (skill)  | `npx skills add Aboudjem/aws-cost-audit-skill -a claude-code`    | 2026-11-17 |
+| Codex                | `npx skills add Aboudjem/aws-cost-audit-skill -a codex`          | 2026-11-17 |
+| Cursor               | `npx skills add Aboudjem/aws-cost-audit-skill -a cursor`         | 2026-11-17 |
+| Gemini CLI           | `npx skills add Aboudjem/aws-cost-audit-skill -a gemini-cli`     | 2026-11-17 |
+| GitHub Copilot       | `npx skills add Aboudjem/aws-cost-audit-skill -a github-copilot` | 2026-11-17 |
+| OpenCode             | `npx skills add Aboudjem/aws-cost-audit-skill -a opencode`       | 2026-11-17 |
+
+"Tested" means the install ran and `SKILL.md` landed where the agent reads it.
+CI repeats the install for Claude Code, Codex and Cursor on every push.
+
+Documented, not tested end to end: Pi, Mistral Vibe, Trae, OpenClaw, Antigravity, Hermes, Cline and Kimi through `./install.sh <platform>`.
+Their agent codes were accepted by the pinned skills CLI on 2026-11-17. Per-editor paths are in [docs/editors.md](docs/editors.md).
 
 <details>
 <summary>Copy the skill by hand instead</summary>
 
-Skip the plugin system entirely. The skill is a directory of Markdown and shell scripts, so copying it into a directory your agent reads is enough:
+The skill is a folder of Markdown and shell scripts. Copy it where your agent reads skills:
 
 ```bash
 git clone https://github.com/Aboudjem/aws-cost-audit-skill
@@ -76,84 +104,79 @@ mkdir -p ~/.claude/skills
 cp -r aws-cost-audit-skill/skills/aws-cost-audit ~/.claude/skills/aws-cost-audit
 ```
 
-This repo carries no marketplace manifest of its own, so `claude plugin marketplace add Aboudjem/aws-cost-audit-skill` will not resolve. The 10x marketplace above is the plugin path. Windows and the per-editor paths are in [docs/editors.md](docs/editors.md).
+This repo has no marketplace manifest of its own. Use the 10x marketplace above for the plugin path.
 </details>
 
-## Use it
-
-**1. Check the environment.** `doctor.sh` names what is missing before an audit starts. It makes no AWS call that changes anything, it has no apply flag, and it removes the probe file it writes:
-
-```bash
-bash skills/aws-cost-audit/scripts/doctor.sh --offline
-```
-
-```text
-aws-cost-audit doctor
-
-[OK]   aws CLI found: aws-cli/2.33.9 Python/3.13.12 Darwin/25.3.0 source/arm64
-[SKIP] caller identity (--offline)
-[OK]   jq found: jq-1.7.1-apple
-[OK]   region resolves to ap-southeast-1
-[OK]   output directory writable: ./cost-audit-out
-[SKIP] Cost Explorer probe (opt in with --check-cost-explorer; the request is billed)
-
-No blockers. This environment can run an audit.
-```
-
-**2. Ask Claude.** Say `audit my AWS bill`, or `find my unused AWS resources`. The skill is written to trigger on that phrasing. Tell it which profile and regions to look at if you have more than one account.
-
-**3. Read the plan.** You get a report and, if you want one, an HTML dashboard. Nothing in your account changes unless you ask, and even then only after a dry run and your confirmation.
+## How it works
 
 <p align="center">
   <img src="assets/how-it-works.svg" alt="How it works: 1 re-baseline live, 2 hunt waste across every region, 3 evidence-backed savings plan" width="100%">
 </p>
 
-The full walkthrough, from credentials to dashboard, is in the [quickstart](docs/quickstart.md).
+1. **Preflight.** `doctor.sh` checks the AWS CLI, credentials, `jq`, the region and the output folder. It changes nothing.
+2. **Baseline.** Cost Explorer gives your spend by service, region and usage type. The scripts count each request and stop at a cap.
+3. **Hunt.** It sweeps every enabled region for idle, oversized or forgotten resources. The checks are in [the hunt list](skills/aws-cost-audit/references/hunt-list.md).
+4. **Price.** Every dollar is the live unit price for your region times your real usage. No price comes from memory.
+5. **Sort.** Each finding is KEEP, OPTIMIZE or SAFE-TO-DELETE, with a confidence level and its evidence.
+6. **Report.** `findings-validate.sh` checks `findings.json`, then `findings-summary.sh` prints the verdict and the three actions. The detail follows.
 
-## What you get
+Nothing changes in your account unless you ask. A change also needs proof of non-use, a way back, a dry run and your typed `yes`.
+Irreversible actions, like a Savings Plan purchase, always stay recommendations.
 
-- **A report.** Each finding reads `current $/mo -> after $/mo -> $ saved`, with the evidence, a confidence level, and how to undo it. See [`examples/sample-report.md`](examples/sample-report.md).
-- **A dashboard, optionally.** One HTML file a non-technical person can open. It pulls its font and its chart library from a CDN, so it looks right on a machine with a network. See [`examples/sample-dashboard.html`](examples/sample-dashboard.html).
-- **A machine-readable `findings.json`, on request.** `findings-validate.sh` checks it against a pinned structural contract, which is what makes two audits comparable instead of re-read.
-- **A live price for every dollar.** Unit price, the math, and the source, looked up for your region. The Price List Query API is the first stop; where a figure cannot be verified it stays marked unknown.
-- **Guardrails.** It reports whether you have budgets and cost-anomaly alerts, and helps you set them.
+The skill itself is [`SKILL.md`](skills/aws-cost-audit/SKILL.md): five rules, the steps, and reference files it loads on demand.
 
-## Works in your editor
+## Proof
 
-| Agent | One-line install |
-|:--|:--|
-| Claude Code | `claude plugin install aws-cost-audit@10x` |
-| Any of 70+ other agents | `npx skills add Aboudjem/aws-cost-audit-skill` |
-| Codex, Gemini CLI, OpenCode, Pi | `./install.sh codex` (or `gemini`, `opencode`, `pi`) |
-| VS Code with Copilot | `./install.sh copilot` |
-| Everything else | see [docs/editors.md](docs/editors.md) |
+Every number below is re-printed by the command next to it.
 
-Works in Claude Code, Cursor, Codex, Copilot, Gemini CLI, and 70+ other agents through `npx skills add`. `install.sh` is the wrapper for the thirteen editor ids this repo has always supported, and it now delegates to that same CLI:
+| Claim                                      | Command                                                      | Output today                                                                  |
+| :----------------------------------------- | :----------------------------------------------------------- | :---------------------------------------------------------------------------- |
+| The offline suite passes                   | `make test`                                                  | `Results: 86 passed, 0 failed`                                                |
+| The sample above is the tool's real output | `make test` (case 39 compares them line by line)             | `[PASS] sample: the README sample report is the script output, line for line` |
+| The plugin manifest is valid               | `claude plugin validate . --strict`                          | `✔ Validation passed`                                                         |
+| No unit price is written into a script     | `make test` (no-hardcoded-price cases) and the CI price scan | `PASS: no hardcoded unit prices found`                                        |
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/Aboudjem/aws-cost-audit-skill/main/install.sh | bash -s codex
-```
+The suite stubs the `aws` command, so it needs no credentials and makes no AWS call.
+CI runs it on every push and pull request, with shellcheck and the skills CLI install.
 
-This plugin ships no MCP server, on purpose. It shells out to the AWS CLI you already have, so there is no extra process to run and nothing to add to an `.mcp.json`.
+What the scripts may call, and what they never send anywhere, is in [PRIVACY.md](PRIVACY.md).
 
-## Good to know
+## FAQ
 
-> [!IMPORTANT]
-> It is read-only by default. It will not delete, stop, or change anything on its own. Any action is gated: the resource must be proven unused, the change must be reversible, it must pass a dry run, and you must confirm. Irreversible actions stay recommendations.
+**Will it delete anything on its own?**
+No. It reads by default. A change runs only after proof of non-use, a dry run and your typed `yes`. Irreversible actions stay recommendations.
 
-- **No prices from memory.** Every dollar comes from the live AWS price for your region times your real usage. No resource price is written into a script or into a finding, and CI fails the build if one appears. The single price this repo records is Cost Explorer's own per-request API charge, which is what the audit costs to run, not the price of anything it reports on. It sits in a reference document with its AWS source.
-- **Cost Explorer requests are counted and capped.** The scripts route their requests through one wrapper that counts each page and refuses the one past `AWS_COST_AUDIT_CE_BUDGET`. An `aws ce` call you make yourself is outside that count.
-- **It talks to AWS and to nothing else.** It uses the AWS CLI credentials already on your machine, asks you for no keys, and sends your audit to no third party. The scripts need bash and the AWS CLI; `findings-validate.sh` also needs `jq`.
+**Does it need my AWS keys?**
+No. It uses the AWS CLI credentials already on your machine. Your data goes to AWS and to your agent, nowhere else.
+
+**What does one audit cost to run?**
+Cost Explorer bills each API request. The scripts count every page and stop at `AWS_COST_AUDIT_CE_BUDGET`, 50 by default. Price List lookups are free.
+
+**Why trust the dollar figures?**
+Each one shows the unit price, the math and the source. A figure that cannot be verified is written "unknown" and stays out of every total.
+
+**Are the sample figures real?**
+No. The sample report, the dashboard and the demo use a fictional account. Nothing in them was read from a real AWS bill.
+
+**Can I compare two audits?**
+Yes. Ask for `findings.json`. `findings-validate.sh` checks it against a fixed contract, so two runs can be diffed.
+
+More answers are in [docs/faq.md](docs/faq.md).
+
+## Limits
+
+- It needs the AWS CLI v2, bash and `jq`. On Windows, the scripts need a bash shell; see [docs/editors.md](docs/editors.md).
+- The baseline needs Cost Explorer turned on. After you turn it on, AWS can take up to 24 hours to show data.
+- The skill guides your agent. A weaker model can still skip a step, so check the evidence lines.
+- Prices are in USD, as AWS returns them.
 
 ## Learn more
 
-- [Quickstart](docs/quickstart.md): prerequisites, install, and what a full run does step by step.
-- [Editor and agent support](docs/editors.md): one line per agent, plus the manual copy path.
-- [FAQ](docs/faq.md): what it covers, what it costs to run, what it will not touch.
-- [How it compares](docs/comparison.md): against a manual audit and against a cost dashboard.
-- [The skill itself](skills/aws-cost-audit/SKILL.md): five Iron Laws, the workflow, and the reference documents it loads on demand.
-- [CHANGELOG](CHANGELOG.md) · [CONTRIBUTING](CONTRIBUTING.md) · [MIT license](LICENSE)
+- [Quickstart](docs/quickstart.md): from credentials to dashboard, step by step.
+- [Editor and agent support](docs/editors.md): one line per agent, plus the manual copy.
+- [How it compares](docs/comparison.md): against a manual audit and a cost dashboard.
+- [CHANGELOG](CHANGELOG.md) · [CONTRIBUTING](CONTRIBUTING.md) · [Privacy](PRIVACY.md) · [MIT license](LICENSE)
 
 ---
 
-<sub>Built and maintained by <a href="https://github.com/Aboudjem">Adam Boudjemaa</a>. Commands are written for AWS CLI v2. Spot a stale command or a gap? <a href="https://github.com/Aboudjem/aws-cost-audit-skill/issues">Open an issue</a>.</sub>
+<sub>Built and maintained by <a href="https://github.com/Aboudjem">Adam Boudjemaa</a>. Spot a stale command? <a href="https://github.com/Aboudjem/aws-cost-audit-skill/issues">Open an issue</a>.</sub>

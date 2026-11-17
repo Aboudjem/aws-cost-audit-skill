@@ -125,18 +125,43 @@ Exit `0` means the file satisfies the contract and prints the finding count. Exi
 prints `[ERROR]` and means the file could not be checked at all: no file, not readable as JSON, or
 `jq` is not installed. A file is never reported valid unchecked.
 
-Nothing in this repository, fixtures included, carries a monthly cost figure. `CONTRIBUTING.md`
-forbids writing a unit price, a monthly cost, or a saved amount into the skill, a script, a
-reference or an example, so the committed fixtures use `null` and the test that exercises the
-numeric branch builds its file at run time from a computed value.
+No skill file, script, reference or test fixture carries a monthly cost figure. The committed
+fixtures use `null`, and the tests that exercise the numeric branch build their file at run time
+from a computed value. The one exception is `examples/`: the sample report and
+`examples/sample-findings.json` show invented figures for a fictional account, marked SAMPLE, so a
+reader can see a full report. None of them is an AWS price.
 
 ## Artifact 2: the report skeleton
 
-Order matters: start with what they pay, then what is safe today, then the upside, then the detail,
-then guardrails, then honesty about coverage. Sections:
+Order matters. The reader gets the answer first: the verdict, then the three things to do, then
+the detail. A reader who stops after ten lines still knows how much they can save and what to do.
+After that: what they pay, what is safe today, the upside, the per-resource detail, guardrails,
+and honesty about coverage.
+
+Do not write the verdict and the three actions by hand. Write `findings.json` first, then print
+them with the summary script and paste its output as it is:
+
+```bash
+skills/aws-cost-audit/scripts/findings-summary.sh cost-audit-out/findings.json
+```
+
+It validates the file first and prints nothing for a file that breaks the contract. Its first
+line is the verdict. Then come the three findings to act on first: the largest verified savings
+that are safe now, then the largest that need a sign-off. A finding with no verified cost is never
+added to a total. Sections:
 
 ```
 # AWS cost audit: <account alias or "<your-account>">, <date>, region(s) inspected: <list>
+
+## Verdict
+<line 1 of findings-summary.sh: "VERDICT: save $<Y>/mo now, safely. Up to $<Z>/mo with sign-offs.">
+<line 2: how many findings to act on, how many are safe now, how many need a sign-off>
+
+## Do these three first
+1. <action> <resource>: saves $<n>/mo. <confidence>, <reversible or needs sign-off>. See §2.x / §3.x
+2. ...
+3. ...
+(Fewer than three only when fewer findings are to act on. Copy them from findings-summary.sh.)
 
 ## 1. What you pay today
 - Total verified spend: $<total>/mo  (source: Cost Explorer, <date range>, reconciled to the dollar)
@@ -175,7 +200,7 @@ by permissions). This section MUST end empty for a complete audit, if it is non-
 not done. Note any IAM permission that blocked a read so the user can grant it and re-run.
 ```
 
-Formatting guidance: lead with the totals, keep tables skimmable, put the long evidence commands in
+Formatting guidance: lead with the verdict and the three actions, keep tables skimmable, put the long evidence commands in
 the per-item blocks (not in the summary tables), and never present `$Y` and `$Z` as one number.
 
 ## Artifact 3: worked mini example (models the no-hardcoded-price rule)

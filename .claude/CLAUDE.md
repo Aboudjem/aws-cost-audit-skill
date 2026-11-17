@@ -15,10 +15,10 @@ This repo has no `agents/` directory, so there is no `model:` frontmatter to str
 `install.sh` has two paths.
 
 **Default: delegate to the Vercel skills CLI.** It maps the platform id to that CLI's agent code and
-runs `npx --yes skills@1.5.23 add Aboudjem/aws-cost-audit-skill -a <agent> -g -y`. The pin lives in
+runs `npx --yes skills@1.9.0 add Aboudjem/aws-cost-audit-skill -a <agent> -g -y`. The pin lives in
 `SKILLS_CLI` at the top of the script; bump it deliberately. `--project` installs into the current
 directory instead of the user profile, `--uninstall` maps to `skills remove`. The agent codes were
-checked against `npx --yes skills@1.5.23 add --help` and the supported-agents table in the
+installed for real with skills@1.9.0 on 2026-11-17 and checked against the supported-agents table in the
 `vercel-labs/skills` README; when one drifts, fix `platform_agent` in `install.sh` and the table in
 `docs/editors.md` together.
 

@@ -4,6 +4,36 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-11-17
+
+The report now opens with the answer: a verdict, then the three things to do first, then the detail.
+
+### Added
+
+- `scripts/findings-summary.sh`: prints the verdict, the three actions to take first and the counts from a
+  validated `findings.json`. Read-only, jq only. A finding with no verified cost is never added to a total.
+- `examples/sample-findings.json`: the findings file behind the sample report, for a fictional account.
+- Preflight step in `SKILL.md`: the skill runs `doctor.sh` before any audit call and fixes blockers first.
+- `PRIVACY.md`: every AWS call the scripts make, the three that change something, and where data goes.
+- `make test` and `make lint`. CI now runs the full offline suite (86 checks), shellcheck,
+  `claude plugin validate . --strict`, a skills CLI install for three agents and an installer test.
+- Plugin icon at `.claude-plugin/icon.png` and a social preview at `.github/social-preview.png`.
+
+### Changed
+
+- Report template and sample report are verdict first. A test fails if the README sample drifts from the
+  script output.
+- The sample report totals now add up: $242/mo safe now, $1,777/mo ceiling (they said $308 and $1,820).
+- `install.sh` and `install.ps1` pin `skills@1.9.0`. `--uninstall` now says when a shared copy in
+  `.agents/skills` stays behind for other agents.
+- README rewritten: sample report first, then install, how it works, proof, FAQ and limits.
+- Release notes now come from this file.
+- Contributor notes moved from `CLAUDE.md` to `.claude/CLAUDE.md`, which clears the strict validator warning.
+
+### Removed
+
+- Internal launch and growth notes (`docs/LAUNCH-PLAN.md`, `docs/VIRAL-AUDIT.md`, two research files).
+
 ## [0.3.1] - 2026-09-03
 
 A motion identity, and the literal synthwave scenery removed. No behaviour changes.
@@ -155,6 +185,8 @@ Initial release.
   preview card, and a CI workflow that validates frontmatter, JSON, links, and scans for hardcoded
   prices, account IDs, and secrets.
 
+[0.4.0]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.3.1...v0.4.0
+[0.3.1]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Aboudjem/aws-cost-audit-skill/releases/tag/v0.1.0

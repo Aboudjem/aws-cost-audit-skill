@@ -10,6 +10,13 @@ AWS CLI and produces an evidence-backed cost report and a savings plan. Other ph
 trigger it: "where is my AWS money going", "find unused AWS resources", "cut my AWS costs",
 "check my Savings Plans coverage".
 
+## What does the report look like?
+
+It opens with a verdict: what you can save now, safely, and the ceiling with sign-offs. Then come
+the three things to do first, then the detail. `findings-summary.sh` prints that opening from the
+run's `findings.json`, so it does not depend on how the agent words it that day. See
+[the sample report](../examples/sample-report.md), which uses a fictional account.
+
 ## Is it safe? Will it delete anything?
 
 It is read-only by default. It will not delete, stop, or change anything on its own. Any action

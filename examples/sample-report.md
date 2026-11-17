@@ -11,6 +11,42 @@
 
 ---
 
+## Verdict
+
+The verdict, the three things to do first and the counts below are the exact output of
+`findings-summary.sh` on the same fictional account. Re-print them with:
+
+```bash
+bash skills/aws-cost-audit/scripts/findings-summary.sh examples/sample-findings.json
+```
+
+```text
+VERDICT: save $242/mo now, safely. Up to $1,777/mo with sign-offs.
+11 findings to act on: 4 safe now, 7 need sign-off. 1 to keep.
+
+Do these three first:
+1. OPTIMIZE 9 log groups that never expire (Amazon CloudWatch Logs, us-east-1): saves $84/mo. High confidence, reversible.
+2. SAFE-TO-DELETE 4 unattached EBS volumes (vol-EXAMPLE1 to vol-EXAMPLE4) (Amazon EBS, us-east-1): saves $72/mo. High confidence, reversible.
+3. OPTIMIZE abandoned multipart uploads in <demo-bucket> (Amazon S3, us-east-1): saves $58/mo. High confidence, reversible.
+
+Detail:
+- Save now safely: 4 findings, $242/mo
+- Needs sign-off: 7 findings, $1,535/mo
+- No verified cost: 0 findings, in no total
+- Keep: 1 finding
+Every figure above comes from the findings file. Nothing in your account was changed.
+```
+
+## Do these three first
+
+1. **Set retention on 9 log groups that never expire.** Saves `$84/mo`. Reversible. See 2.2.
+2. **Snapshot, then delete 4 unattached EBS volumes.** Saves `$72/mo`. Reversible from the snapshot. See 2.1.
+3. **Abort abandoned S3 multipart uploads and add a lifecycle rule.** Saves `$58/mo`. See 2.4.
+
+Everything else waits for an owner's sign-off. Section 3 says who must agree to what.
+
+---
+
 ## How to read this report
 
 Every finding follows one output contract:
@@ -57,7 +93,7 @@ trailing 30 days; figures below are SAMPLE).
 High-confidence, reversible, and dry-run-tested. Even these run **only after explicit confirmation**
 and a snapshot/rollback where relevant, this skill is read-only by default.
 
-**Subtotal, Save now safely: `$308 / mo` (≈ `$3,696 / yr`).** *(SAMPLE)*
+**Subtotal, Save now safely: `$242 / mo` (about `$2,904 / yr`).** *(SAMPLE)*
 
 ### 2.1 Delete 4 unattached EBS volumes
 - **current → after:** `$72/mo → $0/mo` · **saved: `$72/mo`**
@@ -119,8 +155,8 @@ sign-off or a commitment. **These are recommendations only, none auto-run.** Ite
 **[SIGN-OFF REQUIRED]** change capacity, performance, or make a financial commitment and must be
 approved by the resource owner.
 
-**Theoretical ceiling (if every item below is approved and executed): `$308 + $1,512 = ~$1,820 / mo`
-(≈ `$21,840 / yr`).** *(SAMPLE, upper bound, not a promise)*
+**Theoretical ceiling (if every item below is approved and executed): `$242 + $1,535 = $1,777 / mo`
+(about `$21,324 / yr`).** *(SAMPLE, upper bound, not a promise)*
 
 | # | Recommendation | Est. $/mo saved (SAMPLE) | Confidence | Why gated |
 |---|---|---:|---|---|
@@ -130,7 +166,8 @@ approved by the resource owner.
 | 3.4 | Consolidate NAT Gateways / route public traffic via gateway endpoints | $240 | Medium | Routing change; validate no asymmetric routing first |
 | 3.5 | Apply S3 lifecycle: expire noncurrent versions + transition cold data to IA | $115 | Medium | Need owner confirmation that old versions aren't required |
 | 3.6 | **[SIGN-OFF REQUIRED]** Delete 12 snapshots/AMIs older than 1 yr, unreferenced | $92 | Low | **Destructive**, confirm no DR/restore dependency |
-| | **Additional theoretical save beyond section 2** | **~$1,512** | | |
+| 3.7 | **[SIGN-OFF REQUIRED]** Delete the ALB with no healthy targets (Card C) | $23 | High | **Irreversible**: the DNS name and listener config are lost |
+| | **Additional theoretical save beyond section 2** | **$1,535** | | |
 
 > Confidence rationale (Law 4, skeptic pass): items 3.1–3.2 are Medium because a single low-CPU
 > reading is not proof a workload is idle; they were corroborated with Compute Optimizer +
@@ -155,13 +192,13 @@ Plain-language cards for a non-technical reader. Each answers: what it costs, wh
 belongs to, who made it, when, when it was last used, and the verdict.
 
 ### Card A: `vol-EXAMPLE1` (unattached disk)
-- **What it costs:** **`$18/mo`** *(SAMPLE; gp2 $/GB-mo from Price List API, us-east-1, 2026-05-28 × 40 GB)*
+- **What it costs:** **`$29/mo`** *(SAMPLE; gp2 $/GB-mo from Price List API, us-east-1, 2026-05-28 × 40 GB)*
 - **What it is / does:** A 40 GB storage disk that is not connected to any server, so nothing is using it, but you still pay for the space.
 - **Which app/repo:** **unknown**, no `Name`, `app`, or `team` tag present.
 - **Who created it:** `dev-bob@<demo-account>` *(from CloudTrail `CreateVolume` event)*
 - **When created:** 2025-11-03 *(CloudTrail)*
 - **When last used:** Never in the 90-day window, `VolumeReadOps` and `VolumeWriteOps` both `0` *(CloudWatch)*
-- **Verdict:** **SAFE-TO-DELETE**, saved `$18/mo`, **High** confidence, **reversible** (snapshot first, then delete).
+- **Verdict:** **SAFE-TO-DELETE**, saved `$29/mo`, **High** confidence, **reversible** (snapshot first, then delete).
   Auto-run only after snapshot + dry-run + confirmation.
 
 ### Card B: `<demo-account>` prod RDS `db-EXAMPLE-prod` (oversized database)

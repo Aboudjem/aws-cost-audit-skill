@@ -25,10 +25,11 @@ skills/aws-cost-audit/
     00-baseline.sh, inventory-regions.sh, find-idle.sh, ...
   assets/               optional HTML dashboard template, generated from verified data
 .claude-plugin/
-  plugin.json           plugin manifest
-  marketplace.json      marketplace manifest
+  plugin.json           plugin manifest (the 10x marketplace holds the marketplace manifest)
+  icon.png              plugin icon
+tests/smoke.sh          offline test suite (stubbed aws, no credentials), run by `make test`
 docs/research/          background research behind the skill
-examples/               worked example audit output
+examples/               a SAMPLE report, dashboard and findings.json for a fictional account
 AGENTS.md               instructions for AI agents working in / invoking this repo
 README.md               human-facing overview
 LICENSE                 MIT
@@ -79,7 +80,8 @@ These are non-negotiable. They mirror the skill's Iron Laws in `AGENTS.md` /
   `$REGION`, `vol-EXAMPLE`, etc. The `.gitignore` already blocks audit output,
   credentials, and generated reports, don't override it.
 - **ZERO hardcoded AWS prices, verify live.** Never write a unit price, a monthly
-  cost, or a "$X saved" figure into the skill, a script, a reference, or an example.
+  cost, or a "$X saved" figure into the skill, a script, a reference, or a test fixture.
+  The one exception is `examples/`: invented figures for a fictional account, marked SAMPLE.
   Every dollar must come from BOTH the live, Region-specific unit price (AWS Price
   List Query API or the service's pricing page) AND the user's actual usage (Cost
   Explorer / CUR), shown as `unit price → math → source`. Prices are Region-specific
@@ -97,13 +99,15 @@ These are non-negotiable. They mirror the skill's Iron Laws in `AGENTS.md` /
 
 Before opening a PR, verify your change three ways:
 
-1. **Validate the plugin.**
+1. **Run the tests and validate the plugin.**
    ```bash
-   claude plugin validate .
+   make test
+   make lint
+   claude plugin validate . --strict
    ```
-   This must pass. Also confirm `SKILL.md` front matter is valid YAML (`name`,
-   `description`, `license`) and that `.claude-plugin/plugin.json` and
-   `marketplace.json` are valid JSON naming `Aboudjem/aws-cost-audit-skill`.
+   All three must pass. `make test` runs the offline suite with a stubbed `aws`,
+   so it needs `jq` but no credentials. Also confirm the three manifests in
+   `.claude-plugin/`, `.cursor-plugin/` and `.copilot-plugin/` carry the same version.
 
 2. **Run the skill for real.** Drop the skill into your local Claude Code and
    exercise the path you changed:
@@ -139,8 +143,8 @@ isn't a placeholder, fix it.
 ## CI must pass
 
 Every PR runs CI. It must be green before merge. CI enforces the same gates you
-ran locally, plugin validation, manifest JSON validity, and a scan for hardcoded
-secrets / account ids / prices. If CI fails, read the log and push a fix; don't ask
+ran locally: `make test`, `make lint`, `claude plugin validate . --strict`, a skills CLI
+install, manifest JSON validity, and a scan for hardcoded secrets / account ids / prices. If CI fails, read the log and push a fix; don't ask
 for a merge override.
 
 Thanks again, careful contributions to a tool that touches people's real cloud

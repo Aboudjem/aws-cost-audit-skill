@@ -13,7 +13,7 @@
   delegates to the Vercel skills CLI by default (npx skills add) and keeps the
   symlink logic behind --legacy; PowerShell users get the symlink logic, or can
   run the skills CLI directly:
-    npx --yes skills@1.5.23 add Aboudjem/aws-cost-audit-skill -a github-copilot -g -y
+    npx --yes skills@1.9.0 add Aboudjem/aws-cost-audit-skill -a github-copilot -g -y
   See docs/editors.md for the agent code for each editor.
 
   Creating symlinks on Windows needs Developer Mode enabled or an elevated

@@ -11,13 +11,14 @@
 <p align="center">
   <a href="../LICENSE"><img src="https://img.shields.io/github/license/Aboudjem/aws-cost-audit-skill" alt="MIT license"></a>
   <a href="https://github.com/Aboudjem/aws-cost-audit-skill/actions/workflows/validate.yml"><img src="https://img.shields.io/github/actions/workflow/status/Aboudjem/aws-cost-audit-skill/validate.yml?branch=main&label=validate" alt="validate workflow status"></a>
-  <a href="https://github.com/Aboudjem/aws-cost-audit-skill/stargazers"><img src="https://img.shields.io/github/stars/Aboudjem/aws-cost-audit-skill" alt="GitHub stars"></a>
   <a href="https://github.com/Aboudjem/10x"><img src="https://img.shields.io/badge/part%20of-10x-FFB341" alt="Part of the 10x marketplace"></a>
 </p>
 
 <p align="center">
   <a href="../README.md">English</a> · <a href="zh-CN.md">简体中文</a> · <b>日本語</b> · <a href="es.md">Español</a> · <a href="fr.md">Français</a>
 </p>
+
+<p align="center"><sub>この翻訳は v0.3.1 の内容です。v0.4.0 については英語版 README を参照してください。 <a href="../README.md">README (English)</a></sub></p>
 
 <p align="center">
   <strong>AWS の請求書の監査を Claude に頼んでください。すべての金額は AWS の実価格で検証されます。</strong>

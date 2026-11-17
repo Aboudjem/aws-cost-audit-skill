@@ -11,13 +11,14 @@
 <p align="center">
   <a href="../LICENSE"><img src="https://img.shields.io/github/license/Aboudjem/aws-cost-audit-skill" alt="MIT license"></a>
   <a href="https://github.com/Aboudjem/aws-cost-audit-skill/actions/workflows/validate.yml"><img src="https://img.shields.io/github/actions/workflow/status/Aboudjem/aws-cost-audit-skill/validate.yml?branch=main&label=validate" alt="validate workflow status"></a>
-  <a href="https://github.com/Aboudjem/aws-cost-audit-skill/stargazers"><img src="https://img.shields.io/github/stars/Aboudjem/aws-cost-audit-skill" alt="GitHub stars"></a>
   <a href="https://github.com/Aboudjem/10x"><img src="https://img.shields.io/badge/part%20of-10x-FFB341" alt="Part of the 10x marketplace"></a>
 </p>
 
 <p align="center">
   <a href="../README.md">English</a> · <b>简体中文</b> · <a href="ja.md">日本語</a> · <a href="es.md">Español</a> · <a href="fr.md">Français</a>
 </p>
+
+<p align="center"><sub>本译文对应 v0.3.1。v0.4.0 请以英文 README 为准。 <a href="../README.md">README (English)</a></sub></p>
 
 <p align="center">
   <strong>让 Claude 审计你的 AWS 账单。每个数字都对照 AWS 实时价格核对过。</strong>

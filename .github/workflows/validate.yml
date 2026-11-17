@@ -20,6 +20,54 @@ jobs:
         with:
           python-version: "3.x"
 
+      # (0) THE TEST SUITE. Offline: a stubbed `aws`, no credentials, no AWS call.
+      - name: Install jq and shellcheck
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq jq shellcheck
+
+      - name: Test suite (make test)
+        run: make test
+
+      - name: Shell lint (make lint)
+        run: make lint
+
+      - name: Skills CLI finds the skill (pinned skills@1.9.0)
+        shell: bash
+        run: |
+          set -o pipefail
+          npx --yes skills@1.9.0 add . --list 2>&1 | tee skills-list.txt
+          grep -q "aws-cost-audit" skills-list.txt
+
+      - name: Skills CLI installs this checkout for three agents
+        shell: bash
+        run: |
+          set -euo pipefail
+          for agent in claude-code codex cursor; do
+            dir="$(mktemp -d)"
+            (cd "$dir" && npx --yes skills@1.9.0 add "$GITHUB_WORKSPACE" -a "$agent" -y >/dev/null 2>&1)
+            found="$(find "$dir" -path '*aws-cost-audit/SKILL.md' | head -1)"
+            [ -n "$found" ] || { echo "FAIL: no SKILL.md after install for $agent"; exit 1; }
+            echo "PASS: $agent -> ${found#"$dir"/}"
+          done
+
+      - name: Claude Code plugin validate --strict (pinned 2.1.326)
+        shell: bash
+        run: npx --yes @anthropic-ai/claude-code@2.1.326 plugin validate . --strict
+
+      - name: Installer (install.sh codex --project, then --uninstall)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="$(mktemp -d)"
+          cd "$dir"
+          bash "$GITHUB_WORKSPACE/install.sh" codex --project
+          test -f .agents/skills/aws-cost-audit/SKILL.md
+          echo "PASS: install.sh placed the skill"
+          bash "$GITHUB_WORKSPACE/install.sh" codex --project --uninstall
+          echo "PASS: install.sh --uninstall exited 0"
+
       # (a) FRONTMATTER CHECK
       - name: Frontmatter check (SKILL.md)
         shell: bash

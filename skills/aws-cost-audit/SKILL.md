@@ -64,6 +64,10 @@ its spirit, so do not look for loopholes.
 Run the steps in order. Heavy detail lives in `references/`; load a reference only when you reach
 its step (token-efficient progressive disclosure).
 
+0. **Preflight.** Run `scripts/doctor.sh` from this skill's directory before any audit call. It
+   names a missing AWS CLI, missing credentials, missing `jq`, an unset region or an unwritable
+   output directory, and changes nothing. Fix every `[FAIL]` line with the user first. Add
+   `--check-cost-explorer` only if the user agrees: that probe is one billed request.
 1. **Re-baseline live.** Confirm identity (`aws sts get-caller-identity`), then pull Cost Explorer:
    total + by-service + by-Region + by-usage-type + daily + 90-day trend + forecast. State today's
    spend, reconciled to the dollar. Save raw JSON.
@@ -78,7 +82,9 @@ its step (token-efficient progressive disclosure).
    source and actual usage by a *separate* check (Law 1 + Law 4). See `references/pricing-verification.md`.
 6. **Gated remediation.** Only High-confidence, reversible, tested, certain items may auto-run, and
    only with the executor → verifier → rollback gate. Everything else is a labeled recommendation.
-7. **Deliver.** A plain-language report (`references/output-and-reporting.md`), an optional generated
+7. **Deliver, verdict first.** Write `findings.json`, then run `scripts/findings-summary.sh` on it.
+   Its output opens the report as it is: the verdict, then the three things to do first, then the
+   counts. The detail comes after. Then a plain-language report (`references/output-and-reporting.md`), an optional generated
    HTML dashboard (`references/dashboard.md` + `assets/dashboard-template.html`), a health/monitoring
    view, and budget + anomaly-detection guardrails. Finish with a **completeness pass**: "what Region
    / service / cost driver did we NOT inspect?"; it must come back empty.
@@ -193,3 +199,5 @@ aws pricing get-products --service-code AmazonEC2 --region us-east-1 \
 - `references/dashboard.md`: how to generate the optional HTML dashboard from verified data (template in `assets/`).
 - `references/why-these-laws.md`: the recorded baseline failures the Iron Laws fix (the TDD evidence).
 - `scripts/`: generic, parameterized, dry-run-by-default helpers (no hardcoded account/ARN/price).
+  `doctor.sh` is the preflight; `findings-validate.sh` checks `findings.json`; `findings-summary.sh`
+  prints the verdict and the three actions that open the report.

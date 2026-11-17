@@ -33,9 +33,10 @@ CLONE_DIR="${AWS_COST_AUDIT_HOME:-$HOME/.aws-cost-audit}"
 SKILLS=(aws-cost-audit)
 ALL_IDS=(gemini codex opencode pi vibe vscode copilot trae openclaw antigravity hermes cline kimi)
 # Pinned so a CLI release cannot change this installer's behaviour without a
-# deliberate bump here. Verified against `npx --yes skills@1.5.23 add --help`
-# and the supported-agents table at https://github.com/vercel-labs/skills
-SKILLS_CLI="skills@1.5.23"
+# deliberate bump here. Every agent code in platform_agent was installed for
+# real into a project folder with skills@1.9.0 on 2026-11-17 (exit 0), and an
+# unknown code makes that CLI fail with SKILLS_INVALID_AGENTS.
+SKILLS_CLI="skills@1.9.0"
 REPO_SLUG="Aboudjem/aws-cost-audit-skill"
 SKILL_NAME="aws-cost-audit"
 
@@ -79,7 +80,7 @@ EOF
 
 # platform_agent <id> -> the skills CLI agent code on stdout (empty if unknown).
 # Every code below was checked against the supported-agents table in the
-# vercel-labs/skills README and against `npx --yes skills@1.5.23 add --help`.
+# vercel-labs/skills README and by a real project install with skills@1.9.0.
 platform_agent() {
   case "$1" in
     gemini)         printf '%s\n' "gemini-cli" ;;
@@ -176,6 +177,15 @@ delegate_one() {
     uninstall)
       if npx --yes "$SKILLS_CLI" remove -a "$agent" $scope -s "$SKILL_NAME" -y; then
         info "removed $SKILL_NAME for $agent"
+        # Many agents read one shared folder, .agents/skills. The skills CLI
+        # keeps that copy while another agent may still use it. Say so, so
+        # "removed" is never read as "the files are gone".
+        local base="$PWD"
+        [ -n "$scope" ] && base="$HOME"
+        if [ -d "$base/.agents/skills/$SKILL_NAME" ]; then
+          info "note: the shared copy at $base/.agents/skills/$SKILL_NAME stays for other agents."
+          info "      To remove it for every agent: npx --yes $SKILLS_CLI remove ${scope:+$scope }-s $SKILL_NAME -y"
+        fi
       else
         warn "skills CLI could not remove $SKILL_NAME for $agent"
         return 1
