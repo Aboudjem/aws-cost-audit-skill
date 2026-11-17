@@ -26,6 +26,12 @@
   <a href="#sample-report">Sample report</a> · <a href="#install">Install</a> · <a href="#how-it-works">How it works</a> · <a href="#proof">Proof</a> · <a href="#faq">FAQ</a> · <a href="#limits">Limits</a>
 </p>
 
+```bash
+npx skills add Aboudjem/aws-cost-audit-skill
+```
+
+Then ask your agent: `audit my AWS bill`. Claude Code plugin users: see [Install](#install).
+
 ## Sample report
 
 Every report opens like this. This one is an illustration: a fictional account, invented figures, no real AWS data.
