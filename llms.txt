@@ -8,7 +8,7 @@ Who it is for: AWS account owners, FinOps practitioners, DevOps/platform enginee
 
 Every report opens with a verdict line, then the three things to do first, then the detail. `scripts/findings-summary.sh` prints that opening from a validated `findings.json`.
 
-Three ways to install. As a Claude Code plugin through the 10x marketplace: run `claude plugin marketplace add Aboudjem/10x` then `claude plugin install aws-cost-audit@10x`. In any other agent, through the Vercel skills CLI, for all your projects: `npx skills add Aboudjem/aws-cost-audit-skill -g -a <agent> -y` (drop `-g` for the current project only). As a drop-in skill: copy the `skills/aws-cost-audit/` directory into `~/.claude/skills/aws-cost-audit/`. There is no direct-from-this-repo plugin path: this repo ships no marketplace manifest of its own.
+Three ways to install. Recommended: the Vercel skills CLI (Vercel's open installer for agent skills), for all your projects: `npx skills add Aboudjem/aws-cost-audit-skill -g`, then pick your agent in the menu. It works in more than 70 agents (https://github.com/vercel-labs/skills#supported-agents); in a script it installs into every agent folder, so add `-a <agent>` there. Drop `-g` for the current project only. The skills.sh page is https://skills.sh/aboudjem/aws-cost-audit-skill. As a Claude Code plugin through the 10x marketplace (it adds no commands, hooks or MCP server over the skill): `claude plugin marketplace add Aboudjem/10x` then `claude plugin install aws-cost-audit@10x`. As a drop-in skill: copy the `skills/aws-cost-audit/` directory into `~/.claude/skills/aws-cost-audit/`. There is no direct-from-this-repo plugin path: this repo ships no marketplace manifest of its own.
 
 ## Docs
 
@@ -23,7 +23,7 @@ Three ways to install. As a Claude Code plugin through the 10x marketplace: run 
 ## Install
 
 - [10x marketplace (recommended)](https://github.com/Aboudjem/10x): `claude plugin marketplace add Aboudjem/10x` then `claude plugin install aws-cost-audit@10x`. The skill is curated in the 10x marketplace alongside other Claude Code tools.
-- [Any other agent, via the Vercel skills CLI](https://github.com/Aboudjem/aws-cost-audit-skill#install): `npx skills add Aboudjem/aws-cost-audit-skill -g -a <agent> -y`. Install tested on 2026-11-17 for Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot and OpenCode.
+- [Vercel skills CLI (recommended)](https://github.com/Aboudjem/aws-cost-audit-skill#install): `npx skills add Aboudjem/aws-cost-audit-skill -g`, then pick your agent in the menu; one agent only: add `-a <agent>`. Install tested on 2026-11-17 for Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot and OpenCode.
 - [Drop-in skill](https://github.com/Aboudjem/aws-cost-audit-skill#install): Copy `skills/aws-cost-audit/` into `~/.claude/skills/aws-cost-audit/`.
 - [Plugin manifest](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/.claude-plugin/plugin.json): Plugin name, version, and keywords.
 - [Editor and agent support](https://github.com/Aboudjem/aws-cost-audit-skill/blob/main/docs/editors.md): One install line per agent, the platform-id map, Windows, and the manual copy path.

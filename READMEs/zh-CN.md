@@ -30,11 +30,11 @@
 它只是 Markdown 和 bash，所以不绑定某一个模型。
 
 ```bash
-npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code -y
-# 给它只读的 AWS 凭证，然后对 agent 说：audit my AWS bill
+npx skills add Aboudjem/aws-cost-audit-skill -g
+# 在菜单里选择你的 agent，给它只读的 AWS 凭证，然后说：audit my AWS bill
 ```
 
-这会为你所有的项目安装。其他 agent 和 Claude Code 插件见[安装](#安装)。
+这会为你所有的项目安装。只装一个 agent，或安装 Claude Code 插件：见[安装](#安装)。
 
 它是给 AI agent 用的 skill，附带读取 AWS 账户的脚本。
 当账单上涨而你不知道原因时，就用它。
@@ -73,27 +73,36 @@ Every figure above comes from the findings file. Nothing in your account was cha
 
 ## 安装
 
-**选择你的 agent。** 每条命令都会为你所有的项目安装。
+**推荐：Vercel 的 skills CLI。** `npx skills` 是 Vercel 开放的 agent skill 安装器。
 
-[![Claude Code](https://img.shields.io/badge/Claude_Code-D97757?style=for-the-badge&logo=claude&logoColor=white)](#claude-code) [![Codex](https://img.shields.io/badge/Codex-000000?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBmaWxsPSJ3aGl0ZSIgcm9sZT0iaW1nIiB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI%2BPHRpdGxlPk9wZW5BSTwvdGl0bGU%2BPHBhdGggZD0iTTIyLjI4MTkgOS44MjExYTUuOTg0NyA1Ljk4NDcgMCAwIDAtLjUxNTctNC45MTA4IDYuMDQ2MiA2LjA0NjIgMCAwIDAtNi41MDk4LTIuOUE2LjA2NTEgNi4wNjUxIDAgMCAwIDQuOTgwNyA0LjE4MThhNS45ODQ3IDUuOTg0NyAwIDAgMC0zLjk5NzcgMi45IDYuMDQ2MiA2LjA0NjIgMCAwIDAgLjc0MjcgNy4wOTY2IDUuOTggNS45OCAwIDAgMCAuNTExIDQuOTEwNyA2LjA1MSA2LjA1MSAwIDAgMCA2LjUxNDYgMi45MDAxQTUuOTg0NyA1Ljk4NDcgMCAwIDAgMTMuMjU5OSAyNGE2LjA1NTcgNi4wNTU3IDAgMCAwIDUuNzcxOC00LjIwNTggNS45ODk0IDUuOTg5NCAwIDAgMCAzLjk5NzctMi45MDAxIDYuMDU1NyA2LjA1NTcgMCAwIDAtLjc0NzUtNy4wNzI5em0tOS4wMjIgMTIuNjA4MWE0LjQ3NTUgNC40NzU1IDAgMCAxLTIuODc2NC0xLjA0MDhsLjE0MTktLjA4MDQgNC43NzgzLTIuNzU4MmEuNzk0OC43OTQ4IDAgMCAwIC4zOTI3LS42ODEzdi02LjczNjlsMi4wMiAxLjE2ODZhLjA3MS4wNzEgMCAwIDEgLjAzOC4wNTJ2NS41ODI2YTQuNTA0IDQuNTA0IDAgMCAxLTQuNDk0NSA0LjQ5NDR6bS05LjY2MDctNC4xMjU0YTQuNDcwOCA0LjQ3MDggMCAwIDEtLjUzNDYtMy4wMTM3bC4xNDIuMDg1MiA0Ljc4MyAyLjc1ODJhLjc3MTIuNzcxMiAwIDAgMCAuNzgwNiAwbDUuODQyOC0zLjM2ODV2Mi4zMzI0YS4wODA0LjA4MDQgMCAwIDEtLjAzMzIuMDYxNUw5Ljc0IDE5Ljk1MDJhNC40OTkyIDQuNDk5MiAwIDAgMS02LjE0MDgtMS42NDY0ek0yLjM0MDggNy44OTU2YTQuNDg1IDQuNDg1IDAgMCAxIDIuMzY1NS0xLjk3MjhWMTEuNmEuNzY2NC43NjY0IDAgMCAwIC4zODc5LjY3NjVsNS44MTQ0IDMuMzU0My0yLjAyMDEgMS4xNjg1YS4wNzU3LjA3NTcgMCAwIDEtLjA3MSAwbC00LjgzMDMtMi43ODY1QTQuNTA0IDQuNTA0IDAgMCAxIDIuMzQwOCA3Ljg3MnptMTYuNTk2MyAzLjg1NThMMTMuMTAzOCA4LjM2NCAxNS4xMTkyIDcuMmEuMDc1Ny4wNzU3IDAgMCAxIC4wNzEgMGw0LjgzMDMgMi43OTEzYTQuNDk0NCA0LjQ5NDQgMCAwIDEtLjY3NjUgOC4xMDQydi01LjY3NzJhLjc5Ljc5IDAgMCAwLS40MDctLjY2N3ptMi4wMTA3LTMuMDIzMWwtLjE0Mi0uMDg1Mi00Ljc3MzUtMi43ODE4YS43NzU5Ljc3NTkgMCAwIDAtLjc4NTQgMEw5LjQwOSA5LjIyOTdWNi44OTc0YS4wNjYyLjA2NjIgMCAwIDEgLjAyODQtLjA2MTVsNC44MzAzLTIuNzg2NmE0LjQ5OTIgNC40OTkyIDAgMCAxIDYuNjgwMiA0LjY2ek04LjMwNjUgMTIuODYzbC0yLjAyLTEuMTYzOGEuMDgwNC4wODA0IDAgMCAxLS4wMzgtLjA1NjdWNi4wNzQyYTQuNDk5MiA0LjQ5OTIgMCAwIDEgNy4zNzU3LTMuNDUzN2wtLjE0Mi4wODA1TDguNzA0IDUuNDU5YS43OTQ4Ljc5NDggMCAwIDAtLjM5MjcuNjgxM3ptMS4wOTc2LTIuMzY1NGwyLjYwMi0xLjQ5OTggMi42MDY5IDEuNDk5OHYyLjk5OTRsLTIuNTk3NCAxLjQ5OTctMi42MDY3LTEuNDk5N1oiLz48L3N2Zz4%3D)](#codex) [![Cursor](https://img.shields.io/badge/Cursor-000000?style=for-the-badge&logo=cursor&logoColor=white)](#cursor) [![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#gemini-cli) [![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-24292F?style=for-the-badge&logo=githubcopilot&logoColor=white)](#github-copilot) [![OpenCode](https://img.shields.io/badge/OpenCode-333333?style=for-the-badge&logo=opencode&logoColor=white)](#opencode)
+```bash
+npx skills add Aboudjem/aws-cost-audit-skill -g
+```
+
+适用于 70 多个 agent：在菜单里选择你的那个（[支持的 agent](https://github.com/vercel-labs/skills#supported-agents)）。
+`-g` 会为你所有的项目安装。只装在当前项目：去掉 `-g`。
+在终端里它会显示 agent 菜单。在脚本里它会装进每个 agent 的文件夹，所以请加上 `-a <agent>`。
+
+<a href="https://skills.sh/aboudjem/aws-cost-audit-skill"><img src="https://img.shields.io/badge/skills.sh-000000?style=flat-square&logo=vercel&logoColor=white" height="24" alt="skills.sh page for aws-cost-audit-skill"></a> 它在 Vercel skill 目录上的页面： [skills.sh/aboudjem/aws-cost-audit-skill](https://skills.sh/aboudjem/aws-cost-audit-skill).
+
+**或者直接安装到某一个 agent。**
+
+<p><a href="#claude-code"><img src="https://img.shields.io/badge/Claude_Code-D97757?style=flat-square&logo=claude&logoColor=white" height="24" alt="Claude Code"></a> <a href="#codex"><img src="https://img.shields.io/badge/Codex-000000?style=flat-square&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBmaWxsPSJ3aGl0ZSIgcm9sZT0iaW1nIiB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI%2BPHRpdGxlPk9wZW5BSTwvdGl0bGU%2BPHBhdGggZD0iTTIyLjI4MTkgOS44MjExYTUuOTg0NyA1Ljk4NDcgMCAwIDAtLjUxNTctNC45MTA4IDYuMDQ2MiA2LjA0NjIgMCAwIDAtNi41MDk4LTIuOUE2LjA2NTEgNi4wNjUxIDAgMCAwIDQuOTgwNyA0LjE4MThhNS45ODQ3IDUuOTg0NyAwIDAgMC0zLjk5NzcgMi45IDYuMDQ2MiA2LjA0NjIgMCAwIDAgLjc0MjcgNy4wOTY2IDUuOTggNS45OCAwIDAgMCAuNTExIDQuOTEwNyA2LjA1MSA2LjA1MSAwIDAgMCA2LjUxNDYgMi45MDAxQTUuOTg0NyA1Ljk4NDcgMCAwIDAgMTMuMjU5OSAyNGE2LjA1NTcgNi4wNTU3IDAgMCAwIDUuNzcxOC00LjIwNTggNS45ODk0IDUuOTg5NCAwIDAgMCAzLjk5NzctMi45MDAxIDYuMDU1NyA2LjA1NTcgMCAwIDAtLjc0NzUtNy4wNzI5em0tOS4wMjIgMTIuNjA4MWE0LjQ3NTUgNC40NzU1IDAgMCAxLTIuODc2NC0xLjA0MDhsLjE0MTktLjA4MDQgNC43NzgzLTIuNzU4MmEuNzk0OC43OTQ4IDAgMCAwIC4zOTI3LS42ODEzdi02LjczNjlsMi4wMiAxLjE2ODZhLjA3MS4wNzEgMCAwIDEgLjAzOC4wNTJ2NS41ODI2YTQuNTA0IDQuNTA0IDAgMCAxLTQuNDk0NSA0LjQ5NDR6bS05LjY2MDctNC4xMjU0YTQuNDcwOCA0LjQ3MDggMCAwIDEtLjUzNDYtMy4wMTM3bC4xNDIuMDg1MiA0Ljc4MyAyLjc1ODJhLjc3MTIuNzcxMiAwIDAgMCAuNzgwNiAwbDUuODQyOC0zLjM2ODV2Mi4zMzI0YS4wODA0LjA4MDQgMCAwIDEtLjAzMzIuMDYxNUw5Ljc0IDE5Ljk1MDJhNC40OTkyIDQuNDk5MiAwIDAgMS02LjE0MDgtMS42NDY0ek0yLjM0MDggNy44OTU2YTQuNDg1IDQuNDg1IDAgMCAxIDIuMzY1NS0xLjk3MjhWMTEuNmEuNzY2NC43NjY0IDAgMCAwIC4zODc5LjY3NjVsNS44MTQ0IDMuMzU0My0yLjAyMDEgMS4xNjg1YS4wNzU3LjA3NTcgMCAwIDEtLjA3MSAwbC00LjgzMDMtMi43ODY1QTQuNTA0IDQuNTA0IDAgMCAxIDIuMzQwOCA3Ljg3MnptMTYuNTk2MyAzLjg1NThMMTMuMTAzOCA4LjM2NCAxNS4xMTkyIDcuMmEuMDc1Ny4wNzU3IDAgMCAxIC4wNzEgMGw0LjgzMDMgMi43OTEzYTQuNDk0NCA0LjQ5NDQgMCAwIDEtLjY3NjUgOC4xMDQydi01LjY3NzJhLjc5Ljc5IDAgMCAwLS40MDctLjY2N3ptMi4wMTA3LTMuMDIzMWwtLjE0Mi0uMDg1Mi00Ljc3MzUtMi43ODE4YS43NzU5Ljc3NTkgMCAwIDAtLjc4NTQgMEw5LjQwOSA5LjIyOTdWNi44OTc0YS4wNjYyLjA2NjIgMCAwIDEgLjAyODQtLjA2MTVsNC44MzAzLTIuNzg2NmE0LjQ5OTIgNC40OTkyIDAgMCAxIDYuNjgwMiA0LjY2ek04LjMwNjUgMTIuODYzbC0yLjAyLTEuMTYzOGEuMDgwNC4wODA0IDAgMCAxLS4wMzgtLjA1NjdWNi4wNzQyYTQuNDk5MiA0LjQ5OTIgMCAwIDEgNy4zNzU3LTMuNDUzN2wtLjE0Mi4wODA1TDguNzA0IDUuNDU5YS43OTQ4Ljc5NDggMCAwIDAtLjM5MjcuNjgxM3ptMS4wOTc2LTIuMzY1NGwyLjYwMi0xLjQ5OTggMi42MDY5IDEuNDk5OHYyLjk5OTRsLTIuNTk3NCAxLjQ5OTctMi42MDY3LTEuNDk5N1oiLz48L3N2Zz4%3D" height="24" alt="Codex"></a> <a href="#cursor"><img src="https://img.shields.io/badge/Cursor-000000?style=flat-square&logo=cursor&logoColor=white" height="24" alt="Cursor"></a> <a href="#gemini-cli"><img src="https://img.shields.io/badge/Gemini-8E75B2?style=flat-square&logo=googlegemini&logoColor=white" height="24" alt="Gemini CLI"></a> <a href="#github-copilot"><img src="https://img.shields.io/badge/Copilot-24292F?style=flat-square&logo=githubcopilot&logoColor=white" height="24" alt="GitHub Copilot"></a> <a href="#opencode"><img src="https://img.shields.io/badge/OpenCode-333333?style=flat-square&logo=opencode&logoColor=white" height="24" alt="OpenCode"></a></p>
 
 ### Claude Code
 
-已测试安装。从 [10x 市场](https://github.com/Aboudjem/10x) 添加插件。它为你的用户安装，所有项目都能用。
+已测试安装。
 
 ```bash
-claude plugin marketplace add Aboudjem/10x
-claude plugin install aws-cost-audit@10x
+npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code
 ```
-
-也可以作为 skill 安装：`npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code -y`。
 
 ### Codex
 
 已测试安装。
 
 ```bash
-npx skills add Aboudjem/aws-cost-audit-skill -g -a codex -y
+npx skills add Aboudjem/aws-cost-audit-skill -g -a codex
 ```
 
 ### Cursor
@@ -101,7 +110,7 @@ npx skills add Aboudjem/aws-cost-audit-skill -g -a codex -y
 已测试安装。
 
 ```bash
-npx skills add Aboudjem/aws-cost-audit-skill -g -a cursor -y
+npx skills add Aboudjem/aws-cost-audit-skill -g -a cursor
 ```
 
 ### Gemini CLI
@@ -109,7 +118,7 @@ npx skills add Aboudjem/aws-cost-audit-skill -g -a cursor -y
 已测试安装。
 
 ```bash
-npx skills add Aboudjem/aws-cost-audit-skill -g -a gemini-cli -y
+npx skills add Aboudjem/aws-cost-audit-skill -g -a gemini-cli
 ```
 
 ### GitHub Copilot
@@ -117,7 +126,7 @@ npx skills add Aboudjem/aws-cost-audit-skill -g -a gemini-cli -y
 已测试安装。
 
 ```bash
-npx skills add Aboudjem/aws-cost-audit-skill -g -a github-copilot -y
+npx skills add Aboudjem/aws-cost-audit-skill -g -a github-copilot
 ```
 
 ### OpenCode
@@ -125,10 +134,21 @@ npx skills add Aboudjem/aws-cost-audit-skill -g -a github-copilot -y
 已测试安装。
 
 ```bash
-npx skills add Aboudjem/aws-cost-audit-skill -g -a opencode -y
+npx skills add Aboudjem/aws-cost-audit-skill -g -a opencode
 ```
 
-只装在当前项目：去掉 `-g`。其他 agent：把它的代码放在 `-a` 后面。不写 `-a` 时，安装程序会询问。
+其他 agent：把它的代码放在 `-a` 后面。
+
+### Claude Code 插件
+
+它没有在 skill 之外增加任何东西：没有命令、hook 或 MCP 服务器。如果你用 [10x 市场](https://github.com/Aboudjem/10x) 管理插件，就用它。
+
+```bash
+claude plugin marketplace add Aboudjem/10x
+claude plugin install aws-cost-audit@10x
+```
+
+它为你的用户安装，所有项目都能用。
 
 ### 需要什么
 
@@ -141,12 +161,12 @@ npx skills add Aboudjem/aws-cost-audit-skill -g -a opencode -y
 | Agent | 安装命令（所有项目） | 已测试安装 |
 | :-- | :-- | :-- |
 | Claude Code (plugin) | `claude plugin install aws-cost-audit@10x` | 2026-11-17 |
-| Claude Code (skill) | `npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code -y` | 2026-11-17 |
-| Codex | `npx skills add Aboudjem/aws-cost-audit-skill -g -a codex -y` | 2026-11-17 |
-| Cursor | `npx skills add Aboudjem/aws-cost-audit-skill -g -a cursor -y` | 2026-11-17 |
-| Gemini CLI | `npx skills add Aboudjem/aws-cost-audit-skill -g -a gemini-cli -y` | 2026-11-17 |
-| GitHub Copilot | `npx skills add Aboudjem/aws-cost-audit-skill -g -a github-copilot -y` | 2026-11-17 |
-| OpenCode | `npx skills add Aboudjem/aws-cost-audit-skill -g -a opencode -y` | 2026-11-17 |
+| Claude Code (skill) | `npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code` | 2026-11-17 |
+| Codex | `npx skills add Aboudjem/aws-cost-audit-skill -g -a codex` | 2026-11-17 |
+| Cursor | `npx skills add Aboudjem/aws-cost-audit-skill -g -a cursor` | 2026-11-17 |
+| Gemini CLI | `npx skills add Aboudjem/aws-cost-audit-skill -g -a gemini-cli` | 2026-11-17 |
+| GitHub Copilot | `npx skills add Aboudjem/aws-cost-audit-skill -g -a github-copilot` | 2026-11-17 |
+| OpenCode | `npx skills add Aboudjem/aws-cost-audit-skill -g -a opencode` | 2026-11-17 |
 
 “已测试安装”表示安装已运行，并且 `SKILL.md` 放到了 agent 读取的位置。
 CI 在每次 push 时为 Claude Code、Codex 和 Cursor 重复安装。

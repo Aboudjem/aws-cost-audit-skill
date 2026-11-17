@@ -30,11 +30,11 @@
 It is Markdown and bash, so it is not tied to one model.
 
 ```bash
-npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code -y
-# give it read-only AWS credentials, then ask your agent: audit my AWS bill
+npx skills add Aboudjem/aws-cost-audit-skill -g
+# pick your agent in the menu, give it read-only AWS credentials, then ask: audit my AWS bill
 ```
 
-This installs for all your projects. Other agents and the Claude Code plugin are under [Install](#install).
+This installs for all your projects. One agent only, or the Claude Code plugin: see [Install](#install).
 
 It is a skill for your AI agent, with scripts that read your AWS account.
 Use it when your bill grows and you do not know why.
@@ -73,27 +73,36 @@ It needs the AWS CLI, `jq` and Cost Explorer. New Cost Explorer data can take 24
 
 ## Install
 
-**Pick your agent.** Each command installs for all your projects.
+**Recommended: the Vercel skills CLI.** `npx skills` is Vercel's open installer for agent skills.
 
-[![Claude Code](https://img.shields.io/badge/Claude_Code-D97757?style=for-the-badge&logo=claude&logoColor=white)](#claude-code) [![Codex](https://img.shields.io/badge/Codex-000000?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBmaWxsPSJ3aGl0ZSIgcm9sZT0iaW1nIiB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI%2BPHRpdGxlPk9wZW5BSTwvdGl0bGU%2BPHBhdGggZD0iTTIyLjI4MTkgOS44MjExYTUuOTg0NyA1Ljk4NDcgMCAwIDAtLjUxNTctNC45MTA4IDYuMDQ2MiA2LjA0NjIgMCAwIDAtNi41MDk4LTIuOUE2LjA2NTEgNi4wNjUxIDAgMCAwIDQuOTgwNyA0LjE4MThhNS45ODQ3IDUuOTg0NyAwIDAgMC0zLjk5NzcgMi45IDYuMDQ2MiA2LjA0NjIgMCAwIDAgLjc0MjcgNy4wOTY2IDUuOTggNS45OCAwIDAgMCAuNTExIDQuOTEwNyA2LjA1MSA2LjA1MSAwIDAgMCA2LjUxNDYgMi45MDAxQTUuOTg0NyA1Ljk4NDcgMCAwIDAgMTMuMjU5OSAyNGE2LjA1NTcgNi4wNTU3IDAgMCAwIDUuNzcxOC00LjIwNTggNS45ODk0IDUuOTg5NCAwIDAgMCAzLjk5NzctMi45MDAxIDYuMDU1NyA2LjA1NTcgMCAwIDAtLjc0NzUtNy4wNzI5em0tOS4wMjIgMTIuNjA4MWE0LjQ3NTUgNC40NzU1IDAgMCAxLTIuODc2NC0xLjA0MDhsLjE0MTktLjA4MDQgNC43NzgzLTIuNzU4MmEuNzk0OC43OTQ4IDAgMCAwIC4zOTI3LS42ODEzdi02LjczNjlsMi4wMiAxLjE2ODZhLjA3MS4wNzEgMCAwIDEgLjAzOC4wNTJ2NS41ODI2YTQuNTA0IDQuNTA0IDAgMCAxLTQuNDk0NSA0LjQ5NDR6bS05LjY2MDctNC4xMjU0YTQuNDcwOCA0LjQ3MDggMCAwIDEtLjUzNDYtMy4wMTM3bC4xNDIuMDg1MiA0Ljc4MyAyLjc1ODJhLjc3MTIuNzcxMiAwIDAgMCAuNzgwNiAwbDUuODQyOC0zLjM2ODV2Mi4zMzI0YS4wODA0LjA4MDQgMCAwIDEtLjAzMzIuMDYxNUw5Ljc0IDE5Ljk1MDJhNC40OTkyIDQuNDk5MiAwIDAgMS02LjE0MDgtMS42NDY0ek0yLjM0MDggNy44OTU2YTQuNDg1IDQuNDg1IDAgMCAxIDIuMzY1NS0xLjk3MjhWMTEuNmEuNzY2NC43NjY0IDAgMCAwIC4zODc5LjY3NjVsNS44MTQ0IDMuMzU0My0yLjAyMDEgMS4xNjg1YS4wNzU3LjA3NTcgMCAwIDEtLjA3MSAwbC00LjgzMDMtMi43ODY1QTQuNTA0IDQuNTA0IDAgMCAxIDIuMzQwOCA3Ljg3MnptMTYuNTk2MyAzLjg1NThMMTMuMTAzOCA4LjM2NCAxNS4xMTkyIDcuMmEuMDc1Ny4wNzU3IDAgMCAxIC4wNzEgMGw0LjgzMDMgMi43OTEzYTQuNDk0NCA0LjQ5NDQgMCAwIDEtLjY3NjUgOC4xMDQydi01LjY3NzJhLjc5Ljc5IDAgMCAwLS40MDctLjY2N3ptMi4wMTA3LTMuMDIzMWwtLjE0Mi0uMDg1Mi00Ljc3MzUtMi43ODE4YS43NzU5Ljc3NTkgMCAwIDAtLjc4NTQgMEw5LjQwOSA5LjIyOTdWNi44OTc0YS4wNjYyLjA2NjIgMCAwIDEgLjAyODQtLjA2MTVsNC44MzAzLTIuNzg2NmE0LjQ5OTIgNC40OTkyIDAgMCAxIDYuNjgwMiA0LjY2ek04LjMwNjUgMTIuODYzbC0yLjAyLTEuMTYzOGEuMDgwNC4wODA0IDAgMCAxLS4wMzgtLjA1NjdWNi4wNzQyYTQuNDk5MiA0LjQ5OTIgMCAwIDEgNy4zNzU3LTMuNDUzN2wtLjE0Mi4wODA1TDguNzA0IDUuNDU5YS43OTQ4Ljc5NDggMCAwIDAtLjM5MjcuNjgxM3ptMS4wOTc2LTIuMzY1NGwyLjYwMi0xLjQ5OTggMi42MDY5IDEuNDk5OHYyLjk5OTRsLTIuNTk3NCAxLjQ5OTctMi42MDY3LTEuNDk5N1oiLz48L3N2Zz4%3D)](#codex) [![Cursor](https://img.shields.io/badge/Cursor-000000?style=for-the-badge&logo=cursor&logoColor=white)](#cursor) [![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#gemini-cli) [![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-24292F?style=for-the-badge&logo=githubcopilot&logoColor=white)](#github-copilot) [![OpenCode](https://img.shields.io/badge/OpenCode-333333?style=for-the-badge&logo=opencode&logoColor=white)](#opencode)
+```bash
+npx skills add Aboudjem/aws-cost-audit-skill -g
+```
+
+Works in more than 70 agents: pick yours in the menu ([supported agents](https://github.com/vercel-labs/skills#supported-agents)).
+`-g` installs for all your projects. Only this project: drop `-g`.
+In a terminal it shows the agent menu. In a script it installs into every agent folder, so add `-a <agent>` there.
+
+<a href="https://skills.sh/aboudjem/aws-cost-audit-skill"><img src="https://img.shields.io/badge/skills.sh-000000?style=flat-square&logo=vercel&logoColor=white" height="24" alt="skills.sh page for aws-cost-audit-skill"></a> Its page on the Vercel skills directory: [skills.sh/aboudjem/aws-cost-audit-skill](https://skills.sh/aboudjem/aws-cost-audit-skill).
+
+**Or install straight into one agent.**
+
+<p><a href="#claude-code"><img src="https://img.shields.io/badge/Claude_Code-D97757?style=flat-square&logo=claude&logoColor=white" height="24" alt="Claude Code"></a> <a href="#codex"><img src="https://img.shields.io/badge/Codex-000000?style=flat-square&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBmaWxsPSJ3aGl0ZSIgcm9sZT0iaW1nIiB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI%2BPHRpdGxlPk9wZW5BSTwvdGl0bGU%2BPHBhdGggZD0iTTIyLjI4MTkgOS44MjExYTUuOTg0NyA1Ljk4NDcgMCAwIDAtLjUxNTctNC45MTA4IDYuMDQ2MiA2LjA0NjIgMCAwIDAtNi41MDk4LTIuOUE2LjA2NTEgNi4wNjUxIDAgMCAwIDQuOTgwNyA0LjE4MThhNS45ODQ3IDUuOTg0NyAwIDAgMC0zLjk5NzcgMi45IDYuMDQ2MiA2LjA0NjIgMCAwIDAgLjc0MjcgNy4wOTY2IDUuOTggNS45OCAwIDAgMCAuNTExIDQuOTEwNyA2LjA1MSA2LjA1MSAwIDAgMCA2LjUxNDYgMi45MDAxQTUuOTg0NyA1Ljk4NDcgMCAwIDAgMTMuMjU5OSAyNGE2LjA1NTcgNi4wNTU3IDAgMCAwIDUuNzcxOC00LjIwNTggNS45ODk0IDUuOTg5NCAwIDAgMCAzLjk5NzctMi45MDAxIDYuMDU1NyA2LjA1NTcgMCAwIDAtLjc0NzUtNy4wNzI5em0tOS4wMjIgMTIuNjA4MWE0LjQ3NTUgNC40NzU1IDAgMCAxLTIuODc2NC0xLjA0MDhsLjE0MTktLjA4MDQgNC43NzgzLTIuNzU4MmEuNzk0OC43OTQ4IDAgMCAwIC4zOTI3LS42ODEzdi02LjczNjlsMi4wMiAxLjE2ODZhLjA3MS4wNzEgMCAwIDEgLjAzOC4wNTJ2NS41ODI2YTQuNTA0IDQuNTA0IDAgMCAxLTQuNDk0NSA0LjQ5NDR6bS05LjY2MDctNC4xMjU0YTQuNDcwOCA0LjQ3MDggMCAwIDEtLjUzNDYtMy4wMTM3bC4xNDIuMDg1MiA0Ljc4MyAyLjc1ODJhLjc3MTIuNzcxMiAwIDAgMCAuNzgwNiAwbDUuODQyOC0zLjM2ODV2Mi4zMzI0YS4wODA0LjA4MDQgMCAwIDEtLjAzMzIuMDYxNUw5Ljc0IDE5Ljk1MDJhNC40OTkyIDQuNDk5MiAwIDAgMS02LjE0MDgtMS42NDY0ek0yLjM0MDggNy44OTU2YTQuNDg1IDQuNDg1IDAgMCAxIDIuMzY1NS0xLjk3MjhWMTEuNmEuNzY2NC43NjY0IDAgMCAwIC4zODc5LjY3NjVsNS44MTQ0IDMuMzU0My0yLjAyMDEgMS4xNjg1YS4wNzU3LjA3NTcgMCAwIDEtLjA3MSAwbC00LjgzMDMtMi43ODY1QTQuNTA0IDQuNTA0IDAgMCAxIDIuMzQwOCA3Ljg3MnptMTYuNTk2MyAzLjg1NThMMTMuMTAzOCA4LjM2NCAxNS4xMTkyIDcuMmEuMDc1Ny4wNzU3IDAgMCAxIC4wNzEgMGw0LjgzMDMgMi43OTEzYTQuNDk0NCA0LjQ5NDQgMCAwIDEtLjY3NjUgOC4xMDQydi01LjY3NzJhLjc5Ljc5IDAgMCAwLS40MDctLjY2N3ptMi4wMTA3LTMuMDIzMWwtLjE0Mi0uMDg1Mi00Ljc3MzUtMi43ODE4YS43NzU5Ljc3NTkgMCAwIDAtLjc4NTQgMEw5LjQwOSA5LjIyOTdWNi44OTc0YS4wNjYyLjA2NjIgMCAwIDEgLjAyODQtLjA2MTVsNC44MzAzLTIuNzg2NmE0LjQ5OTIgNC40OTkyIDAgMCAxIDYuNjgwMiA0LjY2ek04LjMwNjUgMTIuODYzbC0yLjAyLTEuMTYzOGEuMDgwNC4wODA0IDAgMCAxLS4wMzgtLjA1NjdWNi4wNzQyYTQuNDk5MiA0LjQ5OTIgMCAwIDEgNy4zNzU3LTMuNDUzN2wtLjE0Mi4wODA1TDguNzA0IDUuNDU5YS43OTQ4Ljc5NDggMCAwIDAtLjM5MjcuNjgxM3ptMS4wOTc2LTIuMzY1NGwyLjYwMi0xLjQ5OTggMi42MDY5IDEuNDk5OHYyLjk5OTRsLTIuNTk3NCAxLjQ5OTctMi42MDY3LTEuNDk5N1oiLz48L3N2Zz4%3D" height="24" alt="Codex"></a> <a href="#cursor"><img src="https://img.shields.io/badge/Cursor-000000?style=flat-square&logo=cursor&logoColor=white" height="24" alt="Cursor"></a> <a href="#gemini-cli"><img src="https://img.shields.io/badge/Gemini-8E75B2?style=flat-square&logo=googlegemini&logoColor=white" height="24" alt="Gemini CLI"></a> <a href="#github-copilot"><img src="https://img.shields.io/badge/Copilot-24292F?style=flat-square&logo=githubcopilot&logoColor=white" height="24" alt="GitHub Copilot"></a> <a href="#opencode"><img src="https://img.shields.io/badge/OpenCode-333333?style=flat-square&logo=opencode&logoColor=white" height="24" alt="OpenCode"></a></p>
 
 ### Claude Code
 
-Install tested. Add the plugin from the [10x marketplace](https://github.com/Aboudjem/10x). It installs for your user, in every project.
+Install tested.
 
 ```bash
-claude plugin marketplace add Aboudjem/10x
-claude plugin install aws-cost-audit@10x
+npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code
 ```
-
-Or as a skill: `npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code -y`.
 
 ### Codex
 
 Install tested.
 
 ```bash
-npx skills add Aboudjem/aws-cost-audit-skill -g -a codex -y
+npx skills add Aboudjem/aws-cost-audit-skill -g -a codex
 ```
 
 ### Cursor
@@ -101,7 +110,7 @@ npx skills add Aboudjem/aws-cost-audit-skill -g -a codex -y
 Install tested.
 
 ```bash
-npx skills add Aboudjem/aws-cost-audit-skill -g -a cursor -y
+npx skills add Aboudjem/aws-cost-audit-skill -g -a cursor
 ```
 
 ### Gemini CLI
@@ -109,7 +118,7 @@ npx skills add Aboudjem/aws-cost-audit-skill -g -a cursor -y
 Install tested.
 
 ```bash
-npx skills add Aboudjem/aws-cost-audit-skill -g -a gemini-cli -y
+npx skills add Aboudjem/aws-cost-audit-skill -g -a gemini-cli
 ```
 
 ### GitHub Copilot
@@ -117,7 +126,7 @@ npx skills add Aboudjem/aws-cost-audit-skill -g -a gemini-cli -y
 Install tested.
 
 ```bash
-npx skills add Aboudjem/aws-cost-audit-skill -g -a github-copilot -y
+npx skills add Aboudjem/aws-cost-audit-skill -g -a github-copilot
 ```
 
 ### OpenCode
@@ -125,10 +134,21 @@ npx skills add Aboudjem/aws-cost-audit-skill -g -a github-copilot -y
 Install tested.
 
 ```bash
-npx skills add Aboudjem/aws-cost-audit-skill -g -a opencode -y
+npx skills add Aboudjem/aws-cost-audit-skill -g -a opencode
 ```
 
-Only this project: drop `-g`. Another agent: put its code after `-a`. Without `-a`, the installer asks.
+Another agent: put its code after `-a`.
+
+### Claude Code plugin
+
+It adds nothing over the skill: no commands, hooks or MCP server. Use it if you manage plugins with the [10x marketplace](https://github.com/Aboudjem/10x).
+
+```bash
+claude plugin marketplace add Aboudjem/10x
+claude plugin install aws-cost-audit@10x
+```
+
+It installs for your user, in every project.
 
 ### What it needs
 
@@ -141,12 +161,12 @@ Only this project: drop `-g`. Another agent: put its code after `-a`. Without `-
 | Agent                | Install command (all your projects)                                     | Install tested |
 | :------------------- | :---------------------------------------------------------------------- | :------------- |
 | Claude Code (plugin) | `claude plugin install aws-cost-audit@10x`                              | 2026-11-17     |
-| Claude Code (skill)  | `npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code -y`    | 2026-11-17     |
-| Codex                | `npx skills add Aboudjem/aws-cost-audit-skill -g -a codex -y`          | 2026-11-17     |
-| Cursor               | `npx skills add Aboudjem/aws-cost-audit-skill -g -a cursor -y`         | 2026-11-17     |
-| Gemini CLI           | `npx skills add Aboudjem/aws-cost-audit-skill -g -a gemini-cli -y`     | 2026-11-17     |
-| GitHub Copilot       | `npx skills add Aboudjem/aws-cost-audit-skill -g -a github-copilot -y` | 2026-11-17     |
-| OpenCode             | `npx skills add Aboudjem/aws-cost-audit-skill -g -a opencode -y`       | 2026-11-17     |
+| Claude Code (skill)  | `npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code`    | 2026-11-17     |
+| Codex                | `npx skills add Aboudjem/aws-cost-audit-skill -g -a codex`          | 2026-11-17     |
+| Cursor               | `npx skills add Aboudjem/aws-cost-audit-skill -g -a cursor`         | 2026-11-17     |
+| Gemini CLI           | `npx skills add Aboudjem/aws-cost-audit-skill -g -a gemini-cli`     | 2026-11-17     |
+| GitHub Copilot       | `npx skills add Aboudjem/aws-cost-audit-skill -g -a github-copilot` | 2026-11-17     |
+| OpenCode             | `npx skills add Aboudjem/aws-cost-audit-skill -g -a opencode`       | 2026-11-17     |
 
 "Install tested" means the install ran and `SKILL.md` landed where the agent reads it.
 CI repeats the install for Claude Code, Codex and Cursor on every push.
