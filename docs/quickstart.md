@@ -1,14 +1,14 @@
 # Quickstart
 
-Cut the waste in your AWS bill in a few minutes. The skill reads your live AWS
+Find what to stop paying for on your AWS bill, in a few minutes. The skill reads your AWS
 account and writes a report: a verdict, three cuts to make first, and the evidence behind each.
 
 **It is dry-run by default.** Discovery runs only read, describe and list calls.
 The three change scripts do nothing without `--apply`. With it, they save a rollback file,
 then ask you to type `yes`. `--yes` skips the question; with no terminal and no `--yes`,
 they refuse. Give it read-only credentials: the skill guides your agent, the scripts
-enforce the yes. No script holds a resource price: each dollar figure uses the price AWS returns
-for your region at run time, and records that lookup.
+enforce the yes. No script holds a resource price: each dollar figure uses a price from AWS for your
+region (a Price List lookup, or a Cost Explorer read for tiered prices), and records that lookup.
 
 ---
 

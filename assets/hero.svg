@@ -1,153 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" fill="none" role="img"
-     aria-label="aws-cost-audit, an AWS bill audit skill: a savings plan you can check">
-  <title>aws-cost-audit</title>
-  <defs>
-    <linearGradient id="aw-ground" x1="0" y1="0" x2="0.4" y2="1">
-      <stop offset="0%" stop-color="#1C1410"/>
-      <stop offset="55%" stop-color="#0A0F1C"/>
-      <stop offset="100%" stop-color="#080C18"/>
-    </linearGradient>
-    <radialGradient id="aw-bloomA" cx="0.15" cy="0.13" r="0.44">
-      <stop offset="0%" stop-color="#FFB341" stop-opacity="0.26"/>
-      <stop offset="100%" stop-color="#FFB341" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="aw-bloomB" cx="0.88" cy="0.85" r="0.50">
-      <stop offset="0%" stop-color="#FF4D8D" stop-opacity="0.26"/>
-      <stop offset="100%" stop-color="#FF4D8D" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="aw-bloomC" cx="0.52" cy="0.04" r="0.36">
-      <stop offset="0%" stop-color="#C77DFF" stop-opacity="0.16"/>
-      <stop offset="100%" stop-color="#C77DFF" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="aw-wash" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0%"   stop-color="#FFD08A" stop-opacity="0.20"/>
-      <stop offset="42%"  stop-color="#FF4D8D" stop-opacity="0.124"/>
-      <stop offset="76%"  stop-color="#C77DFF" stop-opacity="0.046"/>
-      <stop offset="100%" stop-color="#C77DFF" stop-opacity="0"/>
-    </radialGradient>
-    <clipPath id="aw-frame"><rect width="1200" height="360"/></clipPath>
-    <linearGradient id="aw-rule" gradientUnits="userSpaceOnUse" x1="500" y1="90" x2="500" y2="270">
-      <stop offset="0%"   stop-color="#FFB341" stop-opacity="0"/>
-      <stop offset="45%"  stop-color="#FFB341" stop-opacity="0.8"/>
-      <stop offset="100%" stop-color="#FF4D8D" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="aw-ink" gradientUnits="userSpaceOnUse" x1="40" y1="76" x2="216" y2="196">
-      <stop class="awk1" offset="0%"   stop-color="#FFD08A"/>
-      <stop class="awk2" offset="52%"  stop-color="#FFB341"/>
-      <stop class="awk3" offset="100%" stop-color="#FF4D8D"/>
-    </linearGradient>
-    <filter id="aw-glow" x="-45%" y="-45%" width="190%" height="190%">
-      <feGaussianBlur stdDeviation="6.0" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <filter id="aw-glow-sm" x="-150%" y="-150%" width="400%" height="400%">
-      <feGaussianBlur stdDeviation="3.6" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <clipPath id="aw-b1"><rect class="awb1" x="44" y="196" width="66" height="14"/></clipPath>
-    <clipPath id="aw-b2"><rect class="awb2" x="44" y="216" width="48" height="14"/></clipPath>
-    <linearGradient id="aw-word" x1="0" y1="0" x2="1" y2="0.25">
-      <stop class="awk1" offset="0%"   stop-color="#FFD08A"/>
-      <stop class="awk2" offset="46%"  stop-color="#FFB341"/>
-      <stop class="awk3" offset="100%" stop-color="#FF4D8D"/>
-    </linearGradient>
-    <linearGradient id="aw-sheen" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0"/>
-      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.62"/>
-      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
-    </linearGradient>
-    <clipPath id="aw-wordclip">
-      <text x="76" y="257" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-            font-size="55" font-weight="800" letter-spacing="-1.9">aws-cost-audit</text>
-    </clipPath>
-  </defs>
-
-  <style>
-    .disp { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
-    .mono { font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; }
-    .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 4.5px; fill: #FFD08A; }
-    .head    { font-size: 34px; font-weight: 700; fill: #F2F6FF; letter-spacing: -0.5px; }
-    .sub     { font-size: 16.5px; font-weight: 500; fill: #C2CDE4; }
-    .tag     { font-size: 11.5px; letter-spacing: 1.6px; fill: #93A2BE; }
-    .chip    { font-size: 11.5px; letter-spacing: 1.2px; fill: #C2CDE4; }
-    @keyframes aw-breathe { 0%,100% { opacity:0.62; } 50% { opacity:1; } }
-    .awbloom { animation: aw-breathe 11s ease-in-out infinite; }
-    @keyframes aw-sweep { 0% { transform: translateX(-360px); } 100% { transform: translateX(1560px); } }
-    .awwash { animation: aw-sweep 17s cubic-bezier(.5,0,.5,1) infinite; }
-    @keyframes aw-sheen { 0% { transform: translateX(0); } 15%,100% { transform: translateX(252px); } }
-    .awsheen { animation: aw-sheen 8.5s cubic-bezier(.4,0,.3,1) infinite; }
-    @keyframes aw-pip { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
-    .awp1 { animation: aw-pip 5s ease-in-out infinite 0.0s; }
-    .awp2 { animation: aw-pip 5s ease-in-out infinite 0.35s; }
-    .awp3 { animation: aw-pip 5s ease-in-out infinite 0.7s; }
-    .awp4 { animation: aw-pip 5s ease-in-out infinite 1.05s; }
-    .awp5 { animation: aw-pip 5s ease-in-out infinite 1.4s; }
-    .awp6 { animation: aw-pip 5s ease-in-out infinite 1.75s; }
-    @keyframes aw-draw { 0% { stroke-dashoffset: 1000; } 40%,88% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 1000; } }
-    .awcurve { stroke-dasharray: 1000; animation: aw-draw 7s linear infinite; }
-    @keyframes aw-b1 { 0%,40% { width: 66px; } 88%,100% { width: 22px; } }
-    @keyframes aw-b2 { 0%,46% { width: 48px; } 88%,100% { width: 14px; } }
-    .awb1 { animation: aw-b1 7s steps(6, end) infinite; }
-    .awb2 { animation: aw-b2 7s steps(6, end) infinite; }
-    @keyframes aw-coin { 0%,100% { opacity: 0.55; } 50% { opacity: 1; } }
-    .awcoin { animation: aw-coin 7s ease-in-out infinite; }
-    @keyframes aw-k1 { 0%,100% { stop-color:#FFD08A; } 50% { stop-color:#FFB341; } }
-    @keyframes aw-k2 { 0%,100% { stop-color:#FFB341; } 50% { stop-color:#FF9A4D; } }
-    @keyframes aw-k3 { 0%,100% { stop-color:#FF4D8D; } 50% { stop-color:#FF7A3D; } }
-    .awk1 { animation: aw-k1 15s ease-in-out infinite; }
-    .awk2 { animation: aw-k2 15s ease-in-out infinite; }
-    .awk3 { animation: aw-k3 15s ease-in-out infinite; }
-    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
-  </style>
-
-  <rect width="1200" height="360" fill="url(#aw-ground)"/>
-  <g class="awbloom">
-    <rect width="1200" height="360" fill="url(#aw-bloomA)"/>
-    <rect width="1200" height="360" fill="url(#aw-bloomB)"/>
-    <rect width="1200" height="360" fill="url(#aw-bloomC)"/>
-  </g>
-  <g clip-path="url(#aw-frame)">
-    <g transform="translate(0,176)">
-      <ellipse class="awwash" cx="0" cy="0" rx="430" ry="300" fill="url(#aw-wash)"/>
-    </g>
-  </g>
-  <g transform="translate(66,50) scale(0.5195)">
-  <g opacity="0.32">
-    <circle cx="176" cy="172" r="36" fill="none" stroke="url(#aw-ink)" stroke-width="11"/>
-    <path d="M44 84 C92 90, 104 138, 140 158 C168 174, 190 180, 210 184" fill="none" stroke="url(#aw-ink)" stroke-width="11" stroke-linecap="round"/>
-  </g>
-  <g class="awcoin" filter="url(#aw-glow)">
-    <circle cx="176" cy="172" r="36" fill="none" stroke="url(#aw-ink)" stroke-width="11"/>
-    <path d="M176 150 V194 M164 160 H188" stroke="url(#aw-ink)" stroke-width="8"
-          stroke-linecap="round" fill="none"/>
-  </g>
-  <g filter="url(#aw-glow)">
-    <path class="awcurve" d="M44 84 C92 90, 104 138, 140 158 C168 174, 190 180, 210 184" pathLength="1000" fill="none"
-          stroke="url(#aw-ink)" stroke-width="11" stroke-linecap="round"/>
-  </g>
-  <g transform="translate(210,184)"><g filter="url(#aw-glow-sm)"><circle r="6" fill="#FFFFFF"/></g></g>
-  <g fill="url(#aw-ink)" opacity="0.95">
-    <g clip-path="url(#aw-b1)"><rect x="44" y="196" width="66" height="14" rx="7"/></g>
-    <g clip-path="url(#aw-b2)"><rect x="44" y="216" width="48" height="14" rx="7"/></g>
-  </g>
-  </g>
-  <g filter="url(#aw-glow)">
-    <text class="disp" x="76" y="257" font-size="55" font-weight="800"
-          letter-spacing="-1.9" fill="url(#aw-word)">aws-cost-audit</text>
-  </g>
-  <g clip-path="url(#aw-wordclip)">
-    <g transform="skewX(-18)">
-      <rect class="awsheen" x="15" y="202" width="25"
-            height="74" fill="url(#aw-sheen)" opacity="0.45"/>
-    </g>
-  </g>
-  <line x1="500" y1="90" x2="500" y2="270" stroke="url(#aw-rule)" stroke-width="1.5"/>
-  <g transform="translate(544,0)">
-    <text class="mono eyebrow" x="0" y="121">AWS BILL AUDIT SKILL</text>
-    <text class="disp head" x="0" y="167">Cut the waste in your AWS bill</text>
-    <text class="disp sub" x="0" y="203">Three cuts first. Prices fetched from AWS.</text>
-    <text class="disp sub" x="0" y="230">Dry-run by default. A change needs your yes.</text>
-    <g transform="translate(0,270)"><g class="awp1"><circle cx="0" cy="0" r="4.5" fill="#FFB341" filter="url(#aw-glow-sm)"/></g><g class="awp2"><circle cx="22" cy="0" r="4.5" fill="#FFB341" filter="url(#aw-glow-sm)"/></g><g class="awp3"><circle cx="44" cy="0" r="4.5" fill="#FFB341" filter="url(#aw-glow-sm)"/></g><g class="awp4"><circle cx="66" cy="0" r="4.5" fill="#FFB341" filter="url(#aw-glow-sm)"/></g><g class="awp5"><circle cx="88" cy="0" r="4.5" fill="#FFB341" filter="url(#aw-glow-sm)"/></g><g class="awp6"><circle cx="110" cy="0" r="4.5" fill="#FFB341" filter="url(#aw-glow-sm)"/></g><text class="mono tag" x="146" y="4">EVIDENCE FIRST</text></g>
-  </g>
-  <text class="mono tag" x="76" y="317">dry-run by default  &#183;  live pricing  &#183;  rollback file first</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" fill="none" role="img" aria-label="aws-cost-audit: See what to stop paying for. A sample AWS bill split by service, with three cuts pulled out, each with its price source.">
+<title>aws-cost-audit: See what to stop paying for</title>
+<defs>
+<linearGradient id="g" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0" stop-color="#1C1410"/><stop offset="0.55" stop-color="#0A0F1C"/><stop offset="1" stop-color="#080C18"/></linearGradient>
+<radialGradient id="ga" cx="0.12" cy="0.1" r="0.45"><stop offset="0" stop-color="#FFB341" stop-opacity="0.22"/><stop offset="1" stop-color="#FFB341" stop-opacity="0"/></radialGradient>
+<radialGradient id="gb" cx="0.9" cy="0.9" r="0.5"><stop offset="0" stop-color="#FF4D8D" stop-opacity="0.2"/><stop offset="1" stop-color="#FF4D8D" stop-opacity="0"/></radialGradient>
+<linearGradient id="ink" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFB341"/><stop offset="1" stop-color="#FF4D8D"/></linearGradient>
+</defs>
+<rect width="1280" height="640" fill="url(#g)"/><rect width="1280" height="640" fill="url(#ga)"/><rect width="1280" height="640" fill="url(#gb)"/>
+<text x="72" y="70" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="20" font-weight="700" letter-spacing="3" fill="#FFB341">AWS-COST-AUDIT</text>
+<g transform="translate(908,46)"><rect width="300" height="34" rx="6" fill="none" stroke="#FFB341" stroke-width="2" stroke-dasharray="6 4"/><text x="150.0" y="23" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="700" letter-spacing="1" fill="#FFB341">SAMPLE: fictional account</text></g>
+<text x="72" y="150" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="70" font-weight="800" letter-spacing="-1.5" fill="#F3F5FA">See what to stop paying for</text>
+<text x="72" y="186" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="15" fill="#7D8798">sample bill: audited resources, $4,035/mo</text>
+<rect x="72.0" y="196" width="33.2" height="46" fill="url(#ink)" stroke="#0A0F1C" stroke-width="2"/>
+<rect x="105.2" y="196" width="20.3" height="46" fill="url(#ink)" stroke="#0A0F1C" stroke-width="2"/>
+<rect x="125.5" y="196" width="16.3" height="46" fill="url(#ink)" stroke="#0A0F1C" stroke-width="2"/>
+<rect x="141.8" y="196" width="359.0" height="46" fill="#2A3142" stroke="#0A0F1C" stroke-width="2"/>
+<text x="153.8" y="226" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#C9D2DF">RDS $1,275</text>
+<rect x="500.8" y="196" width="339.3" height="46" fill="#2A3142" stroke="#0A0F1C" stroke-width="2"/>
+<text x="512.8" y="226" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#C9D2DF">EC2 $1,205</text>
+<rect x="840.0" y="196" width="172.3" height="46" fill="#2A3142" stroke="#0A0F1C" stroke-width="2"/>
+<text x="852.0" y="226" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#C9D2DF">NAT $612</text>
+<rect x="1012.3" y="196" width="123.9" height="46" fill="#2A3142" stroke="#0A0F1C" stroke-width="2"/>
+<text x="1024.3" y="226" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#C9D2DF">S3 $440</text>
+<rect x="1136.2" y="196" width="65.3" height="46" fill="#2A3142" stroke="#0A0F1C" stroke-width="2"/>
+<rect x="1201.5" y="196" width="6.5" height="46" fill="#2A3142" stroke="#0A0F1C" stroke-width="2"/>
+<path d="M88.6 242 C88.6 276, 112.0 262, 112.0 296" stroke="url(#ink)" stroke-width="2.5" fill="none"/>
+<rect x="72.0" y="296" width="360.0" height="112" rx="12" fill="#121826" stroke="#2A3142" stroke-width="1.5"/>
+<rect x="72.0" y="296" width="6" height="112" rx="3" fill="url(#ink)"/>
+<text x="98.0" y="340" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="800" fill="#FFB341">save $84/mo</text>
+<text x="98.0" y="368" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="19" font-weight="600" fill="#F3F5FA">Logs that never expire</text>
+<text x="98.0" y="394" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="15" fill="#7D8798">price: AWS Price List</text>
+<path d="M115.4 242 C115.4 276, 500.0 262, 500.0 296" stroke="url(#ink)" stroke-width="2.5" fill="none"/>
+<rect x="460.0" y="296" width="360.0" height="112" rx="12" fill="#121826" stroke="#2A3142" stroke-width="1.5"/>
+<rect x="460.0" y="296" width="6" height="112" rx="3" fill="url(#ink)"/>
+<text x="486.0" y="340" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="800" fill="#FFB341">save $72/mo</text>
+<text x="486.0" y="368" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="19" font-weight="600" fill="#F3F5FA">Unattached EBS volumes</text>
+<text x="486.0" y="394" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="15" fill="#7D8798">price: AWS Price List</text>
+<path d="M133.7 242 C133.7 276, 888.0 262, 888.0 296" stroke="url(#ink)" stroke-width="2.5" fill="none"/>
+<rect x="848.0" y="296" width="360.0" height="112" rx="12" fill="#121826" stroke="#2A3142" stroke-width="1.5"/>
+<rect x="848.0" y="296" width="6" height="112" rx="3" fill="url(#ink)"/>
+<text x="874.0" y="340" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="800" fill="#FFB341">save $58/mo</text>
+<text x="874.0" y="368" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="19" font-weight="600" fill="#F3F5FA">Unfinished S3 uploads</text>
+<text x="874.0" y="394" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="15" fill="#7D8798">price: Cost Explorer</text>
+<text x="72" y="452" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="22" font-weight="700" fill="#F3F5FA">VERDICT: save $242/mo now, safely.</text>
+<g transform="translate(72.0,482)"><rect width="214.4" height="40" rx="20" fill="#161D2C" stroke="#2A3142" stroke-width="1.5"/><circle cx="24" cy="20" r="5" fill="url(#ink)"/><text x="38" y="27" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="19" font-weight="600" fill="#F3F5FA">Lower AWS bill</text></g>
+<g transform="translate(300.4,482)"><rect width="341.6" height="40" rx="20" fill="#161D2C" stroke="#2A3142" stroke-width="1.5"/><circle cx="24" cy="20" r="5" fill="url(#ink)"/><text x="38" y="27" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="19" font-weight="600" fill="#F3F5FA">Prices checked against AWS</text></g>
+<g transform="translate(656.0,482)"><rect width="341.6" height="40" rx="20" fill="#161D2C" stroke="#2A3142" stroke-width="1.5"/><circle cx="24" cy="20" r="5" fill="url(#ink)"/><text x="38" y="27" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="19" font-weight="600" fill="#F3F5FA">Rollback before any change</text></g>
+<text x="72" y="554" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="18" fill="#B9C3D2">Agent skill · Install tested: Claude Code, Codex, Cursor, Gemini CLI, Copilot, OpenCode</text>
+<rect x="72" y="570" width="1136" height="44" rx="8" fill="#0E131E" stroke="#2A3142" stroke-width="1.5"/>
+<text x="90" y="599" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="20" fill="#F3F5FA"><tspan fill="#FFB341">$ </tspan>npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code -y</text>
 </svg>

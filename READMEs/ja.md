@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../assets/hero-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="../assets/hero-light.svg">
-    <img src="../assets/hero-dark.svg" alt="aws-cost-audit：AWS の請求のムダを削る。各価格は実行時に AWS で照会" width="100%">
+    <img src="../assets/hero-dark.svg" alt="aws-cost-audit：払うのをやめるものが見える。サンプルの請求バーから 3 つの削減を取り出した図：月 84 ドル、72 ドル、58 ドル、それぞれ価格の出どころつき。SAMPLE: fictional account のスタンプ。" width="100%">
   </picture>
 </p>
 
@@ -18,34 +18,32 @@
   <a href="../README.md">English</a> · <a href="zh-CN.md">简体中文</a> · <b>日本語</b> · <a href="es.md">Español</a> · <a href="fr.md">Français</a>
 </p>
 
-<p align="center">
-  <strong>AWS の請求のムダを、最新価格つきで削る。</strong>
-</p>
+<p align="center"><strong>AWS の請求で、払うのをやめるものを見つける。</strong></p>
 
-<p align="center">
-  エージェントに AWS の請求の監査を頼むと、結論、最初にやる 3 つの削減、各価格の出どころが手に入ります。
-</p>
+<p align="center">エージェントが AWS アカウントを読み、削るものを順位づけします。</p>
 
-<p align="center">
-  <a href="#サンプルレポート">サンプルレポート</a> · <a href="#使う理由">使う理由</a> · <a href="#インストール">インストール</a> · <a href="#仕組み">仕組み</a> · <a href="#検証">検証</a> · <a href="#よくある質問">よくある質問</a> · <a href="#制限事項">制限事項</a>
-</p>
+| AWS の請求を下げる | 価格は AWS で確認 | 変更の前にロールバック |
+|:--|:--|:--|
+| どのレポートもドルの結論と、最初にやる 3 つの削減で始まります。 | 各価格は AWS での照会を記録します。記録のない金額は拒否されることを `make test` が示します。 | スクリプトは既定でドライラン。`--apply` は先にロールバックファイルを保存し、確認します（`--yes` なら確認なし）。 |
+
+**対応：** スキルを読むすべてのエージェント。インストールを確認済み：Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot、OpenCode。
+Markdown と bash なので、特定のモデルに縛られません。
 
 ```bash
-npx skills add Aboudjem/aws-cost-audit-skill -a claude-code
+npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code -y
+# 読み取り専用の AWS 認証情報を渡し、エージェントに頼む：audit my AWS bill
 ```
 
-`claude-code` は使っているエージェントに置き換えてください：`codex`、`cursor`、`gemini-cli`、`github-copilot`、`opencode`。
-`-a` を省くと、CLI が選択を求めます。Claude Code プラグインを使う方は[インストール](#インストール)を見てください。
+これですべてのプロジェクトにインストールされます。ほかのエージェントと Claude Code プラグインは [インストール](#インストール) にあります。
 
-そのあとエージェントに `audit my AWS bill` と頼みます。マシンに必要なものは[インストール](#インストール)にあります。
+AI エージェント用のスキルで、AWS アカウントを読むスクリプトが付いています。
+請求が増えて理由がわからないときに使います。
 
-読み取り専用の認証情報を渡してください。スキルはエージェントを導き、yes の確認はスクリプトが強制します。
+削減の順位つきリストが手に入ります。各項目に証拠と価格の出どころがあります。
 
 ## サンプルレポート
 
 どのレポートも、この形で始まります。これは例です：架空のアカウント、作り物の数字で、実際の AWS データは含みません。
-リポジトリから `bash skills/aws-cost-audit/scripts/findings-summary.sh examples/sample-findings.json` で再出力できます。
-
 <!-- sample-report:begin -->
 
 ```text
@@ -69,64 +67,89 @@ Every figure above comes from the findings file. Nothing in your account was cha
 
 <!-- sample-report:end -->
 
-完全版のレポートには、サービスごとの支払額、証拠つきの各発見事項、元に戻す方法が続きます。
-[`examples/sample-report.md`](../examples/sample-report.md) と、任意の [HTML ダッシュボード](../examples/sample-dashboard.html)を見てください。
+`bash skills/aws-cost-audit/scripts/findings-summary.sh examples/sample-findings.json` で再出力できます。
 
-FinOps 担当がいないまま AWS の請求を払っている開発者や小さなチーム向けです。
-Cost Explorer は合計を見せますが、何を止めればよいかは教えてくれません。このスキルは削るものを名指しします。
-使われていないボリューム、期限のないログ、終わっていないアップロード。各発見事項には証拠があり、元に戻せるかどうかも示します。
-信頼度が高く、しかも元に戻せるものでなければ、持ち主のサインオフを待ちます。
-Cost Explorer を有効にする必要があり、AWS がデータを表示するまで最大 24 時間かかることがあります。
-
-## 使う理由
-
-- **どこから始めるかがわかる。** ドル建ての結論と、最初にやる 3 つの削減。
-  証拠：上のサンプルは上のコマンドで再出力でき、`make test` が 1 行ずつ比較します。
-- **数字を信頼できる。** リソースの価格は実行時に AWS Price List から取得し、記憶からは取りません。
-  価格付きの検出結果は、その照会の記録がなければ却下されます。保存されている数字は、監査自身の Cost Explorer リクエスト費用だけです。
-  証拠：照会記録のない価格付き検出結果を `make test` が却下し、スクリプトに価格が直書きされると失敗します。
-- **予期せぬ変更はない。** デフォルトは dry-run で、変更スクリプトは何をするかを表示するだけです。
-  `--apply` を付けると、ロールバックファイルを保存してから yes の入力を求めます。`--yes` で質問を省略します。
-  ドライランはローカルにロールバックファイルを保存し、アカウントには何も変更を加えません。
-  質問できる端末がなく `--yes` もなければ、拒否します。`make test` が EBS スクリプトでこの順序を確認します。
+AWS CLI、`jq`、Cost Explorer が必要です。Cost Explorer の新しいデータは表示まで 24 時間かかることがあります。
 
 ## インストール
 
-Claude Code の中で、[10x マーケットプレイス](https://github.com/Aboudjem/10x)から入れます：
+**エージェントを選ぶ。** どのコマンドも、すべてのプロジェクトにインストールします。
+
+[![Claude Code](https://img.shields.io/badge/Claude_Code-D97757?style=for-the-badge&logo=claude&logoColor=white)](#claude-code) [![Codex](https://img.shields.io/badge/Codex-000000?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBmaWxsPSJ3aGl0ZSIgcm9sZT0iaW1nIiB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI%2BPHRpdGxlPk9wZW5BSTwvdGl0bGU%2BPHBhdGggZD0iTTIyLjI4MTkgOS44MjExYTUuOTg0NyA1Ljk4NDcgMCAwIDAtLjUxNTctNC45MTA4IDYuMDQ2MiA2LjA0NjIgMCAwIDAtNi41MDk4LTIuOUE2LjA2NTEgNi4wNjUxIDAgMCAwIDQuOTgwNyA0LjE4MThhNS45ODQ3IDUuOTg0NyAwIDAgMC0zLjk5NzcgMi45IDYuMDQ2MiA2LjA0NjIgMCAwIDAgLjc0MjcgNy4wOTY2IDUuOTggNS45OCAwIDAgMCAuNTExIDQuOTEwNyA2LjA1MSA2LjA1MSAwIDAgMCA2LjUxNDYgMi45MDAxQTUuOTg0NyA1Ljk4NDcgMCAwIDAgMTMuMjU5OSAyNGE2LjA1NTcgNi4wNTU3IDAgMCAwIDUuNzcxOC00LjIwNTggNS45ODk0IDUuOTg5NCAwIDAgMCAzLjk5NzctMi45MDAxIDYuMDU1NyA2LjA1NTcgMCAwIDAtLjc0NzUtNy4wNzI5em0tOS4wMjIgMTIuNjA4MWE0LjQ3NTUgNC40NzU1IDAgMCAxLTIuODc2NC0xLjA0MDhsLjE0MTktLjA4MDQgNC43NzgzLTIuNzU4MmEuNzk0OC43OTQ4IDAgMCAwIC4zOTI3LS42ODEzdi02LjczNjlsMi4wMiAxLjE2ODZhLjA3MS4wNzEgMCAwIDEgLjAzOC4wNTJ2NS41ODI2YTQuNTA0IDQuNTA0IDAgMCAxLTQuNDk0NSA0LjQ5NDR6bS05LjY2MDctNC4xMjU0YTQuNDcwOCA0LjQ3MDggMCAwIDEtLjUzNDYtMy4wMTM3bC4xNDIuMDg1MiA0Ljc4MyAyLjc1ODJhLjc3MTIuNzcxMiAwIDAgMCAuNzgwNiAwbDUuODQyOC0zLjM2ODV2Mi4zMzI0YS4wODA0LjA4MDQgMCAwIDEtLjAzMzIuMDYxNUw5Ljc0IDE5Ljk1MDJhNC40OTkyIDQuNDk5MiAwIDAgMS02LjE0MDgtMS42NDY0ek0yLjM0MDggNy44OTU2YTQuNDg1IDQuNDg1IDAgMCAxIDIuMzY1NS0xLjk3MjhWMTEuNmEuNzY2NC43NjY0IDAgMCAwIC4zODc5LjY3NjVsNS44MTQ0IDMuMzU0My0yLjAyMDEgMS4xNjg1YS4wNzU3LjA3NTcgMCAwIDEtLjA3MSAwbC00LjgzMDMtMi43ODY1QTQuNTA0IDQuNTA0IDAgMCAxIDIuMzQwOCA3Ljg3MnptMTYuNTk2MyAzLjg1NThMMTMuMTAzOCA4LjM2NCAxNS4xMTkyIDcuMmEuMDc1Ny4wNzU3IDAgMCAxIC4wNzEgMGw0LjgzMDMgMi43OTEzYTQuNDk0NCA0LjQ5NDQgMCAwIDEtLjY3NjUgOC4xMDQydi01LjY3NzJhLjc5Ljc5IDAgMCAwLS40MDctLjY2N3ptMi4wMTA3LTMuMDIzMWwtLjE0Mi0uMDg1Mi00Ljc3MzUtMi43ODE4YS43NzU5Ljc3NTkgMCAwIDAtLjc4NTQgMEw5LjQwOSA5LjIyOTdWNi44OTc0YS4wNjYyLjA2NjIgMCAwIDEgLjAyODQtLjA2MTVsNC44MzAzLTIuNzg2NmE0LjQ5OTIgNC40OTkyIDAgMCAxIDYuNjgwMiA0LjY2ek04LjMwNjUgMTIuODYzbC0yLjAyLTEuMTYzOGEuMDgwNC4wODA0IDAgMCAxLS4wMzgtLjA1NjdWNi4wNzQyYTQuNDk5MiA0LjQ5OTIgMCAwIDEgNy4zNzU3LTMuNDUzN2wtLjE0Mi4wODA1TDguNzA0IDUuNDU5YS43OTQ4Ljc5NDggMCAwIDAtLjM5MjcuNjgxM3ptMS4wOTc2LTIuMzY1NGwyLjYwMi0xLjQ5OTggMi42MDY5IDEuNDk5OHYyLjk5OTRsLTIuNTk3NCAxLjQ5OTctMi42MDY3LTEuNDk5N1oiLz48L3N2Zz4%3D)](#codex) [![Cursor](https://img.shields.io/badge/Cursor-000000?style=for-the-badge&logo=cursor&logoColor=white)](#cursor) [![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#gemini-cli) [![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-24292F?style=for-the-badge&logo=githubcopilot&logoColor=white)](#github-copilot) [![OpenCode](https://img.shields.io/badge/OpenCode-333333?style=for-the-badge&logo=opencode&logoColor=white)](#opencode)
+
+### Claude Code
+
+インストールを確認済み。[10x マーケットプレイス](https://github.com/Aboudjem/10x) からプラグインを追加します。ユーザー単位で、すべてのプロジェクトに入ります。
 
 ```bash
 claude plugin marketplace add Aboudjem/10x
 claude plugin install aws-cost-audit@10x
 ```
 
-ほかのエージェントでは、[skills CLI](https://github.com/vercel-labs/skills) を使います：
+スキルとして入れる場合：`npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code -y`。
+
+### Codex
+
+インストールを確認済み。
 
 ```bash
-npx skills add Aboudjem/aws-cost-audit-skill
+npx skills add Aboudjem/aws-cost-audit-skill -g -a codex -y
 ```
 
-さらに、アカウントへの読み取り権限つきの [AWS CLI](https://aws.amazon.com/cli/) と `jq` が必要です。
-AWS 管理ポリシーの `ReadOnlyAccess` に請求の読み取り権限（`ce:Get*`、`pricing:GetProducts`）を足せば十分です。
+### Cursor
 
-そのあとエージェントに `audit my AWS bill` と頼みます。最初に環境を確認し、足りないものを知らせます。
+インストールを確認済み。
 
-サインオフ（sign-off）とは、何かを変更する前にリソースの持ち主が同意することです。
-信頼度が高く、しかも元に戻せる節約案でなければ、サインオフが必要です。
+```bash
+npx skills add Aboudjem/aws-cost-audit-skill -g -a cursor -y
+```
+
+### Gemini CLI
+
+インストールを確認済み。
+
+```bash
+npx skills add Aboudjem/aws-cost-audit-skill -g -a gemini-cli -y
+```
+
+### GitHub Copilot
+
+インストールを確認済み。
+
+```bash
+npx skills add Aboudjem/aws-cost-audit-skill -g -a github-copilot -y
+```
+
+### OpenCode
+
+インストールを確認済み。
+
+```bash
+npx skills add Aboudjem/aws-cost-audit-skill -g -a opencode -y
+```
+
+このプロジェクトだけ：`-g` を外します。ほかのエージェント：`-a` の後にそのコードを書きます。`-a` がなければインストーラーが聞きます。
+
+### 必要なもの
+
+1. アカウントへの読み取り権限を持つ [AWS CLI](https://aws.amazon.com/cli/) v2 と `jq`。
+2. 読み取り専用の権限：AWS 管理ポリシー `ReadOnlyAccess` と請求の読み取り（`ce:Get*`、`pricing:GetProducts`）。
+3. そのあとエージェントに頼みます：`audit my AWS bill`。最初に環境を確認し、足りないものを伝えます。
 
 ### 対応エージェント
 
-| エージェント         | インストールコマンド                                             | テスト日   |
-| :------------------- | :--------------------------------------------------------------- | :--------- |
-| Claude Code (plugin) | `claude plugin install aws-cost-audit@10x`                       | 2026-11-17 |
-| Claude Code (skill)  | `npx skills add Aboudjem/aws-cost-audit-skill -a claude-code`    | 2026-11-17 |
-| Codex                | `npx skills add Aboudjem/aws-cost-audit-skill -a codex`          | 2026-11-17 |
-| Cursor               | `npx skills add Aboudjem/aws-cost-audit-skill -a cursor`         | 2026-11-17 |
-| Gemini CLI           | `npx skills add Aboudjem/aws-cost-audit-skill -a gemini-cli`     | 2026-11-17 |
-| GitHub Copilot       | `npx skills add Aboudjem/aws-cost-audit-skill -a github-copilot` | 2026-11-17 |
-| OpenCode             | `npx skills add Aboudjem/aws-cost-audit-skill -a opencode`       | 2026-11-17 |
+| エージェント | インストールコマンド（すべてのプロジェクト） | インストール確認 |
+| :-- | :-- | :-- |
+| Claude Code (plugin) | `claude plugin install aws-cost-audit@10x` | 2026-11-17 |
+| Claude Code (skill) | `npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code -y` | 2026-11-17 |
+| Codex | `npx skills add Aboudjem/aws-cost-audit-skill -g -a codex -y` | 2026-11-17 |
+| Cursor | `npx skills add Aboudjem/aws-cost-audit-skill -g -a cursor -y` | 2026-11-17 |
+| Gemini CLI | `npx skills add Aboudjem/aws-cost-audit-skill -g -a gemini-cli -y` | 2026-11-17 |
+| GitHub Copilot | `npx skills add Aboudjem/aws-cost-audit-skill -g -a github-copilot -y` | 2026-11-17 |
+| OpenCode | `npx skills add Aboudjem/aws-cost-audit-skill -g -a opencode -y` | 2026-11-17 |
 
-「テスト済み」とは、インストールが実行され、`SKILL.md` がエージェントの読む場所に置かれたことを指します。
-CI は、push のたびに Claude Code、Codex、Cursor でインストールを繰り返します。
+「インストール確認」は、インストールが動き、`SKILL.md` がエージェントの読む場所に置かれたことを意味します。
+CI は push のたびに Claude Code、Codex、Cursor でインストールを繰り返します。
 
 ドキュメントはあるが、エンドツーエンドではテストしていないもの：Pi、Mistral Vibe、Trae、OpenClaw、Antigravity、Hermes、Cline、Kimi。
 これらのエージェントコードは、2026-11-17 に、バージョン固定の skills CLI に受け付けられました。クローンしたリポジトリから `install.sh` でインストールします：
@@ -155,28 +178,43 @@ cp -r aws-cost-audit-skill/skills/aws-cost-audit ~/.claude/skills/aws-cost-audit
 
 ## 仕組み
 
+アカウントを読み、見つけたムダに価格をつけ、最初に結論を出します。頼まない限り何も変わりません。
+
 <p align="center">
-  <img src="../assets/how-it-works.svg" alt="仕組み：1 最新の状態でベースラインを取り直す、2 全リージョンで無駄を探す、3 証拠つきの節約プラン" width="100%">
+  <img src="../assets/how-it-works.svg" alt="仕組み：1 コストを読む、2 有効な全リージョンでムダを見つける、3 証拠つきの節約プラン" width="100%">
 </p>
 
-1. **事前チェック。** `doctor.sh` が AWS CLI、認証情報、`jq`、リージョン、出力フォルダを確認します。何も変更しません。
-2. **ベースライン。** Cost Explorer から、サービス、リージョン、使用タイプごとの支出を取ります。スクリプトはリクエストを数え、上限で止まります。
-3. **探索。** 有効なすべてのリージョンを調べ、使われていない、大きすぎる、忘れられたリソースを探します。チェック項目は[探索リスト](../skills/aws-cost-audit/references/hunt-list.md)にあります。
-4. **価格付け。** 各単価はあなたのリージョンの AWS Price List から取得し、実際の使用量を掛けます。
-   `verify-price.sh --record` がその照会を検出結果に保存し、照会のない金額はバリデーターが却下します。
-5. **分類。** 各発見事項は KEEP、OPTIMIZE、SAFE-TO-DELETE のどれかで、信頼度と証拠が付きます。
-6. **レポート。** `findings-validate.sh` が `findings.json` を検査し、そのあと `findings-summary.sh` が結論と 3 つの行動を出力します。詳細はその後に続きます。
+1. **事前チェック。** `doctor.sh` が AWS CLI、認証情報、`jq`、リージョン、出力フォルダを確認します。何も変えません。
+2. **ベースライン。** Cost Explorer がサービス別、リージョン別、使用タイプ別の支出を返します。スクリプトはリクエストを数え、上限で止まります。
+3. **探索。** 有効なすべてのリージョンで、使われていない、大きすぎる、忘れられたリソースを探します。チェック項目は [探索リスト](../skills/aws-cost-audit/references/hunt-list.md) にあります。
+4. **価格。** 各価格は監査中に AWS から取り、記憶には頼りません。リージョンの Price List の照会に、実際の使用量を掛けます。
+   段階料金では Cost Explorer の読み取りを使います。`verify-price.sh --record` が照会を所見に保存します。
+5. **分類。** 各所見は KEEP、OPTIMIZE、SAFE-TO-DELETE のどれかで、確信度と証拠がつきます。
+6. **レポート。** `findings-validate.sh` が `findings.json` を確認し、`findings-summary.sh` が結論と 3 つのアクションを出力します。
 
-頼まない限り、アカウントは何も変わりません。変更を起こせるスクリプトは 3 つあり、コードが次のことを強制します：
+完全なレポートには、サービスごとの支払額が続きます。各所見に証拠と元に戻す方法があります。
+[`examples/sample-report.md`](../examples/sample-report.md) と、任意の [HTML ダッシュボード](../examples/sample-dashboard.html) を見てください。
 
-- `--apply` なしでは、ドライランを表示するだけです。
-- `--apply` ありでは、先にロールバックファイルを保存し、そのあと `yes` の入力を求めます。
-- `--yes` はその質問を省きます。質問できる端末がなく `--yes` もない場合は、変更の前に実行を拒否します。
+### 対象
 
-skill はエージェントに対し、先に未使用の証拠とドライランを見せて、あなたの yes を待つよう指示しています。
-また、Savings Plan の購入のような元に戻せない操作は、推奨にとどめるよう指示しています。
+コストの専門家（FinOps）がいない開発者や小さなチーム向けです。
+Cost Explorer は合計を見せます。何を止めるかは言いません。このスキルは言います。
+使われていないディスク、ずっと残るログ、終わっていないアップロードを見つけます。各所見に証拠と、元に戻せるかどうかがあります。
 
-skill 本体は [`SKILL.md`](../skills/aws-cost-audit/SKILL.md) です：5 つのルール、手順、必要なときに読み込む参照ファイルがあります。
+### 自分からは決してしないこと
+
+何かを変更できるスクリプトは 3 つです。コードが次のルールを守らせます：
+
+1. `--apply` がなければドライランだけです。ドライランはローカルにロールバックファイルを保存し、アカウントは何も変えません。
+2. `--apply` があると、先にロールバックファイルを保存し、`yes` の入力を求めます。
+3. `--yes` はその質問を飛ばします。確認できる端末がなく `--yes` もなければ、変更の前に拒否します。
+
+`make test` が EBS 削除スクリプトでこの順序を確認します。
+確実（確信度が高い）かつ元に戻せる、の両方でない削減は、先に所有者の OK（承認）が必要です。
+スキルはエージェントに、まず未使用の証拠とドライランを見せ、あなたの yes を待つよう指示します。
+Savings Plan の購入のように元に戻せない操作は、助言のままにするよう指示します。
+
+スキル本体は [`SKILL.md`](../skills/aws-cost-audit/SKILL.md) です：5 つのルール、手順、必要なときに読む参照ファイル。
 
 ## 検証
 
@@ -192,8 +230,7 @@ skill 本体は [`SKILL.md`](../skills/aws-cost-audit/SKILL.md) です：5 つ�
 
 テストスイートは `aws` コマンドをスタブに置き換えるので、認証情報は不要で、AWS への呼び出しもありません。
 `delete-unattached-ebs.sh` の安全な順序も検査します：確認の前には何も変更しません。
-CI はさらに、すべてのスクリプトに単価の直書きがないかをスキャンします。
-CI は push とプルリクエストのたびに、shellcheck と skills CLI のインストールとあわせて実行されます。
+CI は push とプルリクエストのたびにこれを実行します。CI は shellcheck、単価の直書きのスキャン、skills CLI のインストールも実行します。
 
 スクリプトが呼び出してよいもの、そして外部に絶対に送らないものは、[PRIVACY.md](../PRIVACY.md) にあります。
 
@@ -225,13 +262,13 @@ Cost Explorer は API リクエストごとに課金します。スクリプト�
 ## 制限事項
 
 - AWS CLI v2、bash、`jq` が必要です。Windows では、スクリプトに bash シェルが必要です。[docs/editors.md](../docs/editors.md) を見てください。
-- ベースラインには Cost Explorer を有効にする必要があります。有効にしてから、AWS がデータを表示するまで最大 24 時間かかることがあります。
+- 先に Cost Explorer を有効にしてください。AWS がデータを表示するまで最大 24 時間かかることがあります。
 - skill はエージェントを導くだけです。能力の低いモデルは、手順を飛ばすことがあります。証拠の行を確認してください。
 - 価格は、AWS が返すとおり USD です。
 - バリデーターが確認するのは各価格記録の形式で、AWS が実際に返したかどうかではありません。`verify-price.sh --recheck findings.json` で Price List の照会をやり直せます。
 - S3 Standard ストレージのような段階制の価格や Savings Plans には、単一の単価がありません。その検出結果は Cost Explorer の読み取りを記録します。読み取りは課金されるため、`--recheck` はやり直しません。
 - 取得ではなく保存されている数字は一つだけです。監査自身の Cost Explorer リクエスト費用で、`references/pricing-verification.md` にあります。
-- エージェント表の「テスト済み」は、インストールが実行されファイルが置かれたことを意味します。各エージェントが skill を読み込むところまで確認した、という意味ではありません。
+- エージェント表の「インストール確認」は、インストールが実行されファイルが置かれたことを意味します。各エージェントが skill を読み込むところまで確認した、という意味ではありません。
 - 変更前の未使用の証拠とドライランは、skill がエージェントに求める手順です。スクリプトが強制するのは `--apply`、ロールバックファイル、`yes` です。
 
 ## 詳しくは

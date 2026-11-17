@@ -1,7 +1,7 @@
 {
   "name": "aws-cost-audit",
-  "version": "0.4.4",
-  "description": "Ranks what to cut on your AWS bill, three cuts first. Each cut is priced from AWS at run time; a priced finding without its lookup record is rejected. Dry-run by default.",
+  "version": "0.4.5",
+  "description": "Ranks what to cut on your AWS bill, three cuts first. Each price comes from AWS; the validator rejects a figure with no lookup record. Dry run by default.",
   "author": {
     "name": "Adam Boudjemaa",
     "url": "https://github.com/Aboudjem"

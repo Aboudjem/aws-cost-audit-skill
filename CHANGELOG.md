@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.5] - 2026-11-17
+
+A clearer first screen, an install command per agent, and new pictures. No change to the scripts.
+
+### Changed
+
+- The README opens with one line, three benefits with their proof, the agents, one command, the sample and the limit.
+- `## Install` starts with "Pick your agent": one logo badge and one command per agent.
+- Every skills CLI command now installs for all your projects (`-g`). Drop `-g` for one project only.
+  Each command was run on 2026-11-17 into an empty home folder; `SKILL.md` landed in `~/.claude/skills/` or `~/.agents/skills/`.
+- New hero and social preview: a sample bill with three cuts pulled out, each with its price source,
+  stamped "SAMPLE: fictional account". Every figure comes from `examples/sample-findings.json`.
+- `docs/editors.md` lists the global paths the skills CLI really used, and no longer cites a "70+ agents" figure.
+- Plainer wording in the listing description, `llms.txt`, `AGENTS.md`, the site page, the quickstart and the four translations.
+
 ## [0.4.4] - 2026-11-17
 
 The price record checks are tighter, and three docs lines now say what the tool does.
@@ -276,6 +291,7 @@ Initial release.
   preview card, and a CI workflow that validates frontmatter, JSON, links, and scans for hardcoded
   prices, account IDs, and secrets.
 
+[0.4.5]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.4.1...v0.4.2

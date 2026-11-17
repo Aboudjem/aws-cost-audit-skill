@@ -24,7 +24,7 @@
   .eyebrow { display:flex; align-items:center; gap:14px; color:#6E7B8A; font-size:21px; font-weight:600;
     letter-spacing:1.4px; text-transform:uppercase; position:relative; }
   .eyebrow .tick { width:42px; height:4px; border-radius:2px; background:#FF9900; }
-  h1 { font-size:104px; font-weight:800; letter-spacing:-2.5px; line-height:1; margin:26px 0 0; position:relative; }
+  h1 { font-size:80px; font-weight:800; letter-spacing:-2.5px; line-height:1; margin:26px 0 0; position:relative; }
   .tag { font-size:33px; font-weight:500; color:#9FB0C0; margin-top:24px; position:relative; }
   .sub { font-size:23px; color:#6E7B8A; margin-top:14px; position:relative; }
   .chips { display:flex; gap:16px; margin-top:46px; position:relative; }
@@ -39,16 +39,15 @@
 <body>
   <div class="grid"></div>
   <div class="glow"></div>
-  <div class="eyebrow"><span class="tick"></span> Executable Claude Code skill</div>
-  <h1>AWS Cost Audit</h1>
-  <div class="tag">Read your live AWS account. Find the waste. Ship a savings plan you can <span class="accent-amber">trust</span>.</div>
-  <div class="sub">Evidence-first · fetches prices from AWS · never deletes without proof.</div>
+  <div class="eyebrow"><span class="tick"></span> Agent skill · sample figures are fictional</div>
+  <h1>See what to stop paying for</h1>
+  <div class="tag">Your agent reads your AWS account and ranks what to cut.</div>
+  <div class="sub">Install tested: Claude Code, Codex, Cursor, Gemini CLI, Copilot, OpenCode</div>
   <div class="chips">
-    <span class="chip"><span class="dot" style="background:#3FB6B2"></span> gated &amp; reversible</span>
-    <span class="chip"><span class="dot" style="background:#58A6FF"></span> no hardcoded prices</span>
-    <span class="chip"><span class="dot" style="background:#FF9900"></span> works on any account</span>
-    <span class="chip"><span class="dot" style="background:#7C8896"></span> MIT · open source</span>
+    <span class="chip"><span class="dot" style="background:#3FB6B2"></span> Lower AWS bill</span>
+    <span class="chip"><span class="dot" style="background:#58A6FF"></span> Prices checked against AWS</span>
+    <span class="chip"><span class="dot" style="background:#FF9900"></span> Rollback before any change</span>
   </div>
-  <div class="footer">github.com/Aboudjem/aws-cost-audit-skill</div>
+  <div class="footer">$ npx skills add Aboudjem/aws-cost-audit-skill -g -a claude-code -y</div>
 </body>
 </html>
