@@ -1,7 +1,7 @@
 {
   "$schema": "https://schemas.anthropic.com/claude-code/plugin.schema.json",
   "name": "aws-cost-audit",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Ranks what to cut on your AWS bill, three cuts first. Each cut is priced from AWS at run time; a priced finding without its lookup record is rejected. Dry-run by default.",
   "author": {
     "name": "Adam Boudjemaa",

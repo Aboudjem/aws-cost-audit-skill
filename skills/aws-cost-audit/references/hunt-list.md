@@ -545,7 +545,7 @@ Advisor surfaces those results. CLI access: `aws trustedadvisor list-recommendat
 
 *All accessed 2026-05-28. Carried from the research notes `docs/research/03-aws-cost-tactics.md` and
 `docs/research/04-practitioner-intel.md` (which hold the corroboration labels). No dollar amount in
-this file is stated as fact, verify every price live.*
+this file is stated as fact. Look each price up in AWS before you quote it.*
 
 **Frameworks**
 - AWS Well-Architected Framework, Cost Optimization Pillar (welcome / design goals): https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html

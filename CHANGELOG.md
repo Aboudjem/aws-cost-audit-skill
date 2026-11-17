@@ -4,6 +4,22 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.4] - 2026-11-17
+
+The price record checks are tighter, and three docs lines now say what the tool does.
+
+### Changed
+
+- `findings-validate.sh` requires a price-list `region_code` to be an AWS region code from any
+  partition: `us-east-1`, `us-gov-west-1`, `cn-north-1`. A Local Zone or Wavelength Zone code such
+  as `us-west-2-lax-1` also passes. "anywhere", "EU-WEST-1" and "eu-west-1a" are now rejected. The region must
+  still match the finding's; a zone code matches its parent region.
+- `fetched_at` must be a time that exists. Month 13, day 32, hour 25 and February 30 are rejected.
+- `AGENTS.md`, `docs/comparison.md`, the dashboard reference and template, and the French and
+  Chinese taglines no longer say prices are "verified live". They say each price is looked up in
+  AWS and recorded, and the validator checks each record's shape.
+- 23 new test cases. `make test`: 167 passed, 0 failed.
+
 ## [0.4.3] - 2026-11-17
 
 The price claim is now enforced by the tool, and every surface says exactly what the code does.
@@ -260,6 +276,8 @@ Initial release.
   preview card, and a CI workflow that validates frontmatter, JSON, links, and scans for hardcoded
   prices, account IDs, and secrets.
 
+[0.4.4]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.4.3...v0.4.4
+[0.4.3]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Aboudjem/aws-cost-audit-skill/compare/v0.3.1...v0.4.0

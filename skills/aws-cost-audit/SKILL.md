@@ -12,7 +12,7 @@ description: >-
   and "cloud cost audit".
 license: MIT
 metadata:
-  version: "0.4.3"
+  version: "0.4.4"
 ---
 
 # AWS Cost Audit

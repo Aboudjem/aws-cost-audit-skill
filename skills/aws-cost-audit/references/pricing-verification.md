@@ -175,7 +175,7 @@ documented, sourced, checkable number rather than a constant baked into code:
 
 That figure is the cost of *running the audit*, not the price of anything the audit reports on. It never enters a finding. It is the one price this skill stores rather than fetches. Law 1 governs resource prices, and those are always pulled live for the user's exact Region.
 
-**Verify it live before quoting it.** Like every price in this skill, that figure is a starting
+**Check it before quoting it.** Like any price quoted in this skill, that figure is a starting
 point from AWS's published pricing page, not a promise. Check the source URL above.
 
 One limit worth stating: the counter covers requests the scripts make. An `aws ce ...` command you

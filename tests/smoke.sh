@@ -628,6 +628,44 @@ JSON
   assert_eq "price rule: a price from another region exits 1" "$PV_RC" "1"
   assert_contains "price rule: and says to price the resource's own region" \
     "$PV_OUT" "region_code is us-east-1 but the finding is in eu-west-1"
+
+  # 33c. region_code must BE a region code, whatever the finding says.
+  pl_with() { # pl_with <region_code> <fetched_at>: PL_REC with two fields swapped
+    printf '%s' "$PL_REC" | jq -c --arg rc "$1" --arg ts "$2" '.region_code = $rc | .fetched_at = $ts'
+  }
+  for bad_rc in anywhere EU-WEST-1 eu-west-1a; do
+    pv_case "$FV4/rc.json" "[$(pl_with "$bad_rc" 2026-11-17T09:00:00Z)]" "eu-west-1"
+    pv_run "$FV4/rc.json"
+    assert_eq "price rule: region_code \"$bad_rc\" exits 1" "$PV_RC" "1"
+    assert_contains "price rule: and says region_code must be a region code ($bad_rc)" \
+      "$PV_OUT" "region_code must be an AWS region code such as us-east-1"
+  done
+  pv_case "$FV4/rc.json" "[$(pl_with anywhere 2026-11-17T09:00:00Z)]" "global"
+  pv_run "$FV4/rc.json"
+  assert_eq "price rule: a non-region region_code is rejected even when the finding has no region code" "$PV_RC" "1"
+  pv_case "$FV4/rc.json" "[$(pl_with us-east-1 2026-11-17T09:00:00Z)]" "global"
+  pv_run "$FV4/rc.json"
+  assert_eq "price rule: a global finding priced in us-east-1 is accepted" "$PV_RC" "0"
+  pv_case "$FV4/rc.json" "[$(pl_with us-west-2-lax-1 2026-11-17T09:00:00Z)]" "us-west-2"
+  pv_run "$FV4/rc.json"
+  assert_eq "price rule: a Local Zone price for a resource in its parent region is accepted" "$PV_RC" "0"
+  pv_case "$FV4/rc.json" "[$(pl_with us-west-2-lax-1 2026-11-17T09:00:00Z)]" "us-east-1"
+  pv_run "$FV4/rc.json"
+  assert_contains "price rule: a Local Zone of another region is a region mismatch" \
+    "$PV_OUT" "region_code is us-west-2-lax-1 but the finding is in us-east-1"
+
+  # 33d. fetched_at must be a time that exists, not only the right shape.
+  for bad_ts in 2099-99-99T99:99:99Z 2026-13-01T00:00:00Z 2026-01-32T00:00:00Z \
+                2026-01-01T25:00:00Z 2026-02-30T00:00:00Z; do
+    pv_case "$FV4/ts.json" "[$(pl_with us-east-1 "$bad_ts")]"
+    pv_run "$FV4/ts.json"
+    assert_eq "price rule: fetched_at $bad_ts exits 1" "$PV_RC" "1"
+    assert_contains "price rule: and names the impossible time ($bad_ts)" \
+      "$PV_OUT" "fetched_at must be a UTC time like 2026-01-31T09:30:00Z that exists on the calendar, got \"$bad_ts\""
+  done
+  pv_case "$FV4/ts.json" "[$(pl_with us-east-1 2024-02-29T23:59:59Z)]"
+  pv_run "$FV4/ts.json"
+  assert_eq "price rule: a leap day is a real fetched_at" "$PV_RC" "0"
   rm -rf "$FV4"
   # ---- findings-summary.sh --------------------------------------------------
   # The report order is fixed: verdict, then the three things to do, then the
@@ -842,6 +880,19 @@ STUB
     "action": "OPTIMIZE", "reversible": true, "confidence": "High"}]}' "$VP_N" "$VP_REC" > "$VP_DIR/f.json"
   VP_RC=0; bash "$HERE/../skills/aws-cost-audit/scripts/findings-validate.sh" "$VP_DIR/f.json" >/dev/null 2>&1 || VP_RC=$?
   assert_eq "verify-price --record: its output satisfies the price rule as it is" "$VP_RC" "0"
+
+  # 46b. A record from another partition: GovCloud and China region codes are
+  # region codes too, so what --record prints there passes as it is.
+  for vp_region in us-gov-west-1 cn-north-1; do
+    VP_REC2=$(PATH="$VP_DIR/bin:$PATH" STUB_USD="$VP_USD" bash "$VP" --service-code AmazonEC2 \
+      --region-code "$vp_region" --filter productFamily=Storage --filter volumeApiName=gp3 --record 2>/dev/null)
+    printf '{"schema_version": "1.1", "findings": [{"id": "part", "resource": "vol-EXAMPLE",
+      "region": "%s", "service": "Amazon EBS", "monthly_cost_estimate": %s,
+      "evidence": "aws ec2 describe-volumes", "price_lookups": [%s],
+      "action": "OPTIMIZE", "reversible": true, "confidence": "High"}]}' "$vp_region" "$VP_N" "$VP_REC2" > "$VP_DIR/p.json"
+    VP_RC=0; bash "$HERE/../skills/aws-cost-audit/scripts/findings-validate.sh" "$VP_DIR/p.json" >/dev/null 2>&1 || VP_RC=$?
+    assert_eq "verify-price --record: a $vp_region record satisfies the price rule" "$VP_RC" "0"
+  done
 
   # 47. --record refuses a lookup that matched more than one price.
   VP_RC=0

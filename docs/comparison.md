@@ -8,7 +8,7 @@ goes.
 |:--|:--|:--|:--|
 | Runs against your live account | Yes | Yes | Yes |
 | Cost to start | None, MIT licensed | None | Usually a paid plan |
-| Records where each price came from | Yes, a Price List lookup per figure, checked by the validator | Depends on the person | Shows its own figures |
+| Records where each price came from | Yes, a Price List or Cost Explorer record per priced finding; the validator checks each record's shape | Depends on the person | Shows its own figures |
 | Attributes cost, owner, and last used per resource | Yes | Slow, by hand | Partial |
 | Can act on a finding | Yes, gated and reversible | Yes, manually | Read-only |
 | Produces a shareable report | Yes, Markdown and HTML | By hand | Yes |

@@ -8,7 +8,7 @@
   ============================================
   This file contains ZERO real account data and ZERO hardcoded prices.
   An agent fills the {{PLACEHOLDERS}} below from VERIFIED audit data only
-  (live prices already confirmed via the AWS Price List Query API + actual
+  (prices from recorded AWS Price List or Cost Explorer lookups + actual
   Cost Explorer / CUR usage). See references/dashboard.md for the fill guide.
 
   Replace these placeholders (string substitution):
@@ -21,7 +21,7 @@
     {{SAVE_NOW}}         high-confidence, reversible, tested savings (number, no $)
     {{MAX_THEORETICAL}}  maximum theoretical savings if every recommendation lands (number, no $)
     {{CURRENCY}}         currency symbol, e.g. "$"
-    {{REGION_NOTE}}      free text, e.g. "prices verified live for ap-south-1 + us-east-1"
+    {{REGION_NOTE}}      free text, e.g. "prices looked up for ap-south-1 + us-east-1"
 
   Replace these JS data placeholders with valid JSON (arrays/objects):
     /*{{SERVICE_CARDS_JSON}}*/   array of card objects (schema documented below)
@@ -199,7 +199,7 @@ footer code{background:var(--panel);border:1px solid var(--border);padding:1px 6
 
 <!-- PAY TODAY -->
 <section class="hero">
-  <div class="eyebrow"><span class="dot"></span>read-only audit &middot; every figure verified against live price + actual usage</div>
+  <div class="eyebrow"><span class="dot"></span>read-only audit &middot; every figure from a recorded price lookup + actual usage</div>
   <div class="big-num"><span class="currency">{{CURRENCY}}</span><span id="total-monthly">{{TOTAL_MONTHLY}}</span><span class="unit">/ month</span></div>
   <div class="lead">
     This is what the account pays today at current run-rate. Of that, <strong id="lead-savenow">{{CURRENCY}}{{SAVE_NOW}}/mo</strong> can be cut now, safely and reversibly.

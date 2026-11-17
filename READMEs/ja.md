@@ -184,7 +184,7 @@ skill 本体は [`SKILL.md`](../skills/aws-cost-audit/SKILL.md) です：5 つ�
 
 | 主張                                       | コマンド                                                     | 今日の出力                                                                    |
 | :----------------------------------------- | :----------------------------------------------------------- | :---------------------------------------------------------------------------- |
-| オフラインのテストスイートが通る           | `make test`                                                  | `Results: 144 passed, 0 failed`                                                |
+| オフラインのテストスイートが通る           | `make test`                                                  | `Results: 167 passed, 0 failed`                                                |
 | 上のサンプルはツールの実際の出力           | `make test`（ケース 39 が 1 行ずつ比較）                     | `[PASS] sample: the README sample report is the script output, line for line` |
 | プラグインのマニフェストが有効             | `claude plugin validate . --strict`                          | `✔ Validation passed`                                                         |
 | 単価がスクリプトに書き込まれていない       | `make test`（no-hardcoded-price ケース）                     | `[PASS] no per-request price literal in any script`                           |

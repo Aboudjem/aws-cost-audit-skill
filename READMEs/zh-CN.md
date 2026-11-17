@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <strong>砍掉 AWS 账单里的浪费，价格实时核对。</strong>
+  <strong>砍掉 AWS 账单里的浪费，价格实时查询。</strong>
 </p>
 
 <p align="center">
@@ -184,7 +184,7 @@ skill 本身是 [`SKILL.md`](../skills/aws-cost-audit/SKILL.md)：五条规则�
 
 | 说明                         | 命令                                                         | 今天的输出                                                                    |
 | :--------------------------- | :----------------------------------------------------------- | :---------------------------------------------------------------------------- |
-| 离线测试套件通过             | `make test`                                                  | `Results: 144 passed, 0 failed`                                                |
+| 离线测试套件通过             | `make test`                                                  | `Results: 167 passed, 0 failed`                                                |
 | 上面的示例就是工具的真实输出 | `make test`（第 39 个用例逐行对比两者）                      | `[PASS] sample: the README sample report is the script output, line for line` |
 | 插件清单有效                 | `claude plugin validate . --strict`                          | `✔ Validation passed`                                                         |
 | 脚本里没有写死任何单价       | `make test`（no-hardcoded-price 用例）                       | `[PASS] no per-request price literal in any script`                           |

@@ -184,7 +184,7 @@ Cada número de abajo lo vuelve a imprimir el comando que tiene al lado.
 
 | Afirmación                                 | Comando                                                      | Resultado hoy                                                                 |
 | :----------------------------------------- | :----------------------------------------------------------- | :---------------------------------------------------------------------------- |
-| La suite sin conexión pasa                 | `make test`                                                  | `Results: 144 passed, 0 failed`                                                |
+| La suite sin conexión pasa                 | `make test`                                                  | `Results: 167 passed, 0 failed`                                                |
 | La muestra de arriba es la salida real de la herramienta | `make test` (el caso 39 las compara línea por línea) | `[PASS] sample: the README sample report is the script output, line for line` |
 | El manifiesto del plugin es válido         | `claude plugin validate . --strict`                          | `✔ Validation passed`                                                         |
 | Ningún precio unitario está escrito en un script | `make test` (caso «no-hardcoded-price»)                | `[PASS] no per-request price literal in any script`                           |

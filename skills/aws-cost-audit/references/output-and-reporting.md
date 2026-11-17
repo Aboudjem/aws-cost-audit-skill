@@ -140,12 +140,12 @@ skills/aws-cost-audit/scripts/verify-price.sh --service-code AmazonEC2 --region-
 |---|---|---|
 | `method` | string | `price-list` |
 | `service_code` | string | the Price List service code, for example `AmazonEC2` |
-| `region_code` | string | the region priced. When the finding's `region` is a region code, the two must match. |
+| `region_code` | string | the region priced. It must be a lower-case AWS region code from any partition, such as `us-east-1`, `us-gov-west-1` or `cn-north-1`. A Local Zone or Wavelength Zone code, such as `us-west-2-lax-1`, is also accepted. An Availability Zone such as `eu-west-1a` is rejected. When the finding's `region` is a region code, the two must match; a zone code matches its parent region. |
 | `filters` | array of strings | the `FIELD=VALUE` filters used, without the `regionCode` one |
 | `sku` | string | the one SKU the lookup matched |
 | `unit` | string | the unit AWS returned, for example `GB-Mo` or `Hrs` |
 | `price_per_unit_usd` | number | the On-Demand USD price per unit AWS returned |
-| `fetched_at` | string | the UTC time of the lookup, `YYYY-MM-DDTHH:MM:SSZ` |
+| `fetched_at` | string | the UTC time of the lookup, `YYYY-MM-DDTHH:MM:SSZ`, and a time that exists: month 13, day 32, hour 25 or February 30 is rejected |
 
 **`cost-explorer`**: the labelled escape for a figure with no single unit price. Use it only then:
 
@@ -158,7 +158,7 @@ skills/aws-cost-audit/scripts/verify-price.sh --service-code AmazonEC2 --region-
 | `method` | string | `cost-explorer` |
 | `command` | string | the `aws ce ...` command whose answer the figure came from |
 | `reason` | string | why no single unit price applies |
-| `fetched_at` | string | the UTC time of the read, `YYYY-MM-DDTHH:MM:SSZ` |
+| `fetched_at` | string | the UTC time of the read, `YYYY-MM-DDTHH:MM:SSZ`, and a time that exists, as above |
 
 Any other method, or any other key in a record, is rejected. `price_source` stays as a free-text
 note. It no longer counts as a price record.

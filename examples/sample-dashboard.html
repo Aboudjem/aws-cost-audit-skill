@@ -8,7 +8,7 @@
   ==========================================
   Generated from assets/dashboard-template.html with obviously-fake numbers for the
   account alias "<demo-account>". Every figure here is invented for layout review only.
-  A real run substitutes VERIFIED values (live prices + actual usage). Do not treat any
+  A real run substitutes values from recorded price lookups and actual usage. Do not treat any
   number on this page as a real AWS price or cost.
 -->
 <title>AWS cost audit, SAMPLE</title>
@@ -193,7 +193,7 @@ footer code{background:var(--panel);border:1px solid var(--border);padding:1px 6
     This is what the account pays today at current run-rate. Of that, <strong id="lead-savenow">$612/mo</strong> can be cut now, safely and reversibly.
   </div>
   <div class="sub-line">
-    Window analyzed: <code>30d unblended 2026-04-23 &rarr; 2026-05-23</code> &middot; period spend <code>$4,012</code> &middot; SAMPLE: prices would be verified live for us-east-1 + us-west-2. Every dollar on a real dashboard is re-derived from the AWS Price List Query API and Cost Explorer / CUR usage by a separate skeptic pass.
+    Window analyzed: <code>30d unblended 2026-04-23 &rarr; 2026-05-23</code> &middot; period spend <code>$4,012</code> &middot; SAMPLE: a real run looks up prices for us-east-1 + us-west-2. On a real dashboard, each priced finding records its AWS Price List or Cost Explorer lookup, and a separate skeptic pass re-derives the dollars.
   </div>
 
   <!-- SAVE NOW vs MAX THEORETICAL -->

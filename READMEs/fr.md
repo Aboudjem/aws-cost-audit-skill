@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <strong>Réduisez le gaspillage de votre facture AWS, prix vérifiés en direct.</strong>
+  <strong>Réduisez le gaspillage de votre facture AWS, prix consultés en direct.</strong>
 </p>
 
 <p align="center">
@@ -184,7 +184,7 @@ Chaque chiffre ci-dessous est réimprimé par la commande placée à côté.
 
 | Affirmation                                | Commande                                                     | Résultat aujourd'hui                                                          |
 | :----------------------------------------- | :----------------------------------------------------------- | :---------------------------------------------------------------------------- |
-| La suite hors ligne passe                  | `make test`                                                  | `Results: 144 passed, 0 failed`                                                |
+| La suite hors ligne passe                  | `make test`                                                  | `Results: 167 passed, 0 failed`                                                |
 | L'exemple ci-dessus est la vraie sortie de l'outil | `make test` (le cas 39 les compare ligne à ligne)    | `[PASS] sample: the README sample report is the script output, line for line` |
 | Le manifeste du plugin est valide          | `claude plugin validate . --strict`                          | `✔ Validation passed`                                                         |
 | Aucun prix unitaire n'est écrit dans un script | `make test` (cas « no-hardcoded-price »)                 | `[PASS] no per-request price literal in any script`                           |

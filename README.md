@@ -184,7 +184,7 @@ Every number below is re-printed by the command next to it.
 
 | Claim                                      | Command                                                      | Output today                                                                  |
 | :----------------------------------------- | :----------------------------------------------------------- | :---------------------------------------------------------------------------- |
-| The offline suite passes                   | `make test`                                                  | `Results: 144 passed, 0 failed`                                                |
+| The offline suite passes                   | `make test`                                                  | `Results: 167 passed, 0 failed`                                                |
 | The sample above is the tool's real output | `make test` (case 39 compares them line by line)             | `[PASS] sample: the README sample report is the script output, line for line` |
 | The plugin manifest is valid               | `claude plugin validate . --strict`                          | `✔ Validation passed`                                                         |
 | No unit price is written into a script     | `make test` (no-hardcoded-price case)                        | `[PASS] no per-request price literal in any script`                           |

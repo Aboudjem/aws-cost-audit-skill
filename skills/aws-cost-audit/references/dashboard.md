@@ -34,7 +34,7 @@ From the verified savings model (Law 5 output contract), collect:
 4. **Max-theoretical total**, sum of all recommended savings (incl. sign-off / commitment / unverified-
    reversibility items).
 5. **Per-resource rows**, for each resource or service group, the full card object (schema below).
-6. **Region note**, which Region(s) the live prices were verified for.
+6. **Region note**, which Region(s) the prices were looked up for.
 
 ## The template
 
@@ -56,7 +56,7 @@ deliverable, **read the template, substitute the placeholders, and write the res
 | `{{SAVE_NOW}}` | Save-now-safely total, number | no symbol |
 | `{{MAX_THEORETICAL}}` | Max-theoretical total, number | no symbol |
 | `{{CURRENCY}}` | Currency symbol, e.g. `$` | Cost Explorer reports in the account's billing currency, use that symbol, do not assume USD |
-| `{{REGION_NOTE}}` | Free text on price provenance | e.g. `prices verified live for ap-south-1 + us-east-1` |
+| `{{REGION_NOTE}}` | Free text on price provenance | e.g. `prices looked up for ap-south-1 + us-east-1` |
 
 ### JS data placeholders (substitute with valid JSON)
 

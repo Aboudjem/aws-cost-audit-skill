@@ -99,8 +99,19 @@ PROBLEMS="$(jq -r '
   def pl_keys: ["method","service_code","region_code","filters","sku","unit",
                 "price_per_unit_usd","fetched_at"];
   def ce_keys: ["method","command","reason","fetched_at"];
-  def utc_ts: type == "string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$");
+  # A UTC time in this exact form, and a real one: the round trip through
+  # the jq date functions rejects month 13, day 32, hour 25 and February 30.
+  def utc_ts: type == "string"
+    and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")
+    and (. as $t | try (fromdateiso8601 | todateiso8601 == $t) catch false);
+  # An AWS region code in any partition: us-east-1, eu-west-1, us-gov-west-1,
+  # cn-north-1. Lower case, no Availability Zone letter.
   def region_code: type == "string" and test("^[a-z]{2}(-[a-z]+)+-[0-9]+$");
+  # A Local Zone or Wavelength Zone code, which the Price List uses as a
+  # regionCode: us-west-2-lax-1, us-east-1-wl1-bos-wlz-1.
+  def zone_code: type == "string" and test("^[a-z]{2}(-[a-z]+)+-[0-9]+(-[a-z][a-z0-9]*)+-[0-9]+$");
+  # The region a region or zone code belongs to.
+  def parent_region: if region_code then . else capture("^(?<r>[a-z]{2}(-[a-z]+)+-[0-9]+)-").r end;
   def actions: ["KEEP","OPTIMIZE","SAFE-TO-DELETE"];
   def confidences: ["High","Medium","Low"];
 
@@ -127,8 +138,10 @@ PROBLEMS="$(jq -r '
       + (if ($r | has("price_per_unit_usd")) and ((($r.price_per_unit_usd | type) != "number") or $r.price_per_unit_usd < 0)
          then ["\($w).price_per_unit_usd must be a number, 0 or more"] else [] end)
       + (if ($r | has("fetched_at")) and ($r.fetched_at | utc_ts | not)
-         then ["\($w).fetched_at must be a UTC time like 2026-01-31T09:30:00Z"] else [] end)
-      + (if ($f.region | region_code) and ($r.region_code | region_code) and $r.region_code != $f.region
+         then ["\($w).fetched_at must be a UTC time like 2026-01-31T09:30:00Z that exists on the calendar, got \($r.fetched_at | tojson)"] else [] end)
+      + (if ($r | has("region_code")) and ($r.region_code | str_ok) and (($r.region_code | region_code) or ($r.region_code | zone_code) | not)
+         then ["\($w).region_code must be an AWS region code such as us-east-1 (or a Local Zone code such as us-west-2-lax-1), got \($r.region_code | tojson)"]
+         elif ($f.region | region_code) and ($r.region_code | region_code or zone_code) and ($r.region_code | parent_region) != $f.region
          then ["\($w).region_code is \($r.region_code) but the finding is in \($f.region): price the region the resource is in"] else [] end)
     elif $r.method == "cost-explorer" then
       ((ce_keys - ($r | keys)) | map("\($w).\(.) is required in a cost-explorer record but missing"))
@@ -138,7 +151,7 @@ PROBLEMS="$(jq -r '
       + (if ($r | has("reason")) and ($r.reason | str_ok | not)
          then ["\($w).reason must say why no unit price applies"] else [] end)
       + (if ($r | has("fetched_at")) and ($r.fetched_at | utc_ts | not)
-         then ["\($w).fetched_at must be a UTC time like 2026-01-31T09:30:00Z"] else [] end)
+         then ["\($w).fetched_at must be a UTC time like 2026-01-31T09:30:00Z that exists on the calendar, got \($r.fetched_at | tojson)"] else [] end)
     else ["\($w).method must be price-list or cost-explorer, got \($r.method | tojson)"] end;
 
   def check_prices($w; $f):
